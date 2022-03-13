@@ -1,5 +1,9 @@
 using System;
-// using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace FunWithNumbers {
 	class Program {
@@ -31,7 +35,7 @@ namespace FunWithNumbers {
 		static void CheckNumberFeatures() {
 			Console.Clear();
 			Console.Write("Please enter a whole number that will be checked over: ");
-			int number = Int32.Parse(Console.ReadLine());
+			long number = long.Parse(Console.ReadLine());
 			
 			Console.WriteLine();
 			Console.WriteLine("The features of {0} are...", number);
@@ -52,25 +56,35 @@ namespace FunWithNumbers {
 				Console.WriteLine("  Odd");
 			}
 
-			// Calculate factors and if the number is prime or not
-			bool prime = true;
-			Console.Write("  Factors are");
-			for (int i = 1; i <= number; i++) {
-				if (number % i == 0) {
-					Console.Write(" {0}", i);
-					if (i == 1 || i == number) {
-						continue;
-					} else {
-						prime = false;
-					}
-				}
-			}
-			Console.WriteLine("\n  {0}", prime ? "Is a prime number" : "Is not a prime number");
+			// Calculate factors
+			Console.Write("  Factors are ");
+			GetPrimeNumbersParallel(number);
+
+			// Check if number is prime or not
+			Console.WriteLine("\n  {0}", IsPrime(number) ? "Is a prime number" : "Is not a prime number");
 			
 			// Wait for key
 			Console.ReadLine();
 		}
 
+		static void GetPrimeNumbersParallel(long number) {
+			Parallel.For(3, number, i => {
+				if (number % i == 0) {
+					Console.Write($" {i}");
+				}
+			});
+		}
+
+		static bool IsPrime(long integer)
+        {
+            if (integer <= 1) return false;
+            if (integer == 2) return true;
+            var limit = Math.Ceiling(Math.Sqrt(integer));
+            for (long i = 2; i <= limit; ++i)
+                if (integer % i == 0)
+                    return false;
+            return true;
+        }
 		static void PlotNumbers() {
 			Console.Clear();
 		}
