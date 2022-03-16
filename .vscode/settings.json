@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "**/templates/*.html": "django-html",
+        "**/templates/**/*.html": "django-html",
+        "**/templates/*": "django-txt",
+        "*.html": "html",
+        "*.asm": "asm-intel-x86-generic",
+        "iostream": "cpp"
+    }
+}
