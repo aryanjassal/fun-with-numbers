@@ -5,6 +5,10 @@
 
 using namespace std;
 
+unsigned long long total_of_numbers;
+long long smallest_number_entered, largest_number_entered;
+int numbers_entered, coordinates_plotted; 
+
 vector<long long> get_prime_numbers(long long number, int thread_id, int thread_count) {
     vector<long long> factors;
     for (long long i = thread_id + 1; i <= (number / 2); i += thread_count) {
@@ -76,6 +80,16 @@ void plot_numbers() {
 }
 
 void check_overall_stats() {
+    cout << "Here are your statistics of overall use:"
+        << "\n Numbers entered: " << numbers_entered
+        << "\n Total of numbers: " << total_of_numbers
+        << "\n Average of numbers: " << (unsigned long long)(total_of_numbers / numbers_entered)
+        << "\n Smallest number entered: " << smallest_number_entered
+        << "\n Largest number entered: " << largest_number_entered
+        << "\n Coordinates plotted: " << coordinates_plotted
+        << "\n";
+
+    cin.ignore();
     return;
 }
 
