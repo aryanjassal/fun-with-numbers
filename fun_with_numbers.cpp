@@ -87,7 +87,7 @@ void check_overall_stats() {
         << "\n Smallest number entered: " << smallest_number_entered
         << "\n Largest number entered: " << largest_number_entered
         << "\n Coordinates plotted: " << coordinates_plotted
-        << "\n"; 
+        << "\n";
 
     cin.ignore();
     return;
