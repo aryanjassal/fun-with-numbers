@@ -13,9 +13,6 @@ int numbers_entered, coordinates_plotted;
 vector<long long> get_prime_numbers(long long number, int thread_id, int thread_count) {
     //* Create a vector of factors returned from this thread
     vector<long long> factors;
-    //* The factors of any given number can never exceed the value of the number square rooted.
-    //* This calculation is to define the maximum number to compute upto.
-    long long max = floor(sqrt(number));
 
     /*
     *    If a number is even, then the factors can be either even or odd. For example, the factors of 14 are 1, 7, 14.
@@ -26,7 +23,7 @@ vector<long long> get_prime_numbers(long long number, int thread_id, int thread_
 
     //* If number is even, use the slower loop
     if (number % 2 == 0) {
-        for (long long i = thread_id + 1; i <= max; i += thread_count) {
+        for (long long i = thread_id + 1; i <= (number / 2); i += thread_count) {
             if (number % i == 0) {
                 factors.push_back(i);
             }
@@ -94,7 +91,6 @@ void check_number_features() {
         << "\n";
 
     cin.ignore();
-
     return;
 }
 
@@ -117,7 +113,16 @@ void check_overall_stats() {
 }
 
 char main_menu() {
+    /*
+    * This is the main menu. Whenever this method is called, the console is cleared and the options are shown.
+    * This function returns the input if it only contained one character, otherwise the main menu function is
+    * called again until a valid input is entered. The output is the input character in lower case.
+    */
+
+   //* Clear the console screen
     system("clear");
+
+    //* Actually display the main menu using multiline cout method.
     cout << "Welcome to Fun With Numbers\n"
         << "Choose from the menu below:\n"
         << "  (A) Check number features\n"
@@ -126,13 +131,21 @@ char main_menu() {
         << "\n"
         << "  (X) Save and exit\n"
         << "Choice: ";
+
+    //* Create a temporary variable which stores the user input as a string.
     string num_str;
     getline(cin, num_str);
-    
+
+    //* If the number of characters are more than one, then loop back into the main menu.
+    if (num_str.length() > 1) {
+        main_menu();
+    }
+    //* Otherwise, return the character in lower case.
     return tolower((char)num_str[0]);
 }
 
 int main() {
+    //* for(;;) is basically a while(true) loop.
     for(;;) {
         char choice = main_menu();
         if (choice == 'a') {
