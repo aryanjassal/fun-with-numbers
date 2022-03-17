@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <future>
+#include <math.h>
 
 using namespace std;
 
@@ -10,10 +11,32 @@ long long smallest_number_entered, largest_number_entered;
 int numbers_entered, coordinates_plotted; 
 
 vector<long long> get_prime_numbers(long long number, int thread_id, int thread_count) {
+    //* Create a vector of factors returned from this thread
     vector<long long> factors;
-    for (long long i = thread_id + 1; i <= (number / 2); i += thread_count) {
-        if (number % i == 0) {
-            factors.push_back(i);
+    //* The factors of any given number can never exceed the value of the number square rooted.
+    //* This calculation is to define the maximum number to compute upto.
+    long long max = floor(sqrt(number));
+
+    /*
+    *    If a number is even, then the factors can be either even or odd. For example, the factors of 14 are 1, 7, 14.
+    *    An even number has odd factors. However, an odd number will always have odd factors. For example, the factors
+    *    of 81 are 1, 3, 9, 27, 81. Notice how none of the factors are even. That is how every even number can be skipped
+    *    to check the factors of a given number if the number is odd.
+    */
+
+    //* If number is even, use the slower loop
+    if (number % 2 == 0) {
+        for (long long i = thread_id + 1; i <= max; i += thread_count) {
+            if (number % i == 0) {
+                factors.push_back(i);
+            }
+        }
+    //* Otherwise (if the number is odd), use the faster loop
+    } else {
+        for (long long i = thread_id + 2; i <= (number / 2); i += (thread_count + 1) * 2) {
+            if (number % i == 0) {
+                factors.push_back(i);
+            }
         }
     }
     return factors;
@@ -87,7 +110,7 @@ void check_overall_stats() {
         << "\n Smallest number entered: " << smallest_number_entered
         << "\n Largest number entered: " << largest_number_entered
         << "\n Coordinates plotted: " << coordinates_plotted
-        << "\n"; 
+        << "\n";
 
     cin.ignore();
     return;
@@ -122,17 +145,4 @@ int main() {
             return 0;
         }
     }
-
-    system("clear");
-    cout << "Enter a number to be checked over: ";
-    string num_str;
-    getline(cin, num_str);
-    long long num = stoll(num_str);
-
-    vector<long long> factors = find_prime_factors(num, 8);
-    for (auto i : factors) {
-        cout << i << " ";
-    }
-    cout << "\n";
-    return 0;
 }
