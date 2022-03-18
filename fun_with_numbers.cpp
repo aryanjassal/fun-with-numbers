@@ -8,29 +8,35 @@ using namespace std;
 
 unsigned long long total_of_numbers;
 long long smallest_number_entered, largest_number_entered;
-int numbers_entered, coordinates_plotted; 
+int numbers_entered, coordinates_plotted;
 
 vector<long long> get_prime_numbers(long long number, int thread_id, int thread_count) {
     //* Create a vector of factors returned from this thread
     vector<long long> factors;
 
     /*
-    *    If a number is even, then the factors can be either even or odd. For example, the factors of 14 are 1, 7, 14.
-    *    An even number has odd factors. However, an odd number will always have odd factors. For example, the factors
-    *    of 81 are 1, 3, 9, 27, 81. Notice how none of the factors are even. That is how every even number can be skipped
-    *    to check the factors of a given number if the number is odd.
+    * If a number is even, then the factors can be either even or odd. For example, the factors of 14 are 1, 7, 14.
+    * An even number has both odd and even factors. However, an odd number will always have odd factors. For example, 
+    * the factors of 81 are 1, 3, 9, 27, 81. Notice how none of the factors are even. That is how every even number 
+    * can be skipped to check the factors of a given number if the number is odd.
     */
 
     //* If number is even, use the slower loop
     if (number % 2 == 0) {
-        for (long long i = thread_id + 1; i <= (number / 2); i += thread_count) {
+        for (long long i = thread_id + 2; i <= (number / 2); i += thread_count) {
             if (number % i == 0) {
                 factors.push_back(i);
             }
         }
     //* Otherwise (if the number is odd), use the faster loop
     } else {
-        for (long long i = thread_id + 2; i <= (number / 2); i += (thread_count + 1) * 2) {
+        /*
+        * This loop uses the thread ID to get the corresponding odd number of the index. For example, a thread ID of
+        * 5 gives us 9 as a result. If you count 1, then 9 is the fifth odd number (1 -> 3 -> 5 -> 7 -> 9). If it is
+        * put forth as is, the repeated numbers will be observed. To get rid of the duplicates, it is required to 
+        * multiply the offset by 2 to ignore the duplicates.
+        */
+        for (long long i = thread_id + 2 + (thread_id - 1); i <= (number / 2); i += (thread_count) * 2) {
             if (number % i == 0) {
                 factors.push_back(i);
             }
@@ -145,9 +151,12 @@ char main_menu() {
 }
 
 int main() {
-    //* for(;;) is basically a while(true) loop.
+    //* for(;;) is basically a while(true) loop written using less characters.
     for(;;) {
+        //* Get the user choice from the main_menu function.
         char choice = main_menu();
+
+        //* This code handles various cases of user input
         if (choice == 'a') {
             check_number_features();
         } else if (choice == 'b') {
@@ -155,6 +164,10 @@ int main() {
         } else if (choice == 'c') {
             check_overall_stats();
         } else if (choice == 'x') {
+            //* Shut down the audio playback library
+            ao_shutdown();
+
+            //* Actually exit
             return 0;
         }
     }

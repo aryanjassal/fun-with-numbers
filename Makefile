@@ -1,5 +1,5 @@
 build:
-	g++ fun_with_numbers.cpp -o fun_with_numbers.o -static -Ofast -Wl,-u,pthread_join
+	g++ fun_with_numbers.cpp  -lao -ldl -lm -o fun_with_numbers.o -static -Ofast -Wl,-u,pthread_join
 
 run: build
 	./fun_with_numbers.o
