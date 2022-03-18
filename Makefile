@@ -1,12 +1,15 @@
 run: build
-	./fun_with_numbers.o
+	.build/fun_with_numbers.o
 
 build:
-	g++ fun_with_numbers.cpp -o fun_with_numbers.o -static -Ofast -Wl,-u,pthread_join
+	g++ src/fun_with_numbers.cpp -o build/fun_with_numbers.o -static -Ofast -Wl,-u,pthread_join
 
 algo:
-	g++ factors_algo.cpp -o factors_algo.o
+	g++ src/factors_algo.cpp -o build/factors_algo.o
 	./factors_algo.o
 
 clean:
-	rm fun_with_numbers.o
+	rm **/*.o
+
+make todo:
+	grep -i -R "todo" . --exclude=Makefile
