@@ -1,7 +1,10 @@
+.PHONY: run build algo clean todo
+
 run: build
 	.build/fun_with_numbers.o
 
 build:
+	mkdir -p build
 	g++ src/fun_with_numbers.cpp -o build/fun_with_numbers.o -static -Ofast -Wl,-u,pthread_join
 
 algo:
@@ -11,5 +14,5 @@ algo:
 clean:
 	rm **/*.o
 
-make todo:
+todo:
 	grep -i -R "todo" . --exclude=Makefile
