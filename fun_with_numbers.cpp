@@ -164,9 +164,6 @@ int main() {
         } else if (choice == 'c') {
             check_overall_stats();
         } else if (choice == 'x') {
-            //* Shut down the audio playback library
-            ao_shutdown();
-
             //* Actually exit
             return 0;
         }
