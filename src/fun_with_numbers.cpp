@@ -4,6 +4,8 @@
 #include <future>
 #include <math.h>
 
+#define N_THREADS 8
+
 using namespace std;
 
 unsigned long long total_of_numbers;
@@ -23,7 +25,7 @@ vector<long long> get_prime_numbers(long long number, int thread_id, int thread_
 
     //* If number is even, use the slower loop
     if (number % 2 == 0) {
-        for (long long i = thread_id + 2; i <= (number / 2); i += thread_count) {
+        for (long long i = thread_id + 1; i <= (number / 2); i += thread_count) {
             if (number % i == 0) {
                 factors.push_back(i);
             }
@@ -46,57 +48,90 @@ vector<long long> get_prime_numbers(long long number, int thread_id, int thread_
 }
 
 vector<long long> find_prime_factors(long long number, int thread_count = 1) {
+    //* Create a vector which stores all the factors returned by all the threads
     vector<long long> all_factors;
+    //* Create a vector which stores a thread and its future value
     vector<future<vector<long long>>> ts(thread_count);
+    //* The ID of each thread is passed to the function, which is used to properly delegate calculations to each thread equally.
+    //! The ID of threads needs to be at least 1, otherwise it breaks the function to find factors
     int thread_id = 1;
 
+    //* For each thread (t) in the vector of threads (ts)...
     for (auto& t : ts) {
+        //* Launch a new async function (thread) and pass it the required parameters
         t = async(launch::async, get_prime_numbers, number, thread_id, thread_count);
+        //* Increment the thread ID by one.
         thread_id++;
     }
 
+    //* For each thread (t) in the vector of threads (ts)...
     for (auto& t : ts) {
+        //* Wait for the thread to return a value. The program will pause here until all the threads have returned something.
         vector<long long> thread_factors = t.get();
+        /*
+        * Insert the numbers from the start of the resultant vector to the end of the resultant vector into the vector which 
+        * contains all the factors. Append the factors at the end of the vector.
+        */ 
         all_factors.insert(all_factors.end(), thread_factors.begin(), thread_factors.end());
     }
-
+    
+    //* Manually add in 1 and the original number as factors as optimisations made to the algorithm do not check for 1 or the number itself
     all_factors.insert(all_factors.begin(), 1);
     all_factors.insert(all_factors.end(), number);
+    //* Sort all the factors in increasing order
     sort(all_factors.begin(), all_factors.end());
 
+    //* Return all factors
     return all_factors;
 }
 
 void check_number_features() {
+    //* Clear the screen to notify the user that we are in a different section of the program
     system("clear");
+
+    //* Request a whole number from the user and convert it into a long long integer.
     cout << "Please enter a whole number that will be checked over: ";
     string num_str;
     getline(cin, num_str);
     long long num = stoll(num_str);
 
+    //* Display the features of the given number
     cout << "\n"
         << "The features of " << num << " are...";
     
+    //* Define variables to be used later on
+    //TODO: Try making the variable definition and initialisation in the same line.
     string positive_negative, prime_not;
     string even_odd;
     positive_negative = (num > 0) ? "Positive" : (num < 0) ? "Negative" : "Zero";
     even_odd = (num % 2 == 0) ? "Even" : "Odd";
 
+    //* Print if the number is positive, negative, or zero
     cout << "\n  " << positive_negative;
+
+    //* Print if the number is even or odd
     cout << "\n  " << even_odd;
 
+    //* Print the factors of the number using multithreading
     cout << "\n  Factors are ";
-    vector<long long> factors = find_prime_factors(num, 8);
+
+    //* Vectors are dynamic lists of values. The function find_prime_factors returns a vector of factors.
+    vector<long long> factors = find_prime_factors(num, N_THREADS);
+    //* This for loop prints each factor and appends space just behind it.
     for (auto i : factors) {
         cout << " " << i;
     }
 
+    //* If the number of factors are 2 (1 and the number itself), then the number is a prime number.
     prime_not = (factors.size() == 2) ? "Is a prime number" : "Is not a prime number";
     cout << "\n"
         << "  " << prime_not
         << "\n";
 
+    //* Pause and wait until a key is pressed
     cin.ignore();
+
+    //* Return back to the main menu loop
     return;
 }
 
@@ -105,6 +140,7 @@ void plot_numbers() {
 }
 
 void check_overall_stats() {
+    //* Display the statistics of overall usage
     cout << "Here are your statistics of overall use:"
         << "\n Numbers entered: " << numbers_entered
         << "\n Total of numbers: " << total_of_numbers
@@ -114,7 +150,10 @@ void check_overall_stats() {
         << "\n Coordinates plotted: " << coordinates_plotted
         << "\n";
 
+    //* Pause and wait until a key is pressed
     cin.ignore();
+
+    //* Return back to the main menu loop
     return;
 }
 
