@@ -2,8 +2,6 @@
 #include <ncurses.h>
 #include <vector>
 
-// using namespace std;
-
 std::string get_string() {
     std::string out;
 
@@ -71,24 +69,28 @@ void plot_numbers() {
 
     printw("Enter a coordinate below to be added to the plot:\n");
 
-    printw("x axis: ");
-    int x_coord = stoi(get_string());
-    refresh();
+    int x_coord;
+    int y_coord;
 
-    printw("y axis: ");
-    int y_coord = stoi(get_string());
-    refresh();
+    for(;;) {
+        printw("x axis: ");
+        x_coord = stoi(get_string());
+        refresh();
+
+        if (x_coord <= 38 && x_coord > 0) {
+            printw("y axis: ");
+            y_coord = stoi(get_string());
+            refresh();
+
+            if (y_coord <= 12 && y_coord > 0) {
+                break;
+            }
+        }
+    }
 
     int temp_x, temp_y = 0;
     getyx(stdscr, temp_y, temp_x);
     refresh();
-
-    if (y_coord > 12) {
-        // return;
-    }
-    if (x_coord > 38) {
-        // return;
-    }
 
     move((y_coord * 2 + 1), (x_coord * 3) + 3);
     refresh();
@@ -97,7 +99,6 @@ void plot_numbers() {
     move(temp_y, temp_x);
     refresh();
 
-    // getch();
     move(start_y, start_x);
     refresh();
     clrtobot();
@@ -124,26 +125,6 @@ int main() {
     noecho();
     keypad(stdscr, TRUE);
 
-    // std::vector<std::pair<std::pair<int, int>, char>> coordinates;
-    // coordinates.emplace_back(std::make_pair(5, 1), 'x');
-    // coordinates.emplace_back(std::make_pair(4, 2), 'x');
-    // coordinates.emplace_back(std::make_pair(3, 3), 'x');
-    // coordinates.emplace_back(std::make_pair(2, 4), ' ');
-    // coordinates.emplace_back(std::make_pair(1, 5), ' ');
-
-    // for (auto [coords, content] : coordinates) {
-    //     std::string debug_msg = std::to_string(coords.first);
-    //     debug_msg.append(", ");
-    //     debug_msg.append(std::to_string(coords.second));
-    //     debug_msg.append(": ");
-    //     debug_msg.push_back(content);
-
-    //     printw(debug_msg.c_str());
-    //     printw("\n");
-    //     refresh();
-    // }
-
-    // getch();
     print_plane();
     plot_numbers();
     //* Safely shut down ncurses
