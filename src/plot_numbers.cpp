@@ -23,6 +23,18 @@ std::string get_string() {
     return out;
 }
 
+char get_char() {
+    nocbreak();
+    echo();
+
+    char ch = getch();
+
+    cbreak();
+    noecho();
+
+    return ch;
+}
+
 void print_plane() {
     printw("                                                       x axis                                                          \n");
     printw("      1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 \n");
@@ -93,16 +105,10 @@ void plot_numbers() {
     printw("Do you wish to add another coordinate (Y/n)? ");
     refresh();
 
-    nocbreak();
-    echo();
-
-    char ch = getch(); 
+    char ch = get_char(); 
     if (ch == 'n') {
         return;
     }
-
-    noecho();
-    cbreak();
 
     move(start_y, start_x);
     refresh();
