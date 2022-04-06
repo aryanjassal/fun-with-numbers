@@ -6,7 +6,8 @@
 int main() {
     init_ncurses();
 
-    printw("Hello, world!\n");
+    clear();
+    printw("Hello, world!");
     refresh();
 
     exit_ncurses();
