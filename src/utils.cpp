@@ -10,7 +10,6 @@ void init_ncurses() {
 
 void exit_ncurses() {
     endwin();
-    refresh();
 }
 
 std::string get_string() {
