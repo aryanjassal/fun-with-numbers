@@ -2,6 +2,7 @@
 #include <iostream>
 
 void init_ncurses() {
+    setlocale(LC_ALL, "");
     initscr();
     cbreak();
     noecho();
