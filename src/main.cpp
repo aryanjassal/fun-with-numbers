@@ -7,7 +7,7 @@
 #include "utils.hpp"
 
 //* Declaring variables for statistics
-int numbers_entered, total_of_numbers, smallest_number_entered, largest_number_entered, coordinates_plotted;
+int numbers_entered, total_of_numbers, smallest_number_entered, largest_number_entered, coordinates_plotted = 0;
 
 //* Method to render out the main menu and return the choice selected by the user
 char display_menu() {
@@ -197,62 +197,83 @@ void check_overall_stats() {
     return;
 }
 
+//* Method to handle exiting the program
 int exit() {
     //* Save stats in the stats.txt file
     std::ofstream stats_file;
+    //* Open the stats.txt file
     stats_file.open("stats.txt");
+    //* Write the stats to the stats.txt file
     stats_file << numbers_entered << "\n";
     stats_file << total_of_numbers << "\n";
     stats_file << smallest_number_entered << "\n";
     stats_file << largest_number_entered << "\n";
     stats_file << coordinates_plotted << "\n";
+    //* Close the file
     stats_file.close();
     
+    //* Exit ncurses and return 0
     exit_ncurses();
     return 0;
 };
 
+//* Method handling loading data from the stats.txt file into the local variables
 void load_data() {
+    //* Open the stats.txt file
     std::ifstream stats_file("stats.txt");
 
+    //* Read each line in the file and save it in a vector
     std::vector<int> lines;
     for (std::string line; std::getline(stats_file, line);) {
         lines.push_back(std::stoi(line));
     }
 
+    //* Assign each line to their corresponding local variables
     numbers_entered = lines.at(0);
     total_of_numbers = lines.at(1);
     smallest_number_entered = lines.at(2);
     largest_number_entered = lines.at(3);
     coordinates_plotted = lines.at(4);
 
+    //* Close the stats file and return
     stats_file.close();
     return;
 }
 
+//* The main program loop
 int main() {
+    //* Initialise the screen and load saved variables into local variables
     init_ncurses();
     load_data();
 
+    //* Main program loop
     for (;;) {
+        //* Clear the screen and render the main menu
         clear();
         char choice = display_menu();
+
+        //* Looping through the functions connected to the choiced
         switch (choice) {
+            //* Check number features function
             case 'a':
                 check_number_features();
                 break;
 
+            //* Plot numbers function
             case 'b':
                 plot_numbers();
                 break;
 
+            //* Check overall stats function
             case 'c':
                 check_overall_stats();
                 break;
 
+            //* Exit function
             case 'x':
                 return exit();
             
+            //* Loop if the option does not match any of the specified functions
             default:
                 break;
         }
