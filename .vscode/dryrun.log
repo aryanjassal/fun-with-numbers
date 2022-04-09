@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/aryanj/Projects/FunWithNumbers'
+g++ src/fun_with_numbers.cpp -o build/fun_with_numbers.o -static -Ofast -Wl,-u,pthread_join
+.build/fun_with_numbers.o
+make: Leaving directory '/home/aryanj/Projects/FunWithNumbers'
+ 
