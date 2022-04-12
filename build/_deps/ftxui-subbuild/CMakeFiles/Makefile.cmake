@@ -10,13 +10,10 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.23.0/CMakeSystem.cmake"
   "CMakeLists.txt"
   "ftxui-populate-prefix/tmp/ftxui-populate-mkdirs.cmake"
-  "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake"
   "/usr/share/cmake/Modules/CMakeGenericSystem.cmake"
   "/usr/share/cmake/Modules/CMakeInitializeConfigs.cmake"
-  "/usr/share/cmake/Modules/CMakeSystem.cmake.in"
   "/usr/share/cmake/Modules/CMakeSystemSpecificInformation.cmake"
   "/usr/share/cmake/Modules/CMakeSystemSpecificInitialize.cmake"
-  "/usr/share/cmake/Modules/CMakeUnixFindMake.cmake"
   "/usr/share/cmake/Modules/ExternalProject.cmake"
   "/usr/share/cmake/Modules/ExternalProject/RepositoryInfo.txt.in"
   "/usr/share/cmake/Modules/ExternalProject/cfgcmd.txt.in"
@@ -35,7 +32,6 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
-  "CMakeFiles/3.23.0/CMakeSystem.cmake"
   "ftxui-populate-prefix/tmp/ftxui-populate-mkdirs.cmake"
   "ftxui-populate-prefix/tmp/ftxui-populate-gitclone.cmake"
   "ftxui-populate-prefix/src/ftxui-populate-stamp/ftxui-populate-gitinfo.txt"
