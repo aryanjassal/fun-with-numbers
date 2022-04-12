@@ -212,6 +212,11 @@ CMakeFiles/fun_with_numbers.dir/src/main.cpp.o: ../src/main.cpp \
   _deps/ftxui-src/include/ftxui/screen/deprecated.hpp \
   _deps/ftxui-src/include/ftxui/dom/take_any_args.hpp \
   _deps/ftxui-src/include/ftxui/dom/deprecated.hpp \
+  _deps/ftxui-src/include/ftxui/component/component.hpp \
+  _deps/ftxui-src/include/ftxui/component/component_base.hpp \
+  _deps/ftxui-src/include/ftxui/component/captured_mouse.hpp \
+  _deps/ftxui-src/include/ftxui/component/component_options.hpp \
+  _deps/ftxui-src/include/ftxui/component/deprecated.hpp \
   /usr/include/c++/11.2.0/iostream \
   /usr/include/c++/11.2.0/ostream \
   /usr/include/c++/11.2.0/ios \
@@ -258,6 +263,10 @@ CMakeFiles/fun_with_numbers.dir/src/main.cpp.o: ../src/main.cpp \
 
 /usr/include/c++/11.2.0/iostream:
 
+_deps/ftxui-src/include/ftxui/component/component_options.hpp:
+
+_deps/ftxui-src/include/ftxui/component/component_base.hpp:
+
 _deps/ftxui-src/include/ftxui/screen/deprecated.hpp:
 
 _deps/ftxui-src/include/ftxui/screen/string.hpp:
@@ -302,9 +311,13 @@ _deps/ftxui-src/include/ftxui/dom/node.hpp:
 
 /usr/include/c++/11.2.0/bits/char_traits.h:
 
+_deps/ftxui-src/include/ftxui/component/component.hpp:
+
 _deps/ftxui-src/include/ftxui/dom/canvas.hpp:
 
 /usr/include/c++/11.2.0/backward/auto_ptr.h:
+
+_deps/ftxui-src/include/ftxui/component/deprecated.hpp:
 
 /usr/include/bits/types/cookie_io_functions_t.h:
 
@@ -513,6 +526,8 @@ _deps/ftxui-src/include/ftxui/screen/screen.hpp:
 /usr/include/c++/11.2.0/bits/stl_function.h:
 
 /usr/include/stdint.h:
+
+_deps/ftxui-src/include/ftxui/component/captured_mouse.hpp:
 
 /usr/include/c++/11.2.0/bits/move.h:
 

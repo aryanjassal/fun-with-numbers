@@ -160,13 +160,30 @@ CMakeFiles/fun_with_numbers.dir/src/main.cpp.o: \
  /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/screen/deprecated.hpp \
  /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/dom/take_any_args.hpp \
  /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/dom/deprecated.hpp \
+ /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/component/component.hpp \
+ /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/component/component_base.hpp \
+ /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/component/captured_mouse.hpp \
+ /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/component/component_options.hpp \
+ /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/component/deprecated.hpp \
+ /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/component/screen_interactive.hpp \
+ /usr/include/c++/11.2.0/atomic \
+ /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/component/receiver.hpp \
+ /usr/include/c++/11.2.0/algorithm \
+ /usr/include/c++/11.2.0/pstl/glue_algorithm_defs.h \
+ /usr/include/c++/11.2.0/condition_variable \
+ /usr/include/c++/11.2.0/chrono /usr/include/c++/11.2.0/ratio \
+ /usr/include/c++/11.2.0/limits /usr/include/c++/11.2.0/ctime \
+ /usr/include/c++/11.2.0/bits/parse_numbers.h \
+ /usr/include/c++/11.2.0/bits/std_mutex.h \
+ /usr/include/c++/11.2.0/system_error \
+ /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/error_constants.h \
+ /usr/include/c++/11.2.0/stdexcept \
+ /usr/include/c++/11.2.0/bits/unique_lock.h \
  /usr/include/c++/11.2.0/iostream /usr/include/c++/11.2.0/ostream \
  /usr/include/c++/11.2.0/ios /usr/include/c++/11.2.0/bits/ios_base.h \
  /usr/include/c++/11.2.0/bits/locale_classes.h \
  /usr/include/c++/11.2.0/bits/locale_classes.tcc \
- /usr/include/c++/11.2.0/system_error \
- /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/error_constants.h \
- /usr/include/c++/11.2.0/stdexcept /usr/include/c++/11.2.0/streambuf \
+ /usr/include/c++/11.2.0/streambuf \
  /usr/include/c++/11.2.0/bits/streambuf.tcc \
  /usr/include/c++/11.2.0/bits/basic_ios.h \
  /usr/include/c++/11.2.0/bits/locale_facets.h \
@@ -178,4 +195,12 @@ CMakeFiles/fun_with_numbers.dir/src/main.cpp.o: \
  /usr/include/c++/11.2.0/bits/locale_facets.tcc \
  /usr/include/c++/11.2.0/bits/basic_ios.tcc \
  /usr/include/c++/11.2.0/bits/ostream.tcc /usr/include/c++/11.2.0/istream \
- /usr/include/c++/11.2.0/bits/istream.tcc
+ /usr/include/c++/11.2.0/bits/istream.tcc /usr/include/c++/11.2.0/mutex \
+ /usr/include/c++/11.2.0/queue /usr/include/c++/11.2.0/deque \
+ /usr/include/c++/11.2.0/bits/stl_deque.h \
+ /usr/include/c++/11.2.0/bits/deque.tcc \
+ /usr/include/c++/11.2.0/bits/stl_queue.h /usr/include/c++/11.2.0/thread \
+ /usr/include/c++/11.2.0/bits/std_thread.h \
+ /usr/include/c++/11.2.0/bits/this_thread_sleep.h \
+ /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/component/event.hpp \
+ /home/aryanj/Projects/FunWithNumbers/build/_deps/ftxui-src/include/ftxui/component/mouse.hpp

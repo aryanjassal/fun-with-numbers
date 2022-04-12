@@ -20,7 +20,7 @@ endif()
 project(
   fun_with_numbers
   LANGUAGES CXX
-  VERSION 0.1.0.0
+  VERSION 0.2.0.0
   DESCRIPTION "A C++ recreation of the program Fun With Numbers, originally created by Dingle, for my Software Design and Development assignment."
   HOMEPAGE_URL "https://github.com/AryanJassal/FunWithNumbers"
 )
