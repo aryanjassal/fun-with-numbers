@@ -15,6 +15,12 @@ void init_ncurses() {
     noecho();
     //* Enable keypad
     keypad(stdscr, TRUE);
+
+    //* Check if terminal supports colour. Otherwise print that colour isn't supported and no colour will be used.
+    if (has_colors() == FALSE) {
+        printw("Your terminal does not support coloured output. Continuing on regardless.");
+        refresh();
+    } 
 }
 
 //* Exit the ncurses window

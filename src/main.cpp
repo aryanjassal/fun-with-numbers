@@ -1,13 +1,21 @@
-#include <ncurses.h>
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/screen/screen.hpp>
+#include <iostream>
 
-#include "utils.hpp"
+using namespace ftxui;
 
-int main() { 
-    init_ncurses();
+int main() {
+    //* Define the document
+    Element document = hbox({
+        text("left") | border,
+        text("middle") | border,
+        text("right") | border
+    });
 
-    printw("Hello, world!");
-    getch();
+    auto screen = Screen::Create(Dimension::Full(), Dimension::Fit(document));
 
-    exit_ncurses();
-    return 0;
+    Render(screen, document);
+    screen.Print();
+    
+    return EXIT_SUCCESS;
 }
