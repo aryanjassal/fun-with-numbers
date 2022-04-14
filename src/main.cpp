@@ -1,4 +1,6 @@
+#include <ftxui/component/captured_mouse.hpp>
 #include <ftxui/component/component.hpp>
+#include <ftxui/component/component_options.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
@@ -10,27 +12,18 @@ using namespace ftxui;
 
 int main() {
     auto screen = ScreenInteractive::TerminalOutput();
+    std::vector<std::string> options = {
+        "Check number features",
+        "Plot numbers",
+        "Check overall stats"
+    };
     int selection = 0;
 
-    auto renderer = Renderer([&] {
-        return hbox(text(std::to_string(selection)));
-    });
+    MenuOption option;
+    option.on_enter = screen.ExitLoopClosure();
+    auto menu = Menu(&options, &selection, &option);
     
-    auto component = CatchEvent(renderer, [&] (Event event) {
-        if (event == Event::Character('d')) {
-            selection++;
-            return false;
-        } else if (event == Event::Character('a')) {
-            selection--;
-            return false;
-        } else if (event == Event::Character('q')) {
-            screen.ExitLoopClosure()();
-            return true;
-        }
-        return false;
-    });
-
-    screen.Loop(component);
+    screen.Loop(menu);
     
     return EXIT_SUCCESS;
 }
