@@ -1,21 +1,4 @@
-cmake_minimum_required (VERSION 3.11)
- 
-# --- Fetch FTXUI --------------------------------------------------------------
-include(FetchContent)
- 
-set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
-FetchContent_Declare(ftxui
-  GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
-  GIT_TAG v2.0.0
-)
- 
-FetchContent_GetProperties(ftxui)
-if(NOT ftxui_POPULATED)
-  FetchContent_Populate(ftxui)
-  add_subdirectory(${ftxui_SOURCE_DIR} ${ftxui_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
- 
-# ------------------------------------------------------------------------------
+cmake_minimum_required (VERSION 3.23)
  
 project(
   fun_with_numbers
@@ -24,18 +7,23 @@ project(
   DESCRIPTION "A C++ recreation of the program Fun With Numbers, originally created by Dingle, for my Software Design and Development assignment."
   HOMEPAGE_URL "https://github.com/AryanJassal/FunWithNumbers"
 )
- 
-add_executable(fun_with_numbers src/main.cpp)
-target_include_directories(fun_with_numbers PRIVATE src)
+
+set(CODE_DIR "${CMAKE_SOURCE_DIR}/src")
+set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
+set(SOURCES ${CODE_DIR}/main.cpp ${INCLUDE_DIR}/oof.h)
+
+add_executable(fun_with_numbers ${SOURCES})
+# target_include_directories(fun_with_numbers PRIVATE ${CODE_DIR})
 
 set_target_properties(fun_with_numbers
   PROPERTIES
     CXX_EXTENSIONS OFF
+    CXX_STANDARD 20
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
 )
- 
-target_link_libraries(fun_with_numbers
-  PRIVATE ftxui::screen
-  PRIVATE ftxui::dom
-  PRIVATE ftxui::component # Not needed for this example.
+
+target_include_directories(fun_with_numbers
+  PRIVATE "${CMAKE_SOURCE_DIR}/include"
 )
+
+# target_link_libraries(fun_with_numbers)
