@@ -10,7 +10,9 @@ project(
 
 set(CODE_DIR "${CMAKE_SOURCE_DIR}/src")
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
-set(SOURCES ${CODE_DIR}/main.cpp ${INCLUDE_DIR}/oof.h)
+set(SOURCES ${CODE_DIR}/main.cpp ${CODE_DIR}/utils.cpp ${CODE_DIR}/ascii.cpp ${INCLUDE_DIR}/utils.hpp ${INCLUDE_DIR}/ascii.hpp)
+
+find_package(Curses REQUIRED)
 
 add_executable(fun_with_numbers ${SOURCES})
 # target_include_directories(fun_with_numbers PRIVATE ${CODE_DIR})
@@ -23,7 +25,8 @@ set_target_properties(fun_with_numbers
 )
 
 target_include_directories(fun_with_numbers
-  PRIVATE "${CMAKE_SOURCE_DIR}/include"
+  PRIVATE ${INCLUDE_DIR}
+  ${CURSES_INCLUDE_DIR}
 )
 
-# target_link_libraries(fun_with_numbers)
+target_link_libraries(fun_with_numbers ${CURSES_LIBRARIES})

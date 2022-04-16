@@ -1,11 +1,29 @@
-#define OOF_IMPL
-#include "../include/oof.h"
-
 #include <iostream>
 #include <string>
 
+#include "utils.hpp"
+#include "ascii.hpp"
+
+void init_program() {
+    std::ios::sync_with_stdio(false);
+}
+
+void exit_program() {
+    reset_formatting();
+    std::cout << "\n";
+}
+
 int main() {
-    std::cout << oof::fg_color({255, 100, 100}) << "This is red\n";
-    
+    init_program();
+
+    int width, height;
+    get_terminal_size(width, height);
+
+    fg_color("#f7768e");
+    bg_color("#1a1b26");
+
+    print_title("doom");
+
+    exit_program();
     return 0;
 }
