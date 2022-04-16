@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <codecvt>
 
 #include "utils.hpp"
 
@@ -42,6 +43,16 @@ const char* fg_color(int r, int g, int b) {
     out.append("m");
     std::cout.write(out.data(), out.size());
     return out.data();
+}
+
+void init_program() {
+    std::ios::sync_with_stdio(false);
+    clear();
+}
+
+void exit_program() {
+    reset_formatting();
+    std::cout << "\n";
 }
 
 const char* fg_color(std::vector<int> rgb) {
@@ -117,6 +128,25 @@ const char* reset_formatting() {
     return out.data();
 }
 
+const char* clear() {
+    std::string out = "\033[2J";
+    out.append(set_cursor_position(0, 0));
+    
+    std::cout.write(out.data(), out.size());
+    return out.data();
+}
+
+const char* set_cursor_position(int x, int y) {
+    std::string out = "\033[";
+    out.append(std::to_string(y));
+    out.append(";");
+    out.append(std::to_string(x));
+    out.append("H");
+
+    std::cout.write(out.data(), out.size());
+    return out.data();
+}
+
 void hex_to_rgb(const char* hex, int r, int g, int b) {
     std::sscanf(hex, "#%02x%02x%02x", &r, &g, &b);
 }
@@ -144,42 +174,82 @@ std::vector<std::string> split(std::string str, char delimiter='\n') {
     return out;
 }
 
+std::string padded_str(std::string str, int w) {
+    int l = (str.length() - count_if(str.begin(), str.end(), [](char c)->bool { return (c & 0xC0) == 0x80; }));
+    int pos = (int)((w - l) / 2);
+    
+    std::string padding;
+    for (int i = 0; i < pos; i++) {
+        padding.append(" ");
+    }
+
+    std::string out;
+    out.append(padding);
+    out.append(str);
+    out.append(padding);
+    print();
+
+    return padding;
+}
+
+std::string padded_str(std::string str) {
+    int w, h;
+    get_terminal_size(w, h);
+
+    int l = (str.length() - count_if(str.begin(), str.end(), [](char c)->bool { return (c & 0xC0) == 0x80; }));
+    int pos = (int)((w - l) / 2);
+    
+    std::string padding;
+    for (int i = 0; i < pos; ++i) {
+        padding.append(" ");
+    }
+
+    std::string out;
+    out.append(padding);
+    out.append(str);
+    out.append(padding);
+    print();
+
+    return padding;
+}
+
+void print() {
+    std::cout.write("\n", 2);
+}
+
+void print(std::string str) {
+    std::cout.write(str.data(), str.size());
+}
+
+void print(std::string str, bool add_padding) {
+    std::string padded = padded_str(str);
+    std::cout.write(padded.data(), padded.size());
+}
+
+void print_loop(int times, std::string str) {
+    for (int i = times; i > 0; i--) {
+        print(str);
+    }
+}
+
+void print_loop(int times, std::string str, bool add_padding) {
+    for (int i = times; i > 0; i--) {
+        print(str, add_padding);
+    }
+}
+
 void print_centered(std::string str, int w) {
     std::vector<std::string> lines = split(str);
 
     for (auto line : lines) {
-        int l = line.size();
-        int pos = (int)((w - l) / 2);
-        
-        std::string padding;
-        for (int i = 0; i < pos; i++) {
-            padding.append(" ");
-        }
-        std::cout.write(padding.data(), padding.size());
-        std::cout.write(line.data(), line.size());
-        std::cout.write(padding.data(), padding.size());
-
-        std::cout.write("\n", 2);
+        print(str, true);
     }
 }
 
 void print_centered(std::string str) {
     std::vector<std::string> lines = split(str);
-    int w, h;
-    get_terminal_size(w, h);
 
     for (auto line : lines) {
-        int l = line.size();
-        int pos = (int)((w - l) / 2);
-        
-        std::string padding;
-        for (int i = 0; i < pos; i++) {
-            padding.append(" ");
-        }
-        std::cout.write(padding.data(), padding.size());
-        std::cout.write(line.data(), line.size());
-        std::cout.write(padding.data(), padding.size());
-
-        std::cout.write("\n", 2);
+        print(line, true);
     }
 }
