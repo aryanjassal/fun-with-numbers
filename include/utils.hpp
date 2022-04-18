@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 //* Define special constants
 #define UP_ARROW 65
 #define DOWN_ARROW 66
@@ -12,5 +14,5 @@
 void init_program();
 void exit_program();
 
-//* Input helpers
-char get_key();
+//* General helpers
+std::string extend_string(std::string str, int times);

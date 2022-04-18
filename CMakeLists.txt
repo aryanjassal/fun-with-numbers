@@ -21,14 +21,10 @@ set(INCLUDE_FILES
   ${INCLUDE_DIR}/utils.hpp 
   ${INCLUDE_DIR}/ascii.hpp 
   ${INCLUDE_DIR}/tui.hpp
-  ${INCLUDE_DIR}/conio.h
 )
 set(SOURCES ${INCLUDE_FILES} ${CODE_FILES})
 
-find_package(Curses REQUIRED)
-
 add_executable(fun_with_numbers ${SOURCES})
-# target_include_directories(fun_with_numbers PRIVATE ${CODE_DIR})
 
 set_target_properties(fun_with_numbers
   PROPERTIES
@@ -39,9 +35,6 @@ set_target_properties(fun_with_numbers
 
 target_include_directories(fun_with_numbers
   PRIVATE ${INCLUDE_DIR}
-  ${CURSES_INCLUDE_DIR}
 )
-
-target_link_libraries(fun_with_numbers ${CURSES_LIBRARIES})
 
 target_link_options(fun_with_numbers PRIVATE -Og -g)

@@ -2,10 +2,8 @@
 
 #include "utils.hpp"
 #include "tui.hpp"
-#include "conio.h"
 
 void init_program() {
-    std::ios::sync_with_stdio(false);
     clear();
     init_tui();
 }
@@ -15,18 +13,10 @@ void exit_program() {
     print();
 }
 
-// char get_key() {
-//     return 0;
-// }
-
-char get_key() {
-    char c = getch();
-    if (c == 27) {
-        char d = getch();
-        if (d == 91) {
-            return getch();
-        }
-        return 27;
+std::string extend_string(std::string str, int times) {
+    std::string out;
+    for (int i = 0; i < times; i++) {
+        out.append(str);
     }
-    return c;
+    return out;
 }

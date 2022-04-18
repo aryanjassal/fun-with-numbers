@@ -17,6 +17,10 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
+#include <termios.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <iomanip>
 
 #include "tui.hpp"
 
@@ -26,7 +30,7 @@ std::string alignment = "left";
 
 void init_tui() {
     get_terminal_size();
-    hide_cursor();
+    // hide_cursor();
 }
 
 //* Get the dimensions of the terminal. This method works for both Windows based machines and Linux based machines (MacOS is, in fact, built upon linux)
@@ -80,7 +84,7 @@ void get_terminal_size() {
 }
 
 //* Set the foreground color (the text color) using three integers for Red, Green, and Blue values
-const char* fg_color(int r, int g, int b) {
+std::string fg_color(int r, int g, int b) {
     std::string out = "\033[38;2;";
 
     out.append(std::to_string(r));
@@ -89,20 +93,21 @@ const char* fg_color(int r, int g, int b) {
     out.append(";");
     out.append(std::to_string(b));
     out.append("m");
-    std::cout.write(out.data(), out.size());
-    return out.data();
+
+    std::cout << out;
+    return out;
 }
 
-const char* fg_color(std::vector<int> rgb) {
+std::string fg_color(std::vector<int> rgb) {
     return fg_color(rgb.at(0), rgb.at(1), rgb.at(2));
 }
 
-const char* fg_color(const char* hex) {
+std::string fg_color(const char* hex) {
     std::vector rgb = hex_to_rgb(hex);
     return fg_color(rgb);
 }
 
-const char* bg_color(int r, int g, int b) {
+std::string bg_color(int r, int g, int b) {
     std::string out = "\033[48;2;";
 
     out.append(std::to_string(r));
@@ -111,54 +116,70 @@ const char* bg_color(int r, int g, int b) {
     out.append(";");
     out.append(std::to_string(b));
     out.append("m");
-    std::cout.write(out.data(), out.size());
-    return out.data();
+
+    std::cout << out;
+    return out;
 }
 
-const char* bg_color(std::vector<int> rgb) {
+std::string bg_color(std::vector<int> rgb) {
     return bg_color(rgb.at(0), rgb.at(1), rgb.at(2));
 }
 
-const char* bg_color(const char* hex) {
+std::string bg_color(const char* hex) {
     std::vector rgb = hex_to_rgb(hex);
     return bg_color(rgb);
 }
 
-const char* reset_formatting() {
+std::string reset_formatting() {
     std::string out = "\033[0m";
-    std::cout.write(out.data(), out.size());
-    return out.data();
+    std::cout << out;
+    return out;
 }
 
-const char* clear() {
+std::string clear() {
     std::string out = "\033[2J";
     out.append(set_cursor_position());
     
-    std::cout.write(out.data(), out.size());
-    return out.data();
+    std::cout << out;
+    return out;
 }
 
+//! NOT FUNCTIONAL
 const char* hide_cursor() {
     return "\033[8m";
 }
 
+//! NOT FUNCTIONAL
 const char* show_cursor() {
     return "\033[28m";
 }
 
-const char* set_cursor_position() {
+std::string set_cursor_position() {
     return set_cursor_position(0, 0);
 }
 
-const char* set_cursor_position(int x, int y) {
+std::string set_cursor_position(int x, int y) {
     std::string out = "\033[";
     out.append(std::to_string(y));
     out.append(";");
     out.append(std::to_string(x));
     out.append("H");
 
-    std::cout.write(out.data(), out.size());
-    return out.data();
+    std::cout << out;
+    return out;
+}
+
+std::string move_cursor_up() {
+    return move_cursor_up(1);
+}
+
+std::string move_cursor_up(int lines) {
+    std::string out = "\033[";
+    out.append(std::to_string(lines));
+    out.append("A");
+
+    std::cout << out;
+    return out;
 }
 
 void hex_to_rgb(const char* hex, int r, int g, int b) {
@@ -216,15 +237,27 @@ void align(std::string align) {
     }
 }
 
-std::string padded_str(std::string str, int w) {
+int calculate_padding(std::string str, int w) {
     int l = (str.length() - count_if(str.begin(), str.end(), [](char c)->bool { return (c & 0xC0) == 0x80; }));
+    return (int)((w - l) / 2);
+}
+
+int calculate_padding(std::string str) {
+    return calculate_padding(str, t_size.width);
+}
+
+std::string padded_str(std::string str, int w, const char* end) {
+    int l = (str.length() - count_if(str.begin(), str.end(), [](char c)->bool { return (c & 0xC0) == 0x80; }));
+
+    if (!l) {
+        str.append(" ");
+        return padded_str(str, w, end);
+    }
+
     int pos = (int)((w - l) / 2);
     
     std::string padding;
     for (int i = 0; i < pos; i++) {
-        padding.append(" ");
-    }
-    if (str == "\n") {
         padding.append(" ");
     }
 
@@ -234,49 +267,86 @@ std::string padded_str(std::string str, int w) {
         out.append(str);
         out.append(padding);
         out.append(padding);
-        out.append("\n");
+        out.append(end);
     } else if (alignment == "center") {
         out.append(padding);
         out.append(str);
         out.append(padding);
-        out.append("\n");
+        out.append(end);
     } else if (alignment == "right") {
         out.append(padding);
         out.append(padding);
         out.append(str);
-        out.append("\n");
+        out.append(end);
     }
 
     return out;
 }
 
+std::string padded_str(std::string str, int w) {
+    return padded_str(str, w, "\n");
+}
+
 std::string padded_str(std::string str) {
-    return padded_str(str, t_size.width);
+    return padded_str(str, t_size.width, "\n");
 }
 
 void print() {
-    print("\n");
+    print("", "\n", 0);
 }
 
-void print(std::string str) {
+void print(std::string str="") {
+    print(str, "\n", 0);
+}
+
+void print(std::string str, int w) {
+    print(str, "\n", w);
+}
+
+void print(std::string str, std::string end) {
+    print(str, end, 0);
+}
+
+void print(std::string str, std::string end, int w) {
     std::vector<std::string> lines = split(str);
+    int width = (w <= 0) ? t_size.width : w;
 
     for (auto line : lines) {
-        std::string padded = padded_str(line);
-        std::cout.write(padded.data(), padded.size());
+        std::string padded = padded_str(line, width, end.c_str());
+        std::cout << padded;
     }
 }
 
-void print(char str) {
-    print(std::to_string(str));
-}
-
-void print(int str) {
-    print(std::to_string(str));
+void print_raw(std::string str) {
+    std::cout << str;
 }
 
 void print_loop(int times, std::string str) {
     for (int i = times; i > 0; i--) {
         print(str);
     }
+}
+
+char getch() {
+    struct termios oldattr, newattr;
+    int ch;
+    tcgetattr( STDIN_FILENO, &oldattr );
+    newattr = oldattr;
+    newattr.c_lflag &= ~( ICANON | ECHO );
+    tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
+    ch = getchar();
+    tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
+    return ch;
+}
+
+char get_key() {
+    char c = getch();
+    if (c == 27) {
+        char d = getch();
+        if (d == 91) {
+            return getch();
+        }
+        return c;
+    }
+    return c;
 }
