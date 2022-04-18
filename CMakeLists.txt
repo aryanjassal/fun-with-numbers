@@ -10,7 +10,20 @@ project(
 
 set(CODE_DIR "${CMAKE_SOURCE_DIR}/src")
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
-set(SOURCES ${CODE_DIR}/main.cpp ${CODE_DIR}/utils.cpp ${CODE_DIR}/ascii.cpp ${INCLUDE_DIR}/utils.hpp ${INCLUDE_DIR}/ascii.hpp)
+
+set(CODE_FILES 
+  ${CODE_DIR}/main.cpp 
+  ${CODE_DIR}/utils.cpp 
+  ${CODE_DIR}/ascii.cpp 
+  ${CODE_DIR}/tui.cpp
+)
+set(INCLUDE_FILES 
+  ${INCLUDE_DIR}/utils.hpp 
+  ${INCLUDE_DIR}/ascii.hpp 
+  ${INCLUDE_DIR}/tui.hpp
+  ${INCLUDE_DIR}/conio.h
+)
+set(SOURCES ${INCLUDE_FILES} ${CODE_FILES})
 
 find_package(Curses REQUIRED)
 
@@ -30,3 +43,5 @@ target_include_directories(fun_with_numbers
 )
 
 target_link_libraries(fun_with_numbers ${CURSES_LIBRARIES})
+
+target_link_options(fun_with_numbers PRIVATE -Og -g)
