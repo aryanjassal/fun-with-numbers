@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
-#include <algorithm>
 #include <vector>
+#include <functional>
 
 #include "utils.hpp"
 #include "ascii.hpp"
