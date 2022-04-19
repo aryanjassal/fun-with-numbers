@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 
+#include "tui.hpp"
+
 //* Create a struct to store any two dimensions
 struct Dimension2D {
     int width;
