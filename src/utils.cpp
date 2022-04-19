@@ -48,7 +48,7 @@ void Menu::move_selection_up() {
     Menu::move_selection_up(1);
 }
 
-void Menu::move_selection_up(int by=1) {
+void Menu::move_selection_up(int by) {
     if (!loop_menu_options) {
         selection = std::clamp(selection - by, 0, next_id - 1);
     } else {
@@ -60,7 +60,7 @@ void Menu::move_selection_down() {
     Menu::move_selection_down(1);
 }
 
-void Menu::move_selection_down(int by=1) {
+void Menu::move_selection_down(int by) {
     if (!loop_menu_options) {
         selection = std::clamp(selection + by, 0, next_id - 1);
     } else {
@@ -75,7 +75,7 @@ void Menu::set_entry_loop(bool val) {
 void Menu::render() {
     MenuRenderSettings render_settings;
     render_settings.selector_size = 40;
-    
+
     Menu::render();
 }
 
