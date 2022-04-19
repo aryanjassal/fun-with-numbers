@@ -12,6 +12,7 @@ void init_program() {
 void exit_program() {
     reset_formatting();
     print();
+    exit(0);
 }
 
 std::string extend_string(std::string str, int times) {

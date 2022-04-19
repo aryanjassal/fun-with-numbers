@@ -18,6 +18,12 @@ int main() {
     menu.add_line();
     menu.add_option("Quit", [] { exit_program(); });
 
+    MenuRenderSettings render_settings;
+    render_settings.bg_color_hex = "#1a1b26";
+    render_settings.fg_color_hex = "#f7768e";
+    render_settings.bg_color_highlighted_hex = "#414868";
+    render_settings.fg_color_highlighted_hex = "#9ece6a";
+
     for(;;) {
         get_terminal_size();
         set_cursor_position();
@@ -28,23 +34,9 @@ int main() {
         print_title("ansi");
         print_loop(3, "\n");
 
-        align_center();
-
-        menu.render();
+        menu.render(render_settings);
         menu.handle_input();
-        // switch(get_key()) {
-        //     case UP_ARROW:
-        //         menu.move_selection_up();
-        //         break;
-        //     case DOWN_ARROW:
-        //         menu.move_selection_down();
-        //         break;
-        //     case KEY_Q:
-        //         exit_program();
-        //         return 0;
-        // }
     }
 
     exit_program();
-    return 0;
 }

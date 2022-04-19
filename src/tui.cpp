@@ -436,23 +436,28 @@ void Menu::render() {
 
 void Menu::render(MenuRenderSettings render_settings) {
     for (auto& l : lines) {
+        align(render_settings.alignment);
+
         std::string text;
         text.append(padded_str(l.label, render_settings.selector_size, ""));
 
-        fg_color("#f7768e");
-        bg_color("#1a1b26");
-        // fg_color(render_settings.fg_color_hex);
-        // bg_color(render_settings.bg_color_hex);
+        fg_color(render_settings.fg_color_hex.c_str());
+        bg_color(render_settings.bg_color_hex.c_str());
 
         if (selection == l.id) {
             std::string pl = extend_string(" ", calculate_padding_left(text));
             std::string pr = extend_string(" ", calculate_padding_right(text));
+
             std::cout << pl;
-            fg_color("#9ece6a");
-            bg_color("#414868");
+
+            fg_color(render_settings.fg_color_highlighted_hex.c_str());
+            bg_color(render_settings.bg_color_highlighted_hex.c_str());
+
             std::cout << text;
-            fg_color("#f7768e");
-            bg_color("#1a1b26");  
+
+            fg_color(render_settings.fg_color_hex.c_str());
+            bg_color(render_settings.bg_color_hex.c_str());
+
             std::cout << pr << "\n";
         } else {
             print(text);
