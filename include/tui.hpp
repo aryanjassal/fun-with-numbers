@@ -10,7 +10,7 @@ struct Dimension2D {
 };
 
 //* Create a struct to store colour information in RGB
-//! Currently unimplemented
+//! Currently unimplemented in code
 struct ColorRGB {
     int r;
     int g;
@@ -68,8 +68,10 @@ std::string padded_str(std::string str);
 std::string padded_str(std::string str, int w);
 std::string padded_str(std::string str, int w, const char* end);
 
-int calculate_padding(std::string str);
-int calculate_padding(std::string str, int w);
+int calculate_padding_left(std::string str);
+int calculate_padding_left(std::string str, int w);
+int calculate_padding_right(std::string str);
+int calculate_padding_right(std::string str, int w);
 
 //* Printing content to the screen/terminal
 void print();

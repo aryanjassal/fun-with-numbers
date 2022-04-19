@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <iomanip>
+#include <math.h>
 
 #include "tui.hpp"
 
@@ -146,12 +147,12 @@ std::string clear() {
 
 //! NOT FUNCTIONAL
 const char* hide_cursor() {
-    return "\033[8m";
+    return "\033[?25l";
 }
 
 //! NOT FUNCTIONAL
 const char* show_cursor() {
-    return "\033[28m";
+    return "\033[?25h";
 }
 
 std::string set_cursor_position() {
@@ -237,47 +238,70 @@ void align(std::string align) {
     }
 }
 
-int calculate_padding(std::string str, int w) {
-    int l = (str.length() - count_if(str.begin(), str.end(), [](char c)->bool { return (c & 0xC0) == 0x80; }));
+int calculate_padding_left(std::string str, int w) {
+    int l = (str.length() - count_if(str.begin(), str.end(), [](char c) -> bool { return (c & 0xc0) == 0x80; }));
     return (int)((w - l) / 2);
 }
 
-int calculate_padding(std::string str) {
-    return calculate_padding(str, t_size.width);
+int calculate_padding_left(std::string str) {
+    return calculate_padding_left(str, t_size.width);
+}
+
+int calculate_padding_right(std::string str, int w) {
+    int l = (str.length() - count_if(str.begin(), str.end(), [](char c) -> bool { return (c & 0xc0) == 0x80; }));
+    if ((w - l) % 2 == 0) {
+        return (int)((w - l) / 2);
+    } else {
+        return (((w - l) + 1) / 2);
+    }
+}
+
+int calculate_padding_right(std::string str) {
+    return calculate_padding_right(str, t_size.width);
 }
 
 std::string padded_str(std::string str, int w, const char* end) {
-    int l = (str.length() - count_if(str.begin(), str.end(), [](char c)->bool { return (c & 0xC0) == 0x80; }));
+    // int l = (str.length() - count_if(str.begin(), str.end(), [](char c) -> bool { return (c & 0xc0) == 0x80; }));
 
-    if (!l) {
+    if (!str.length()) {
         str.append(" ");
         return padded_str(str, w, end);
     }
 
-    int pos = (int)((w - l) / 2);
+    // int pos = (int)((w - l) / 2);
+    int plc = calculate_padding_left(str, w);
+    int prc = calculate_padding_right(str, w);
     
-    std::string padding;
-    for (int i = 0; i < pos; i++) {
-        padding.append(" ");
+    std::string pl;
+    std::string pr;
+    for (int i = 0; i < plc; i++) {
+        pl.append(" ");
+    }
+    for (int i = 0; i < prc; i++) {
+        pr.append(" ");
     }
 
     std::string out;
 
     if (alignment == "left") {
         out.append(str);
-        out.append(padding);
-        out.append(padding);
+        out.append(pl);
+        out.append(pr);
         out.append(end);
     } else if (alignment == "center") {
-        out.append(padding);
+        out.append(pl);
         out.append(str);
-        out.append(padding);
+        out.append(pr);
         out.append(end);
     } else if (alignment == "right") {
-        out.append(padding);
-        out.append(padding);
+        out.append(pl);
+        out.append(pr);
         out.append(str);
         out.append(end);
+    }
+
+    while (out.length() < w) {
+        out.append(" ");
     }
 
     return out;

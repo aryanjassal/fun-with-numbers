@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
-#include <sstream>
+#include <algorithm>
+#include <vector>
 
 #include "utils.hpp"
 #include "ascii.hpp"
@@ -8,6 +9,14 @@
 
 int main() {
     init_program();
+
+    Menu menu;
+    menu.set_entry_loop(true);
+    menu.add_option("Check number features", [&] { return 0; });
+    menu.add_option("Plot numbers", [&] { return 0; });
+    menu.add_option("Check overall stats", [&] { return 0; });
+    menu.add_line();
+    menu.add_option("Quit", [] { exit_program(); });
 
     for(;;) {
         get_terminal_size();
@@ -21,49 +30,14 @@ int main() {
 
         align_center();
 
-        std::string selected_text;
-        // selected_text.append(fg_color("#ffffff"));
-        // selected_text.append(bg_color("#000000"));
-        selected_text.append(padded_str("Check number features", 40, ""));
-        // selected_text.append(fg_color("#f7768e"));
-        // selected_text.append(bg_color("#1a1b26"));
-        // print(std::to_string(calculate_padding(selected_text, 40)));
-        // getch();
-
-        fg_color("#f7768e");
-        bg_color("#1a1b26");
-
-        std::string p = extend_string(" ", calculate_padding(selected_text));
-
-        std::cout << p;
-        fg_color("#9ece6a");
-        bg_color("#414868");
-        std::cout << selected_text;
-        fg_color("#f7768e");
-        bg_color("#1a1b26");        
-        std::cout << p;
-
-        print();
-
-        getch();
-
-        // print("Plot numbers\n");
-        // print("Check overall stats\n");
-        // print();
-        // print("Quit\n");
-
+        menu.render();
+        menu.handle_input();
         // switch(get_key()) {
         //     case UP_ARROW:
-        //         print("Up was pressed!");
+        //         menu.move_selection_up();
         //         break;
         //     case DOWN_ARROW:
-        //         print("Down was pressed!");
-        //         break;
-        //     case LEFT_ARROW:
-        //         print("Left was pressed!");
-        //         break;
-        //     case RIGHT_ARROW:
-        //         print("Right was pressed!");
+        //         menu.move_selection_down();
         //         break;
         //     case KEY_Q:
         //         exit_program();
@@ -74,6 +48,3 @@ int main() {
     exit_program();
     return 0;
 }
-
-// WHITE #cfc9c2
-// PINKPURPLE #bb9af7
