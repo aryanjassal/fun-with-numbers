@@ -48,7 +48,6 @@ struct Align {
     std::string CENTER = "center";
     std::string RIGHT = "right";
 };
-Align ALIGN;
 
 //* Line struct to store information about each line being displayed on the menu
 struct Line {
@@ -76,7 +75,8 @@ struct MenuRenderSettings {
     int selection_size = 40;
 
     //* Default alignment of the menu entries
-    std::string alignment = ALIGN.CENTER;
+    //* Recommended to use ALIGN.<alignment> to set alignment 
+    std::string alignment = "center";
 
     //* Wheather the menu should fill the entire screen or only update the amount of screen it needs to render itself
     bool fill_screen = true;

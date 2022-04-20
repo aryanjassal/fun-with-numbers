@@ -19,14 +19,15 @@
 //* Create global variables
 Dimension2D t_size;
 std::string alignment = "left";
+Align ALIGN;
 
 //* Initialise the terminal user interface by setting default parameters
 void init_tui() {
     //* Setting the terminal size
-    get_terminal_size();
+    set_terminal_size();
 }
 
-//* Get the dimensions of the terminal. This method works for both Windows based machines and Linux based machines (MacOS is, in fact, built upon linux)
+//* Get the dimensions of the terminal
 void get_terminal_size(int& width, int& height) {
     //* Winsize struct is a special struct which stores all the terminal information returned by the following command
     struct winsize w;
@@ -230,23 +231,23 @@ std::vector<std::string> split(std::string str, const char delimiter) {
 }
 
 void align_left() {
-    alignment = "left";
+    alignment = ALIGN.LEFT;
 }
 
 void align_center() {
-    alignment = "center";
+    alignment = ALIGN.CENTER;
 }
 
 void align_right() {
-    alignment = "right";
+    alignment = ALIGN.RIGHT;
 }
 
 void align(std::string align) {
-    if (align == "left") {
+    if (align == ALIGN.LEFT) {
         align_left();
-    } else if (align == "center") {
+    } else if (align == ALIGN.CENTER) {
         align_center();
-    } else if (align == "right") {
+    } else if (align == ALIGN.RIGHT) {
         align_right();
     } else {
         throw std::invalid_argument("received invalid alignment state");
@@ -295,21 +296,24 @@ std::string padded_str(std::string str, int w, const char* end) {
 
     std::string out;
 
-    if (alignment == "left") {
+    if (alignment == ALIGN.LEFT) {
         out.append(str);
         out.append(pl);
         out.append(pr);
         out.append(end);
-    } else if (alignment == "center") {
+    } else if (alignment == ALIGN.CENTER) {
         out.append(pl);
         out.append(str);
         out.append(pr);
         out.append(end);
-    } else if (alignment == "right") {
+    } else if (alignment == ALIGN.RIGHT) {
         out.append(pl);
         out.append(pr);
         out.append(str);
         out.append(end);
+    } else {
+        std::cout << "Alignment state not valid";
+        exit_program();
     }
 
     while (out.length() < w) {
@@ -353,8 +357,8 @@ void print(std::string str, std::string end, int w) {
     }
 }
 
-void print_loop(int times, std::string str) {
-    for (int i = times; i > 0; i--) {
+void print_loop(std::string str, int times) {
+    for (int i = 0; i < times; i++) {
         print(str);
     }
 }
@@ -488,7 +492,7 @@ void Menu::set_entry_loop(bool val) {
 
 void Menu::render() {
     MenuRenderSettings render_settings;
-    render_settings.selector_size = 40;
+    render_settings.selection_size = 40;
 
     Menu::render(render_settings);
 }
@@ -498,7 +502,7 @@ void Menu::render(MenuRenderSettings render_settings) {
         align(render_settings.alignment);
 
         std::string text;
-        text.append(padded_str(l.label, render_settings.selector_size, ""));
+        text.append(padded_str(l.label, render_settings.selection_size, ""));
 
         fg_color(render_settings.fg_color_hex.c_str());
         bg_color(render_settings.bg_color_hex.c_str());

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <vector>
 
 #include "utils.hpp"
 #include "ascii.hpp"
@@ -29,9 +28,9 @@ int main() {
         fg_color("#f7768e");
         bg_color("#1a1b26");
 
-        print_loop(3, "\n");
+        print_loop("\n", 3);
         print_title("ansi");
-        print_loop(3, "\n");
+        print_loop("\n", 3);
 
         menu.render(render_settings);
         menu.handle_input();

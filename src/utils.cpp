@@ -7,7 +7,7 @@
 void init_program() {
     clear();
     init_tui();
-    hide_cursor();
+    Align ALIGN;
 }
 
 //* Clean up and exit the program
