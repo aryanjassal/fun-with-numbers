@@ -104,6 +104,10 @@
 #define KEY_CURLY_BRACES_CLOSE              Key {false, 125, "125", "125"}
 #define KEY_TILDE                           Key {false, 126, "126", "126"}
 #define KEY_BACKSPACE                       Key {false, 127, "127", "127"}
+#define KEY_UP_ARROW                        Key {true, 0, "2791865", "27 91 65"}
+#define KEY_DOWN_ARROW                      Key {true, 0, "2791866", "27 91 66"}
+#define KEY_RIGHT_ARROW                     Key {true, 0, "2791867", "27 91 67"}
+#define KEY_LEFT_ARROW                      Key {true, 0, "2791868", "27 91 68"}
 #define KEY_F1                              Key {true, 0, "277980", "27 79 80"}
 #define KEY_F2                              Key {true, 0, "277981", "27 79 81"}
 #define KEY_F3                              Key {true, 0, "277982", "27 79 82"}
