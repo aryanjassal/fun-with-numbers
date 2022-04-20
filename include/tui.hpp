@@ -50,7 +50,7 @@ struct Align {
 };
 
 //* Line struct to store information about each line being displayed on the menu
-struct Line {
+struct Entry {
     //* ID of the menu entry. Must be unset for non-interactive elements barring unintentional results.
     int id;
     //* The string that should be displayed while rendering the menu
@@ -73,6 +73,15 @@ struct MenuRenderSettings {
 
     //* The width of the menu entry and, by extension, feedback bar
     int selection_size = 40;
+
+    //* Append this character at the end of rendering a menu entry
+    std::string end = "\n";
+
+    //* Lines of padding between menu entries
+    int line_padding = 1;
+
+    //* What the padding between the menu items will render as (non-repeating)
+    std::string line_padding_string = " ";
 
     //* Default alignment of the menu entries
     //* Recommended to use ALIGN.<alignment> to set alignment 
@@ -123,6 +132,9 @@ class Menu {
         //* Add an option to be displayed on the menu screen
         void add_option(std::string str, std::function<void()> func);
 
+        //* Adds a menu entry with given Entry settings
+        void add_entry(Entry entry);
+
         //* Add a non-selectable line on the menu screen to add padding or display text
         void add_line();
         void add_line(std::string str);
@@ -151,7 +163,7 @@ class Menu {
         bool loop_menu_options = false;
 
         //* The vector storing all menu entry elements including non-selectable lines
-        std::vector<Line> lines;
+        std::vector<Entry> entries;
 
         //* Current selection of the menu entry
         int selection = 0;
@@ -187,6 +199,7 @@ void clear();
 
 //* Set the cursor position anywhere on the terminal
 void set_cursor_position();
+void set_cursor_position(Location2D location);
 void set_cursor_position(int x, int y);
 
 //* Return the location of the cursor in a Location2D object
@@ -208,6 +221,9 @@ void align_left();
 void align_center();
 //* Align the prints to the right
 void align_right();
+//* Reverts the alignment to the previous one
+//! NOT IMPLEMENTED
+void revert_align();
 
 //* Return the string padded to fit the width
 std::string padded_str(std::string str);
