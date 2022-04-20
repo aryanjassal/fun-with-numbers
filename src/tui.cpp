@@ -294,21 +294,10 @@ std::string padded_str(std::string str, int w, const char* end) {
         str = " ";
         return padded_str(str, w, end);
     }
-
-    // // Get the number of spaces required on the left and right side of the string
-    // int plc = calculate_padding_left(str, w);
-    // int prc = calculate_padding_right(str, w);
     
     //* Add spaces to the output string corresponding with the padding required for left and right sides of the string
     std::string pl = extend_string(" ", calculate_padding_left(str, w));;
     std::string pr = extend_string(" ", calculate_padding_right(str, w));;
-    // for (int i = 0; i < plc; i++) {
-    //     pl.append(" ");
-    // }
-    // for (int i = 0; i < prc; i++) {
-    //     pr.append(" ");
-    // }
-    // extend_string(" ", calculate_padding_left(str, w));
 
     //* Create an output string
     std::string out;
@@ -364,8 +353,6 @@ void print(std::string str, std::string end, int w) {
     //* Loop over each line in the vector of split strings
     for (auto line : lines) {
         //* Output the padded line which is padded to the given width and the end character
-        // std::string padded = padded_str(line, width, end.c_str());
-        // std::cout << padded;
         std::cout << padded_str(line, width, end.c_str());
     }
 }

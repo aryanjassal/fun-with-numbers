@@ -91,18 +91,23 @@ struct MenuRenderSettings {
     bool fill_screen = true;
     
     //* Use angled brackets or any other pointer to provide feedback. Can be used alongside feedback bars
+    //! NOT IMPLEMENTED YET
     bool use_entry_pointers = false;
 
     //* Feedback pointer positioned on the left side of the entry
+    //! NOT IMPLEMENTED YET
     std::string left_pointer = ">";
 
     //* Feedback pointer positioned on the right side of the entry
+    //! NOT IMPLEMENTED YET
     std::string right_pointer = "<";
 
     //* Should feedback pointers be right next to the text
+    //! NOT IMPLEMENTED YET
     bool pointer_next_to_text = false;
 
     //* Space between the pointers and the text. Needs to be set if pointer_next_to_text is set
+    //! NOT IMPLEMENTED YET
     int pointer_space_from_text;
 
     //* Setting the foreground color using hexadecimal color codes
