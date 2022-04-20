@@ -53,7 +53,7 @@ Dimension2D get_terminal_size() {
 }
 
 //* Set the foreground color (the text color) using three integers for Red, Green, and Blue values
-std::string fg_color(int r, int g, int b) {
+void fg_color(int r, int g, int b) {
     //* Start building the ANSI Escape code
     std::string out = "\033[38;2;";
 
@@ -67,30 +67,20 @@ std::string fg_color(int r, int g, int b) {
 
     //* Print it out to the screen to apply the formatting
     std::cout << out;
-    //! May be redundant. More testing needed.
-    return out;
 }
 
 //* Sets the foreground color (the text color) using a ColorRGB object
-std::string fg_color(ColorRGB rgb) {
-    return fg_color(rgb.r, rgb.g, rgb.b);
+void fg_color(ColorRGB rgb) {
+    fg_color(rgb.r, rgb.g, rgb.b);
 }
 
 //* Sets the foreground color (the text color) using a constant hex code
-std::string fg_color(const char* hex) {
-    ColorRGB rgb = hex_to_rgb(hex);
-    return fg_color(rgb);
-}
-
-//* Sets the foreground color (the text color) using a changeable hex code
-//! DANGEROUS TO USE THIS
-std::string fg_color(std::string hex) {
-    ColorRGB rgb = hex_to_rgb(hex);
-    return fg_color(rgb);
+void fg_color(const char* hex) {
+    fg_color(hex_to_rgb(hex));
 }
 
 //* Set the background color using three integers for Red, Green, and Blue values
-std::string bg_color(int r, int g, int b) {
+void bg_color(int r, int g, int b) {
     //* Start building the ANSI Escape code
     std::string out = "\033[48;2;";
 
@@ -104,44 +94,29 @@ std::string bg_color(int r, int g, int b) {
 
     //* Print it out to the screen to apply the formatting
     std::cout << out;
-    //! May be redundant. More testing needed.
-    return out;
 }
 
 //* Set the background color using a ColorRGB object
-std::string bg_color(ColorRGB rgb) {
-    return bg_color(rgb.r, rgb.g, rgb.b);
+void bg_color(ColorRGB rgb) {
+    bg_color(rgb.r, rgb.g, rgb.b);
 }
 
 //* Sets the background color using a constant hex code
-std::string bg_color(const char* hex) {
-    ColorRGB rgb = hex_to_rgb(hex);
-    return bg_color(rgb);
-}
-
-//* Sets the background color using a changeable string as hex code
-//! DANGEROUS TO USE THIS
-std::string bg_color(std::string hex) {
-    ColorRGB rgb = hex_to_rgb(hex);
-    return bg_color(rgb);
+void bg_color(const char* hex) {
+    bg_color(hex_to_rgb(hex));
 }
 
 //* Resets all the terminal formatting
-std::string reset_formatting() {
-    std::string out = "\033[0m";
-    std::cout << out;
-    return out;
+void reset_formatting() {
+    std::cout << "\033[0m";
 }
 
 //* Clears the entire terminal screen using ANSI Escape Codes
-std::string clear() {
+void clear() {
     //* Clear everything of the screen
-    std::string out = "\033[2J";
+    std::cout << "\033[2J";
     //* Set the position of the cursor to home (0, 0)
-    out.append(set_cursor_position());
-    
-    std::cout << out;
-    return out;
+    set_cursor_position();    
 }
 
 //* Gets the current location of the cursor and assigns it to the two passed parameters 
@@ -172,21 +147,11 @@ struct Location2D wherexy() {
     return xy;
 }
 
-//! NOT FUNCTIONAL
-const char* hide_cursor() {
-    return "\033[?25l";
+void set_cursor_position() {
+    set_cursor_position(0, 0);
 }
 
-//! NOT FUNCTIONAL
-const char* show_cursor() {
-    return "\033[?25h";
-}
-
-std::string set_cursor_position() {
-    return set_cursor_position(0, 0);
-}
-
-std::string set_cursor_position(int x, int y) {
+void set_cursor_position(int x, int y) {
     std::string out = "\033[";
     out.append(std::to_string(y));
     out.append(";");
@@ -194,7 +159,6 @@ std::string set_cursor_position(int x, int y) {
     out.append("H");
 
     std::cout << out;
-    return out;
 }
 
 //* Convert a hex color code into RGB values and return them in a ColorRGB struct

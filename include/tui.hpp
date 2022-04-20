@@ -170,24 +170,24 @@ void set_terminal_size();
 Dimension2D get_terminal_size();
 
 //* Set the foreground (text) color
-std::string fg_color(int r, int g, int b);
-std::string fg_color(ColorRGB rgb);
-std::string fg_color(const char* hex);
+void fg_color(int r, int g, int b);
+void fg_color(ColorRGB rgb);
+void fg_color(const char* hex);
 
 //* Set the background color of the text
-std::string bg_color(int r, int g, int b);
-std::string bg_color(ColorRGB rgb);
-std::string bg_color(const char* hex);
+void bg_color(int r, int g, int b);
+void bg_color(ColorRGB rgb);
+void bg_color(const char* hex);
 
 //* Reset formatting of the terminal
-std::string reset_formatting();
+void reset_formatting();
 
 //* Clear the terminal in different ways
-std::string clear();
+void clear();
 
 //* Set the cursor position anywhere on the terminal
-std::string set_cursor_position();
-std::string set_cursor_position(int x, int y);
+void set_cursor_position();
+void set_cursor_position(int x, int y);
 
 //* Return the location of the cursor in a Location2D object
 struct Location2D wherexy();
