@@ -20,11 +20,22 @@
 Dimension2D t_size;
 std::string alignment = "left";
 Align ALIGN;
+std::vector<Key> BASIC_KEYS;
 
 //* Initialise the terminal user interface by setting default parameters
 void init_tui() {
     //* Setting the terminal size
     set_terminal_size();
+
+    //* Emplacing keys in the keys array
+    for (int i = 0; i < 256; i++) {
+        BASIC_KEYS.emplace_back(Key {false, i, std::to_string(i)});
+    }
+}
+
+//* Overloading the == operator to compare Key structs
+bool operator == (const Key& lhs, const Key& rhs) {
+    return ((lhs.escape_sequence == rhs.escape_sequence) && (lhs.key == rhs.key) && (lhs.full_string == rhs.full_string));
 }
 
 //* Get the dimensions of the terminal
@@ -402,61 +413,43 @@ char getch() {
 //TODO: get a KEY struct
 
 //* Parses key presses into understandable return object
-//! STILL INCOMPLETE
-char get_key() {
-    //* Get the first character from the keyboard buffer
+Key get_key() {
     char c = getch();
-
-    //* If the first character is ESCAPE
-    if (c == 27) {
-        if (!kbhit()) { //* If there is no other keys in the keyboard buffer, then return escape key object
-            return KEY_ESCAPE;
-        }
-
-        char d = getch();
-        if (d == 91) {
-            char e = getch();
-            if (e == 49) {
-                char f = getch();
-                if (f == 53) {
-                    getch();
-                    if (!kbhit()) return KEY_F5;
-                }
-            } else if (e == 50) {
-                if (kbhit()) {
+    switch(c) {
+        case 27:
+            if (!kbhit()) return KEY_ESCAPE;
+            
+            switch(getch()) {
+                case 91:
                     switch(getch()) {
-                        case 48:
-                            if (!kbhit) return KEY_F9;
-                        case 50:
-                            if (!kbhit) return KEY_SHIFT_F11;
-                        case 52:
-                            if (!kbhit) return KEY_F12;
+                        case 65:
+                            if (!kbhit()) return KEY_UP_ARROW;
+                            break;
+                        case 66:
+                            if (!kbhit()) return KEY_DOWN_ARROW;
+                            break;
+                        case 67:
+                            if (!kbhit()) return KEY_RIGHT_ARROW;
+                            break;
+                        case 68:
+                            if (!kbhit()) return KEY_LEFT_ARROW;
+                            break;
+                        default:
+                            while (kbhit()) getch();
+                            return KEY_NULL;
                     }
-                    if (f == 48) {
-                        return KEY_F9
-                    }
-                }
-                return 0; // INSERT or a F<x> key
-            } else if (e == 51) {
-                while (kbhit()) getch();
-                return 0; // DELETE
-            } else if (e == 53) {
-                while (kbhit()) getch();
-                return 0; // PAGE UP
-            } else if (e == 54) {
-                while (kbhit()) getch();
-                return 0; // PAGE DOWN
-            } else {
-                return e;
+                default:
+                    while(kbhit()) getch();
+                    return KEY_NULL;
             }
-            throw std::invalid_argument("KEY NOT SUPPORTED");
-        } else if (d == 79) {
-            while (kbhit()) getch();
-            return 0; // FUNCTION KEYS
-        }
-        return c;
+        default:
+            for(auto k : BASIC_KEYS) {
+                if (k.key == c) return k;
+            }
+
+            while(kbhit()) getch();
+            return KEY_NULL;
     }
-    return c;
 }
 
 //* Check if a key is present in the input buffer
@@ -667,20 +660,18 @@ void Menu::render() {
 //* Handles the keyboard inputs
 //* Typically used after rendering menu
 void Menu::handle_input() {
-    switch(get_key()) {
-        case UP_ARROW:
-            move_selection_up();
-            break;
-        case DOWN_ARROW:
-            move_selection_down();
-            break;
-        case RETURN:
-            for (auto& e : entries) {
-                if (e.id == selection) {
-                    e.func();
-                }
+    Key k = get_key();
+    if (k == KEY_UP_ARROW) {
+        move_selection_up();
+    } else if (k == KEY_DOWN_ARROW) {
+        move_selection_down();
+    } else if (k == KEY_ENTER) {
+        for (auto& e : entries) {
+            if (e.id == selection) {
+                e.func();
             }
-        case KEY_Q:
-            exit_program();
+        }
+    } else if (k == KEY_Q) {
+        exit_program();
     }
 }

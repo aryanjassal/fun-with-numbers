@@ -14,13 +14,17 @@ void init_program() {
 }
 
 //* Clean up and exit the program
-void exit_program() {
+void exit_program(int return_value) {
     //* Remove all formatting
     reset_formatting();
     //* Print a new line. Not necessary but closing looks more graceful
     print();
     //* Exit the program
-    exit(0);
+    exit(return_value);
+}
+
+void exit_program() {
+    exit_program(0);
 }
 
 //* Works like (string * num) in python, appending a string x amount of times and returning the string
