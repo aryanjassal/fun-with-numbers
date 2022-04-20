@@ -23,7 +23,7 @@ int main() {
     render_settings.fg_color_highlighted_hex = "#9ece6a";
 
     for(;;) {
-        get_terminal_size();
+        set_terminal_size();
         set_cursor_position();
         fg_color("#f7768e");
         bg_color("#1a1b26");
