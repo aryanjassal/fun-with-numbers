@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <functional>
 
 #include "utils.hpp"
 #include "ascii.hpp"
@@ -37,6 +36,7 @@ int main() {
         menu.render(render_settings);
         menu.handle_input();
     }
+    // for (;;) std::cout << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " ";
 
     exit_program();
 }

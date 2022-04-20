@@ -4,7 +4,7 @@
 #include <vector>
 #include <functional>
 
-//* Define special constants
+//* Define key codes
 #define UP_ARROW 65
 #define DOWN_ARROW 66
 #define RIGHT_ARROW 67
@@ -13,90 +13,170 @@
 #define KEY_Q 113
 #define RETURN 10
 
+//TODO: see if return types for ANSI sequences are required
+
 //* Create a struct to store any two dimensions
 struct Dimension2D {
     int width;
     int height;
 };
 
+//* Create a struct to store two dimensional information
+//* This is the same as Dimension2D, but has element names for location
+struct Location2D {
+    int x;
+    int y;
+};
+
 //* Create a struct to store colour information in RGB
-//! Currently unimplemented in code
 struct ColorRGB {
     int r;
     int g;
     int b;
 };
 
-//* Stuff to render the menu properly
-//* Line struct
+//* Create a struct to store the key entered
+struct Key {
+    bool escape_sequence;
+    char key;
+    std::string space_delimited_full_string;
+};
+
+//* Struct to store alignment information
+struct Align {
+    std::string LEFT = "left";
+    std::string CENTER = "center";
+    std::string RIGHT = "right";
+};
+Align ALIGN;
+
+//* Line struct to store information about each line being displayed on the menu
 struct Line {
+    //* ID of the menu entry. Must be unset for non-interactive elements barring unintentional results.
     int id;
+    //* The string that should be displayed while rendering the menu
     std::string label;
+
+    //* The corresponding function that will be run when the option is selected. Will not be called if interactable is unset.
     std::function<void()> func;
+
+    //* Whether the option can be selected or not
     bool interactable;
 };
 
+//* Struct to customise menu render settings
 struct MenuRenderSettings {
+    //* The total width of the menu
     int width;
-    int selector_size = 40;
-    std::string alignment = "center";
+
+    //* wether to use feedback bar
+    bool use_feedback_bar = true;
+
+    //* The width of the menu entry and, by extension, feedback bar
+    int selection_size = 40;
+
+    //* Default alignment of the menu entries
+    std::string alignment = ALIGN.CENTER;
+
+    //* Wheather the menu should fill the entire screen or only update the amount of screen it needs to render itself
+    bool fill_screen = true;
     
-    bool use_entry_pointers;
-    std::string left_pointer;
-    std::string right_pointer;
-    bool pointer_on_sides;
+    //* Use angled brackets or any other pointer to provide feedback. Can be used alongside feedback bars
+    bool use_entry_pointers = false;
+
+    //* Feedback pointer positioned on the left side of the entry
+    std::string left_pointer = ">";
+
+    //* Feedback pointer positioned on the right side of the entry
+    std::string right_pointer = "<";
+
+    //* Should feedback pointers be right next to the text
+    bool pointer_next_to_text = false;
+
+    //* Space between the pointers and the text. Needs to be set if pointer_next_to_text is set
     int pointer_space_from_text;
 
+    //* Setting the foreground color using hexadecimal color codes
     std::string fg_color_hex = "#ffffff";
+    //* Setting the background color using hexadecimal color color
     std::string bg_color_hex = "#000000";
-    //! Not implemented using ColorRGB yet
+
+    //* Setting the foreground color using a ColorRGB object
     struct ColorRGB fg_color = {255, 255, 255};
-    //! Not implemented using ColorRGB yet
+    //* Setting the background color using a ColorRGB object
     struct ColorRGB bg_color = {0, 0, 0};
 
+    //* Setting the foreground color of the highlighted section using hexadecimal color codes
     std::string fg_color_highlighted_hex = "#000000";
+    //* Setting the background color of the highlighted section using hexadecimal color codes
     std::string bg_color_highlighted_hex = "#ffffff";
-    //! Not implemented using ColorRGB yet
+
+    //* Setting the foreground color of the highlighted section using a ColorRGB object
     struct ColorRGB fg_color_highlighted = {0, 0, 0};
-    //! Not implemented using ColorRGB yet
+    //* Setting the background color of the highlighted section using a ColorRGB object
     struct ColorRGB bg_color_highlighted = {255, 255, 255};
 };
 
 //* Menu class
 class Menu {
     public:
+        //* Add an option to be displayed on the menu screen
         void add_option(std::string str, std::function<void()> func);
+
+        //* Add a non-selectable line on the menu screen to add padding or display text
         void add_line();
         void add_line(std::string str);
+
+        //* Move the current selection up by a given amount
         void move_selection_up();
         void move_selection_up(int by);
+
+        //* Move the current selection down by a given amount
         void move_selection_down();
         void move_selection_down(int by);
+
+        //* Should the menu entry loop back up to the first element after attempting to go down after the last element?
         void set_entry_loop(bool val);
+
+        //* Render the menu with the given settings
         void render();
         void render(MenuRenderSettings render_settings);
+
+        //* Handle the input by the user.
+        //* Typically used after rendering the menu
         void handle_input();
+
     private:
+        //* Should the menu loop around?
         bool loop_menu_options = false;
+
+        //* The vector storing all menu entry elements including non-selectable lines
         std::vector<Line> lines;
+
+        //* Current selection of the menu entry
         int selection = 0;
+
+        //* What should the ID of the next selectable menu entry be?
         int next_id = 0;
 };
 
 //* Initialise the TUI functions
 void init_tui();
 
-//* Terminal utility functions
-void get_terminal_size(int& width, int& height);
-void get_terminal_size();
+//* Set the dimensions of the terminal
+void set_terminal_size();
 
-//* Setting the foreground and background colour
+//* Get the dimensions of the terminal
+Dimension2D get_terminal_size();
+
+//* Set the foreground (text) color
 std::string fg_color(int r, int g, int b);
-std::string fg_color(std::vector<int> rgb);
+std::string fg_color(ColorRGB rgb);
 std::string fg_color(const char* hex);
 
+//* Set the background color of the text
 std::string bg_color(int r, int g, int b);
-std::string bg_color(std::vector<int> rgb);
+std::string bg_color(ColorRGB rgb);
 std::string bg_color(const char* hex);
 
 //* Reset formatting of the terminal
@@ -105,51 +185,57 @@ std::string reset_formatting();
 //* Clear the terminal in different ways
 std::string clear();
 
-//* Cursor control
+//* Set the cursor position anywhere on the terminal
 std::string set_cursor_position();
 std::string set_cursor_position(int x, int y);
-std::string move_cursor_up();
-std::string move_cursor_up(int lines);
 
-//! NON FUNCTIONAL
-const char* hide_cursor();
-//! NON FUNCTIONAL
-const char* show_cursor();
+//* Return the location of the cursor in a Location2D object
+struct Location2D wherexy();
 
-//* Hex to RGB
-void hex_to_rgb(const char* hex, int* r, int* g, int* b);
-std::vector<int> hex_to_rgb(const char* hex);
+//* Convert a hexadecimal color code to RGB values and return a ColorRGB object
+struct ColorRGB hex_to_rgb(const char* hex);
+struct ColorRGB hex_to_rgb(std::string hex);
 
 //* Split string by a character wide delimiter
 std::vector<std::string> split(std::string str, char delimiter);
 
-//* Align the text
+//* Align the text by providing an alignment state as a string
 void align(std::string align);
-void align_center();
+
+//* Align prints to the left
 void align_left();
+//* Align the prints to the center
+void align_center();
+//* Align the prints to the right
 void align_right();
 
-//* Extras to help bring flair to print statements
+//* Return the string padded to fit the width
 std::string padded_str(std::string str);
 std::string padded_str(std::string str, int w);
 std::string padded_str(std::string str, int w, const char* end);
 
+//* Helper function to calculate the number of spaces required on the left to pad the string to match the terminal width or the given width
 int calculate_padding_left(std::string str);
 int calculate_padding_left(std::string str, int w);
+
+//* Helper function to calculate the number of spaces required on the right to pad the string to match the terminal width or the given width
 int calculate_padding_right(std::string str);
 int calculate_padding_right(std::string str, int w);
 
-//* Printing content to the screen/terminal
+//* Printing text to the terminal
 void print();
 void print(std::string str);
 void print(std::string str, int w);
 void print(std::string str, std::string end);
 void print(std::string str, std::string end, int w);
 
-void print_raw(std::string);
+//* Print a string multiple times on the screen using one line.
+//* Useful for printing multiple blank lines for the interface
+void print_loop(std::string str, int times);
 
-void print_loop(int times, std::string str);
-
-//* Receiving inputs and input helpers
+//* Check if a key is present in the input buffer
+bool kbhit();
+//* Get a character from the keyboard input buffer
 char getch();
+//* Return the key pressed, while accounting for special keys
 char get_key();
