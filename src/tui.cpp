@@ -410,43 +410,46 @@ char getch() {
     return ch;
 }
 
-//TODO: get a KEY struct
-
 //* Parses key presses into understandable return object
 Key get_key() {
+    //* Get a character from the input buffer
     char c = getch();
     switch(c) {
-        case 27:
+        case 27: //* If the first character is an escape character
+            //* If there are no other characters in keyboard input buffer, then return escape as the character
             if (!kbhit()) return KEY_ESCAPE;
             
+            //* Get the next character from the keyboard input buffer and check for states
             switch(getch()) {
-                case 91:
+                case 91: //* If the next character is 91 (opened-square-bracket), then check for character states 
                     switch(getch()) {
-                        case 65:
+                        case 65: //* If the next character is 65 and no other inputs are in the keyboard input buffer, then the up arrow has been pressed
                             if (!kbhit()) return KEY_UP_ARROW;
                             break;
-                        case 66:
+                        case 66: //* If the next character is 66 and no other inputs are in the keyboard input buffer, then the down arrow has been pressed
                             if (!kbhit()) return KEY_DOWN_ARROW;
                             break;
-                        case 67:
+                        case 67: //* If the next character is 67 and no other inputs are in the keyboard input buffer, then the right arrow has been pressed
                             if (!kbhit()) return KEY_RIGHT_ARROW;
                             break;
-                        case 68:
+                        case 68: //* If the next character is 68 and no other inputs are in the keyboard input buffer, then the left arrow has been pressed
                             if (!kbhit()) return KEY_LEFT_ARROW;
                             break;
-                        default:
+                        default: //* By default, disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
                             while (kbhit()) getch();
                             return KEY_NULL;
                     }
-                default:
+                default: //* If the key is not 91 (opened-square-bracket), then disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
                     while(kbhit()) getch();
                     return KEY_NULL;
             }
-        default:
+        default: //* If the key is not 27 (escape), then do this
+            //* If the key is in BASIC_KEYS, then return that object
             for(auto k : BASIC_KEYS) {
                 if (k.key == c) return k;
             }
 
+            //* Otherwise, disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
             while(kbhit()) getch();
             return KEY_NULL;
     }
