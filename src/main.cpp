@@ -22,20 +22,26 @@ int main() {
     render_settings.bg_color_highlighted_hex = "#414868";
     render_settings.fg_color_highlighted_hex = "#9ece6a";
 
-    for(;;) {
-        set_terminal_size();
-        set_cursor_position();
-        fg_color("#f7768e");
-        bg_color("#1a1b26");
+    // for(;;) {
+    //     set_terminal_size();
+    //     set_cursor_position();
+    //     fg_color("#f7768e");
+    //     bg_color("#1a1b26");
 
-        print_loop("\n", 3);
-        print_title("ansi");
-        print_loop("\n", 3);
+    //     print_loop("\n", 3);
+    //     print_title("ansi");
+    //     print_loop("\n", 3);
 
-        menu.render(render_settings);
-        menu.handle_input();
-    }
-    // for (;;) std::cout << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " ";
+    //     menu.render(render_settings);
+    //     menu.handle_input();
+    // }
+    for (;;) std::cout << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " " << std::to_string(getch()) << " ";
 
     exit_program();
 }
+
+/*
+    if (kbhit()) { getch(); }
+    // this may work for no blocking getch
+    // untested, but it may work
+*/

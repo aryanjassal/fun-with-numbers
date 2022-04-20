@@ -404,19 +404,38 @@ char getch() {
 //* Parses key presses into understandable return object
 //! STILL INCOMPLETE
 char get_key() {
+    //* Get the first character from the keyboard buffer
     char c = getch();
+
+    //* If the first character is ESCAPE
     if (c == 27) {
-        if (!kbhit()) return c;
+        if (!kbhit()) { //* If there is no other keys in the keyboard buffer, then return escape key object
+            return KEY_ESCAPE;
+        }
 
         char d = getch();
         if (d == 91) {
             char e = getch();
             if (e == 49) {
-                getch();
-                getch();
-                return getch();
+                char f = getch();
+                if (f == 53) {
+                    getch();
+                    if (!kbhit()) return KEY_F5;
+                }
             } else if (e == 50) {
-                while (kbhit()) getch();
+                if (kbhit()) {
+                    switch(getch()) {
+                        case 48:
+                            if (!kbhit) return KEY_F9;
+                        case 50:
+                            if (!kbhit) return KEY_SHIFT_F11;
+                        case 52:
+                            if (!kbhit) return KEY_F12;
+                    }
+                    if (f == 48) {
+                        return KEY_F9
+                    }
+                }
                 return 0; // INSERT or a F<x> key
             } else if (e == 51) {
                 while (kbhit()) getch();
