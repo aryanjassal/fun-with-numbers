@@ -11,7 +11,7 @@ int main() {
     init_program();
 
     CheckNumberFeatures cnf;
-    cnf.add_attribute("Status", [] -> std::string { return "NICE"; });
+    cnf.add_attribute("Status", [] () -> std::string { return "NICE"; });
 
     Menu menu;
     menu.set_entry_loop(true);

@@ -4,16 +4,6 @@
 #include <vector>
 #include <functional>
 
-//* Extern important global variables
-extern Align ALIGN;
-//! GLOBAL COLORS are not used anywhere in the code and should not be set. This is for future use.
-extern ColorRGB g_bg_color;
-extern ColorRGB g_bg_color_highlighted;
-extern ColorRGB g_fg_color;
-extern ColorRGB g_fg_color_highlighted;
-//? May be removed
-extern Dimension2D t_size;
-
 //* Define key objects
 #define KEY_NULL                            Key {false, 0, "0"}
 #define KEY_TAB                             Key {false, 9, "9"}
@@ -250,3 +240,13 @@ Key get_key();
 //* Works like (string * num) in python, appending a string x amount of times and returning the string
 std::string extend_string(std::string str, int times);
 std::string extend_string(char str, int times);
+
+//* Extern important global variables
+extern Align ALIGN;
+//! GLOBAL COLORS are not used anywhere in the code and should not be set. This is for future use.
+extern ColorRGB g_bg_color;
+extern ColorRGB g_bg_color_highlighted;
+extern ColorRGB g_fg_color;
+extern ColorRGB g_fg_color_highlighted;
+//? May be removed
+extern Dimension2D t_size;
