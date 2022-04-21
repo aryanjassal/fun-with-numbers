@@ -4,6 +4,8 @@
 
 #include "tui.hpp"
 
+//TODO: GET THE COLORRGB COLORS WORKING IN THE RENDERER SETTINGS
+
 //* Line struct to store information about each line being displayed on the menu
 struct Entry {
     //* ID of the menu entry. Must be unset for non-interactive elements barring unintentional results.
@@ -161,15 +163,20 @@ struct CNFRenderSettings {
     struct ColorRGB bg_color = { 0, 0, 0 };
     struct ColorRGB error_fg_color = { 255, 0, 0 };
     struct ColorRGB error_bg_color = { 0, 0, 0 };
+    std::string error_fg_color_hex = "#ff0000";
+    std::string error_bg_color_hex = "#000000";
     std::string fg_color_hex = "#ffffff";
     std::string bg_color_hex = "#000000";
     std::string invalid_input_feedback = "Invalid input";
     std::string failed_conversion_feedback = "Failed conversion";
+    bool allow_empty_input = false;
+    std::string empty_input_feedback = "Empty input";
     int padding_before_error = 2;
     int padding_after_error = 2;
     int padding_below_input_field = 3;
     std::string features_display_text = "Number features";
-    int padding_between_features;
+    int padding_before_features = 1;
+    int padding_between_features = 1;
     std::string alignment = "center";
 };
 
@@ -179,11 +186,13 @@ class CheckNumberFeatures {
         void add_attribute(Attribute attr);
         void add_attribute(std::string label, std::function<std::string()> func, bool append_label);
         void add_attribute(const char* label, std::function<std::string()> func, bool append_label);
-        void render();
-        void handle_input(std::string &input);
+        int render(CNFRenderSettings render_settings);
+        int render();
+        int handle_input(CNFRenderSettings render_settings);
     private:
         std::vector<Attribute> attributes;
         bool error = false;
         std::string error_msg;
-        CNFRenderSettings render_settings;
+        std::string input;
+        // CNFRenderSettings render_settings;
 };

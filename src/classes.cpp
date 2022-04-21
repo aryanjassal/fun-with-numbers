@@ -220,14 +220,11 @@ void CheckNumberFeatures::add_attribute(const char* label, std::function<std::st
     add_attribute(Attribute {(std::string)label, func, append_label});
 }
 
-void CheckNumberFeatures::render() {
+int CheckNumberFeatures::render(CNFRenderSettings render_settings) {
     //* Clear the screen to indicate to the user that we have entered a new section of the program
     bg_color(render_settings.bg_color_hex);
     fg_color(render_settings.fg_color_hex);
     clear();
-
-    //* Define an input string that will hold all the entered information
-    std::string input;
 
     for (;;) {
         //* Set the cursor to home (0, 0)
@@ -253,26 +250,24 @@ void CheckNumberFeatures::render() {
             print_loop("\n", render_settings.padding_before_error, "");
 
             //* Change the foreground and background color
-            bg_color(render_settings.error_bg_color);
-            fg_color(render_settings.error_fg_color);
+            bg_color(render_settings.error_bg_color_hex);
+            fg_color(render_settings.error_fg_color_hex);
 
             //* Print out the error message
             print(error_msg);
 
             //* Revert the change in foreground and background color
-            bg_color(render_settings.bg_color);
-            fg_color(render_settings.fg_color);
+            bg_color(render_settings.bg_color_hex);
+            fg_color(render_settings.fg_color_hex);
 
             //* Print out the padding below the error message
             print_loop("\n", render_settings.padding_after_error, "");
 
-            //* Wait for a user input
-            // getch();
-
-            //* Then clear the error, error message, and the input box
+            //* Clear the input and recalculate the padded input too
+            input = "";
+            input_line = padded_str(input, render_settings.input_filler, render_settings.digits, "");
             error = false;
             error_msg = "";
-            input = "";
         } else {
             //* Add padding below the prompt
             print_loop("\n", render_settings.padding_below_prompt);
@@ -304,20 +299,32 @@ void CheckNumberFeatures::render() {
         print(middle_line);
         print(bottom_line);
 
-        handle_input(input);
+        return handle_input(render_settings);
     }
 }
 
-void CheckNumberFeatures::handle_input(std::string &input) {
+int CheckNumberFeatures::render() {
+    CNFRenderSettings render_settings;
+    return render(render_settings);
+}
+
+int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings) {
     Key key = get_key();
     if (key == KEY_BACKSPACE) {
         if (!input.empty()) {
             input.pop_back();
-            // continue;
         }
-    } else if (input.length() < render_settings.digits && key != KEY_ENTER) {
+    } else if (input.length() < render_settings.digits && key != KEY_ENTER && key != KEY_BACKSPACE & key != KEY_ESCAPE) {
         input += key.key;
     } else if (key == KEY_ENTER) {
+        if (render_settings.allow_empty_input && input.empty()) {
+            return 0;
+        } else if (!render_settings.allow_empty_input && input.empty()) {
+            error = true;
+            error_msg = render_settings.empty_input_feedback;
+            return 0;
+        }
+
         long long num;
         try {
             std::size_t pos;
@@ -326,30 +333,20 @@ void CheckNumberFeatures::handle_input(std::string &input) {
                 throw "Words in input";
             }
         } catch (...) {
-            // set_cursor_position(Location2D {0, 12});
             error = true;
             error_msg = render_settings.invalid_input_feedback;
-            // fg_color("#ff9e64");
-            // print("Seriously? I asked you to do ONE thing, enter a whole number.");
-            // fg_color("#f7768e");
-            // getch();
-            // input = "";
-            // continue;
+            return 0;
         }
 
-        print_loop("\n", render_settings.padding_below_input_field, "");
-        
-        // std::string num_feat;
-        // num_feat.append(">--------------------< NUMBER FEATURES OF ");
-        // num_feat.append(std::to_string(num));
-        // num_feat.append(" >--------------------<");
+        // error = false;
+        // error_msg = "";
 
-        // print(num_feat);
-        print(render_settings.features_display_text);
-        print_loop("\n", render_settings.padding_between_features, "");
+        print_loop("\n", render_settings.padding_below_input_field, "");
+
+        print(render_settings.features_display_text.replace(render_settings.features_display_text.find("|n_out|"), 7, input));
+        print_loop("\n", render_settings.padding_before_features, "");
         
         for (auto a : attributes) {
-            // std::string out = a.func();
             std::string out;
             if (a.append_label) {
                 out.append(a.label);
@@ -357,9 +354,16 @@ void CheckNumberFeatures::handle_input(std::string &input) {
             }
             out.append(a.func());
             print(out);
+
+            print_loop("\n", render_settings.padding_between_features, "");
         }
 
-        // getch();
-        return;
+        get_key();
+        input = "";
+
+        return 0;
+    } else if (key == KEY_ESCAPE) {
+        return 1;
     }
+    return 0;
 }
