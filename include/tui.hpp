@@ -160,11 +160,13 @@ Dimension2D get_terminal_size();
 void fg_color(int r, int g, int b);
 void fg_color(ColorRGB rgb);
 void fg_color(const char* hex);
+void fg_color(std::string hex);
 
 //* Set the background color of the text
 void bg_color(int r, int g, int b);
 void bg_color(ColorRGB rgb);
 void bg_color(const char* hex);
+void bg_color(std::string hex);
 
 //* Reset formatting of the terminal
 void reset_formatting();

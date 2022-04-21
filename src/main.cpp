@@ -15,7 +15,7 @@ int main() {
 
     Menu menu;
     menu.set_entry_loop(true);
-    menu.add_option("Check number features", cnf.render);
+    menu.add_option("Check number features", [&cnf] { cnf.render(); });
     menu.add_option("Plot numbers", [&] { return 0; });
     menu.add_option("Check overall stats", [&] { return 0; });
     menu.add_line();

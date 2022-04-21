@@ -180,10 +180,10 @@ class CheckNumberFeatures {
         void add_attribute(std::string label, std::function<std::string()> func, bool append_label);
         void add_attribute(const char* label, std::function<std::string()> func, bool append_label);
         void render();
-        void handle_input(std::string input);
+        void handle_input(std::string &input);
     private:
         std::vector<Attribute> attributes;
-        bool error;
+        bool error = false;
         std::string error_msg;
         CNFRenderSettings render_settings;
 };

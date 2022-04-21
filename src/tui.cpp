@@ -95,6 +95,11 @@ void fg_color(const char* hex) {
     fg_color(hex_to_rgb(hex));
 }
 
+//* Sets the foreground color (the text color) using a  hex code
+void fg_color(std::string hex) {
+    fg_color(hex_to_rgb(hex.c_str()));
+}
+
 //* Set the background color using three integers for Red, Green, and Blue values
 void bg_color(int r, int g, int b) {
     //* Start building the ANSI Escape code
@@ -120,6 +125,11 @@ void bg_color(ColorRGB rgb) {
 //* Sets the background color using a constant hex code
 void bg_color(const char* hex) {
     bg_color(hex_to_rgb(hex));
+}
+
+//* Sets the background color using a hex code
+void bg_color(std::string hex) {
+    bg_color(hex_to_rgb(hex.c_str()));
 }
 
 //* Resets all the terminal formatting
@@ -423,7 +433,7 @@ void print_loop(std::string str, int times, std::string end) {
 
 //* Prints out <str> <times> amount of times with the end character of newline (\n)
 void print_loop(std::string str, int times) {
-    print_loop(str, times, "g_");
+    print_loop(str, times, "");
 }
 
 //* Get the next character waiting in the keyboard input buffer

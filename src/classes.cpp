@@ -222,6 +222,8 @@ void CheckNumberFeatures::add_attribute(const char* label, std::function<std::st
 
 void CheckNumberFeatures::render() {
     //* Clear the screen to indicate to the user that we have entered a new section of the program
+    bg_color(render_settings.bg_color_hex);
+    fg_color(render_settings.fg_color_hex);
     clear();
 
     //* Define an input string that will hold all the entered information
@@ -306,7 +308,7 @@ void CheckNumberFeatures::render() {
     }
 }
 
-void CheckNumberFeatures::handle_input(std::string input) {
+void CheckNumberFeatures::handle_input(std::string &input) {
     Key key = get_key();
     if (key == KEY_BACKSPACE) {
         if (!input.empty()) {
@@ -357,7 +359,7 @@ void CheckNumberFeatures::handle_input(std::string input) {
             print(out);
         }
 
-        getch();
+        // getch();
         return;
     }
 }
