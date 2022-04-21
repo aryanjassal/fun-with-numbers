@@ -1,16 +1,21 @@
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include "utils.hpp"
 #include "ascii.hpp"
 #include "tui.hpp"
+#include "classes.hpp"
 
 int main() {
     init_program();
 
+    CheckNumberFeatures cnf;
+    cnf.add_attribute("Status", [] { print("NICE"); });
+
     Menu menu;
     menu.set_entry_loop(true);
-    menu.add_option("Check number features", [&] { return 0; });
+    menu.add_option("Check number features", cnf.render);
     menu.add_option("Plot numbers", [&] { return 0; });
     menu.add_option("Check overall stats", [&] { return 0; });
     menu.add_line();

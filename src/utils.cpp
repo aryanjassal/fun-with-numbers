@@ -26,17 +26,3 @@ void exit_program(int return_value) {
 void exit_program() {
     exit_program(0);
 }
-
-//* Works like (string * num) in python, appending a string x amount of times and returning the string
-std::string extend_string(std::string str, int times) {
-    //* Create the output string
-    std::string out;
-    
-    //* Append the string str to the output string out as many times as specified by the user
-    for (int i = 0; i < times; i++) {
-        out.append(str);
-    }
-
-    //* Return the extended string
-    return out;
-}

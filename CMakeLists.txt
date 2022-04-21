@@ -16,11 +16,13 @@ set(CODE_FILES
   ${CODE_DIR}/utils.cpp 
   ${CODE_DIR}/ascii.cpp 
   ${CODE_DIR}/tui.cpp
+  ${CODE_DIR}/classes.cpp
 )
 set(INCLUDE_FILES 
   ${INCLUDE_DIR}/utils.hpp 
   ${INCLUDE_DIR}/ascii.hpp 
   ${INCLUDE_DIR}/tui.hpp
+  ${INCLUDE_DIR}/classes.hpp
 )
 set(SOURCES ${INCLUDE_FILES} ${CODE_FILES})
 
