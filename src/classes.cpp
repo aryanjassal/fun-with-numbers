@@ -215,6 +215,11 @@ void CheckNumberFeatures::add_attribute(std::string label, std::function<std::st
     add_attribute(Attribute {label, func, append_label});
 }
 
+//* Add a number attribute to show to the user but pass in the required parameters to the function
+void CheckNumberFeatures::add_attribute(const char* label, std::function<std::string()> func, bool append_label) {
+    add_attribute(Attribute {(std::string)label, func, append_label});
+}
+
 void CheckNumberFeatures::render() {
     //* Clear the screen to indicate to the user that we have entered a new section of the program
     clear();

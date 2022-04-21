@@ -4,52 +4,6 @@
 
 #include "tui.hpp"
 
-//* Menu class
-class Menu {
-    public:
-        //* Add an option to be displayed on the menu screen
-        void add_option(std::string str, std::function<void()> func);
-
-        //* Adds a menu entry with given Entry settings
-        void add_entry(Entry entry);
-
-        //* Add a non-selectable line on the menu screen to add padding or display text
-        void add_line();
-        void add_line(std::string str);
-
-        //* Move the current selection up by a given amount
-        void move_selection_up();
-        void move_selection_up(int by);
-
-        //* Move the current selection down by a given amount
-        void move_selection_down();
-        void move_selection_down(int by);
-
-        //* Should the menu entry loop back up to the first element after attempting to go down after the last element?
-        void set_entry_loop(bool val);
-
-        //* Render the menu with the given settings
-        void render();
-        void render(MenuRenderSettings render_settings);
-
-        //* Handle the input by the user.
-        //* Typically used after rendering the menu
-        void handle_input();
-
-    private:
-        //* Should the menu loop around?
-        bool loop_menu_options = false;
-
-        //* The vector storing all menu entry elements including non-selectable lines
-        std::vector<Entry> entries;
-
-        //* Current selection of the menu entry
-        int selection = 0;
-
-        //* What should the ID of the next selectable menu entry be?
-        int next_id = 0;
-};
-
 //* Line struct to store information about each line being displayed on the menu
 struct Entry {
     //* ID of the menu entry. Must be unset for non-interactive elements barring unintentional results.
@@ -132,6 +86,52 @@ struct MenuRenderSettings {
     struct ColorRGB bg_color_highlighted = {255, 255, 255};
 };
 
+//* Menu class
+class Menu {
+    public:
+        //* Add an option to be displayed on the menu screen
+        void add_option(std::string str, std::function<void()> func);
+
+        //* Adds a menu entry with given Entry settings
+        void add_entry(Entry entry);
+
+        //* Add a non-selectable line on the menu screen to add padding or display text
+        void add_line();
+        void add_line(std::string str);
+
+        //* Move the current selection up by a given amount
+        void move_selection_up();
+        void move_selection_up(int by);
+
+        //* Move the current selection down by a given amount
+        void move_selection_down();
+        void move_selection_down(int by);
+
+        //* Should the menu entry loop back up to the first element after attempting to go down after the last element?
+        void set_entry_loop(bool val);
+
+        //* Render the menu with the given settings
+        void render();
+        void render(MenuRenderSettings render_settings);
+
+        //* Handle the input by the user.
+        //* Typically used after rendering the menu
+        void handle_input();
+
+    private:
+        //* Should the menu loop around?
+        bool loop_menu_options = false;
+
+        //* The vector storing all menu entry elements including non-selectable lines
+        std::vector<Entry> entries;
+
+        //* Current selection of the menu entry
+        int selection = 0;
+
+        //* What should the ID of the next selectable menu entry be?
+        int next_id = 0;
+};
+
 //************************************************************************************************
 //************************************************************************************************
 
@@ -178,6 +178,7 @@ class CheckNumberFeatures {
     public:
         void add_attribute(Attribute attr);
         void add_attribute(std::string label, std::function<std::string()> func, bool append_label);
+        void add_attribute(const char* label, std::function<std::string()> func, bool append_label);
         void render();
         void handle_input(std::string input);
     private:
