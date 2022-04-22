@@ -156,6 +156,8 @@ void set_terminal_size();
 //* Get the dimensions of the terminal
 Dimension2D get_terminal_size();
 
+//! Validity checks for values in fg_color and bg_color haven't been done, and an invalid value will most definitely result in a crash
+
 //* Set the foreground (text) color
 void fg_color(int r, int g, int b);
 void fg_color(ColorRGB rgb);
@@ -187,6 +189,7 @@ struct ColorRGB hex_to_rgb(const char* hex);
 struct ColorRGB hex_to_rgb(std::string hex);
 
 //* Split string by a character wide delimiter
+std::vector<std::string> split(std::string str);
 std::vector<std::string> split(std::string str, char delimiter);
 
 //* Align the text by providing an alignment state as a string
@@ -243,6 +246,15 @@ Key get_key();
 std::string extend_string(std::string str, int times);
 std::string extend_string(char str, int times);
 
+//* Fills the remaining lines on the screen
+Location2D fill_screen();
+
+//* Wraps the text by a given width
+std::string basic_text_wrapping(std::string str);
+std::string basic_text_wrapping(const char* str);
+std::string basic_text_wrapping(std::string str, int width);
+std::string basic_text_wrapping(const char* str, int width);
+
 //* Extern important global variables
 extern Align ALIGN;
 //! GLOBAL COLORS are not used anywhere in the code and should not be set. This is for future use.
@@ -252,3 +264,4 @@ extern ColorRGB g_fg_color;
 extern ColorRGB g_fg_color_highlighted;
 //? May be removed
 extern Dimension2D t_size;
+extern std::vector<Key> BASIC_KEYS;

@@ -140,7 +140,7 @@ class Menu {
 //* Attribute struct for adding new attributes to output of check number features
 struct Attribute {
     std::string label;
-    std::function<std::string()> func;
+    std::function<std::string(long long)> func;
     bool append_label;
 };
 
@@ -175,17 +175,19 @@ struct CNFRenderSettings {
     int padding_after_error = 2;
     int padding_below_input_field = 3;
     std::string features_display_text = "Number features";
-    int padding_before_features = 1;
+    int padding_before_features = 2;
     int padding_between_features = 1;
     std::string alignment = "center";
+    bool fill_screen = true;
+    int max_width = 60;
 };
 
 //* Check number features class
 class CheckNumberFeatures {
     public:
         void add_attribute(Attribute attr);
-        void add_attribute(std::string label, std::function<std::string()> func, bool append_label);
-        void add_attribute(const char* label, std::function<std::string()> func, bool append_label);
+        void add_attribute(std::string label, std::function<std::string(long long)> func, bool append_label);
+        void add_attribute(const char* label, std::function<std::string(long long)> func, bool append_label);
         int render(CNFRenderSettings render_settings);
         int render();
         int handle_input(CNFRenderSettings render_settings);
@@ -194,5 +196,4 @@ class CheckNumberFeatures {
         bool error = false;
         std::string error_msg;
         std::string input;
-        // CNFRenderSettings render_settings;
 };

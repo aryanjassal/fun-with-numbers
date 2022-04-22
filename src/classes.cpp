@@ -165,13 +165,7 @@ void Menu::render(MenuRenderSettings render_settings) {
         }
     }
 
-    if (render_settings.fill_screen) { //* If fill_screen setting is set, then fill the screen with blank prints
-        Location2D xy = wherexy();
-        while (xy.y < t_size.height - 1) {
-            xy = wherexy();
-            print();
-        }
-    }
+    if (render_settings.fill_screen) fill_screen();
 }
 
 //* Renders menu with default settings
@@ -211,12 +205,12 @@ void CheckNumberFeatures::add_attribute(Attribute attr) {
 }
 
 //* Add a number attribute to show to the user but pass in the required parameters to the function
-void CheckNumberFeatures::add_attribute(std::string label, std::function<std::string()> func, bool append_label) {
+void CheckNumberFeatures::add_attribute(std::string label, std::function<std::string(long long)> func, bool append_label) {
     add_attribute(Attribute {label, func, append_label});
 }
 
 //* Add a number attribute to show to the user but pass in the required parameters to the function
-void CheckNumberFeatures::add_attribute(const char* label, std::function<std::string()> func, bool append_label) {
+void CheckNumberFeatures::add_attribute(const char* label, std::function<std::string(long long)> func, bool append_label) {
     add_attribute(Attribute {(std::string)label, func, append_label});
 }
 
@@ -299,6 +293,8 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings) {
         print(middle_line);
         print(bottom_line);
 
+        if (render_settings.fill_screen) set_cursor_position(fill_screen());
+
         return handle_input(render_settings);
     }
 }
@@ -310,12 +306,11 @@ int CheckNumberFeatures::render() {
 
 int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings) {
     Key key = get_key();
+
     if (key == KEY_BACKSPACE) {
         if (!input.empty()) {
             input.pop_back();
         }
-    } else if (input.length() < render_settings.digits && key != KEY_ENTER && key != KEY_BACKSPACE & key != KEY_ESCAPE) {
-        input += key.key;
     } else if (key == KEY_ENTER) {
         if (render_settings.allow_empty_input && input.empty()) {
             return 0;
@@ -338,24 +333,21 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings) {
             return 0;
         }
 
-        // error = false;
-        // error_msg = "";
+        print_loop("\n", render_settings.padding_below_input_field);
 
-        print_loop("\n", render_settings.padding_below_input_field, "");
+        print(render_settings.features_display_text.replace(render_settings.features_display_text.find("|num|"), 5, input), "");
+        print_loop("", render_settings.padding_before_features);
 
-        print(render_settings.features_display_text.replace(render_settings.features_display_text.find("|n_out|"), 7, input));
-        print_loop("\n", render_settings.padding_before_features, "");
-        
         for (auto a : attributes) {
             std::string out;
             if (a.append_label) {
                 out.append(a.label);
                 out.append(": ");
             }
-            out.append(a.func());
+            out.append(a.func(num));
             print(out);
 
-            print_loop("\n", render_settings.padding_between_features, "");
+            print_loop("", render_settings.padding_between_features);
         }
 
         get_key();
@@ -364,6 +356,8 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings) {
         return 0;
     } else if (key == KEY_ESCAPE) {
         return 1;
-    }
+    } else if (input.length() < render_settings.digits && std::count(BASIC_KEYS.begin(), BASIC_KEYS.end(), key)) {
+        input += key.key;
+    } 
     return 0;
 }

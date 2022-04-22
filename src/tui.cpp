@@ -33,7 +33,7 @@ void init_tui() {
     set_terminal_size();
 
     //* Emplacing keys in the keys array
-    for (int i = 0; i < 256; i++) {
+    for (int i = 1; i < 256; i++) {
         BASIC_KEYS.emplace_back(Key {false, i, std::to_string(i)});
     }
 }
@@ -218,7 +218,7 @@ struct ColorRGB hex_to_rgb(std::string hex) {
 }
 
 //* Returns a vector of std::string split by the given delimiter
-std::vector<std::string> split(std::string str, const char delimiter) {
+std::vector<std::string> split(std::string str, char delimiter) {
     //* Create a string stream to use fancy functions such as getline() which automatically separates strings by delimiter
     std::stringstream ss(str);
 
@@ -390,7 +390,7 @@ std::string padded_str(std::string str, std::string filler, std::string end) {
 //* Prints a string <str> with the ending character(s) <end> and the width of <w>
 void print(std::string str, std::string end, int w) {
     //* Print statement first splits the string by newline (\n)
-    std::vector<std::string> lines = split(str);
+    std::vector<std::string> lines = split(str, '\n');
 
     //* If the given width is less than or equal to zero, then instead use the current terminal width
     //? This behaviour may change in the future
@@ -465,24 +465,36 @@ Key get_key() {
                     switch(getch()) {
                         case 65: //* If the next character is 65 and no other inputs are in the keyboard input buffer, then the up arrow has been pressed
                             if (!kbhit()) return KEY_UP_ARROW;
+                            //* Otherwise, clear the keyboard input buffer and break out of the loop
+                            while (kbhit()) getch();
                             break;
                         case 66: //* If the next character is 66 and no other inputs are in the keyboard input buffer, then the down arrow has been pressed
                             if (!kbhit()) return KEY_DOWN_ARROW;
+                            //* Otherwise, clear the keyboard input buffer and break out of the loop
+                            while (kbhit()) getch();
                             break;
                         case 67: //* If the next character is 67 and no other inputs are in the keyboard input buffer, then the right arrow has been pressed
                             if (!kbhit()) return KEY_RIGHT_ARROW;
+                            //* Otherwise, clear the keyboard input buffer and break out of the loop
+                            while (kbhit()) getch();
                             break;
                         case 68: //* If the next character is 68 and no other inputs are in the keyboard input buffer, then the left arrow has been pressed
                             if (!kbhit()) return KEY_LEFT_ARROW;
+                            //* Otherwise, clear the keyboard input buffer and break out of the loop
+                            while (kbhit()) getch();
                             break;
                         default: //* By default, disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
                             while (kbhit()) getch();
                             return KEY_NULL;
                     }
+                    //* Just do this in case there is anything still left in the keyboard input buffer
+                    while (kbhit()) getch();
                 default: //* If the key is not 91 (opened-square-bracket), then disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
                     while(kbhit()) getch();
                     return KEY_NULL;
             }
+            //* Just do this in case there is anything still left in the keyboard input buffer
+            while (kbhit()) getch();
         default: //* If the key is not 27 (escape), then do this
             //* If the key is in BASIC_KEYS, then return that object
             for(auto k : BASIC_KEYS) {
@@ -540,4 +552,65 @@ std::string extend_string(std::string str, int times) {
 //* Append a character to a string <times> amount of times and return the string
 std::string extend_string(char str, int times) {
     return extend_string(std::string(1, str), times);
+}
+
+//* Fills the screen with blank prints
+Location2D fill_screen() {
+    Location2D retain_xy = wherexy();
+    Location2D xy = wherexy();
+    while (xy.y < t_size.height - 1) {
+        xy = wherexy();
+        print();
+    }
+    return retain_xy;
+}
+
+//* Wraps the string to fit in the width
+//TODO: Long words break this. Need to add hypenation.
+//! Warning: Breaks on using UTF-8 characters. Only ASCII characters supported.
+std::string basic_text_wrapping(std::string str, int width) {
+    std::vector<std::string> words = split(str, ' ');
+    std::string temp;
+    std::string out;
+    int new_lines = 0;
+
+    for(auto word : words) {
+        if (temp.length() + word.length() < width) {
+            temp.append(word);
+            temp.append(" ");
+            new_lines = 0;
+        } else {
+            temp.pop_back();
+            temp.append("\n");
+            out.append(temp);
+            temp = "";
+            temp.append(word);
+            temp.append(" ");
+        }
+    }
+
+    if (temp.length() > 0) {
+        temp.pop_back();
+        out.append(temp);
+    }
+
+    return out;
+}
+
+//* Wraps the text by given width with const char*
+//* Works the same as print()
+std::string basic_text_wrapping(const char* str, int width) {
+    return basic_text_wrapping((std::string)str, t_size.width);
+}
+
+//* Wraps the text by the terminal width
+//* Works the same as print()
+std::string basic_text_wrapping(std::string str) {
+    return basic_text_wrapping(str, t_size.width);
+}
+
+//* Wraps the text by the terminal width
+//* Works the same as print()
+std::string basic_text_wrapping(const char* str) {
+    return basic_text_wrapping((std::string)str, t_size.width);
 }
