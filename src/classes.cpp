@@ -347,24 +347,28 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
         }
 
         long long num_entries = stats.get_stat(1).val;
-        num_entries += 1;
         long long total = stats.get_stat(2).val;
-        total += num;
         long long average;
         
-        if (total > 0 && num_entries > 0) {
-            average = (int)(total / num_entries);
-        }
-
-        long long largest_num, smallest_num;
+        long long smallest_num = stats.get_stat(4).val;
+        long long largest_num = stats.get_stat(5).val;
 
         if (total == 0) {
             largest_num = num;
             smallest_num = num;
-        } else if (num < smallest_num) {
+        } 
+        if (num < smallest_num) {
             smallest_num = num;
-        } else if (num > largest_num) {
+        }
+        if (num > largest_num) {
             largest_num = num;
+        }
+
+        num_entries += 1;
+        total += num;
+
+        if (total > 0 && num_entries > 0) {
+            average = (int)(total / num_entries);
         }
 
         stats.set_stat(1, num_entries);

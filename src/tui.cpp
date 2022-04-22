@@ -558,10 +558,12 @@ std::string extend_string(char str, int times) {
 Location2D fill_screen() {
     Location2D retain_xy = wherexy();
     Location2D xy = wherexy();
-    while (xy.y < t_size.height - 1) {
+    while (xy.y < t_size.height - 3) {
         xy = wherexy();
         print();
     }
+    std::string credit_to_zoelabbb = "Credit to zoelabbb (https://github.com/zoelabbb/) for providing inspiration and some parts of the code from their project \"conio.h for linux\" (https://github.com/zoelabbb/conio.h/blob/master/conio.h)";
+    print(basic_text_wrapping(credit_to_zoelabbb) + "\n");
     return retain_xy;
 }
 
