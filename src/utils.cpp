@@ -33,14 +33,32 @@ void exit_program() {
 
 std::vector<long long> find_factors(long long num) {
     std::vector<long long> factors;
-    factors.push_back(1);
 
-    for (long long i = 2; i < num / 2; i++) {
+    for (long long i = 2; i <= abs(num) / 2; i++) {
         if (num % i == 0) factors.push_back(i);
     }
+    factors.push_back(abs(num));
+    factors.push_back(1);
 
-    factors.push_back(num);
+    if (num < 0) {
+        // for (long long i = -2; i > num / 2; i--) {
+        //     if (num % i == 0) factors.push_back(i);
+        // }
+        // factors.push_back(-1);
+        std::vector<long long> temp;
+        for (auto fac : factors) {
+            temp.push_back(-fac);
+        }
+        // negative_factors = factors;
+        factors.insert(factors.end(), temp.begin(), temp.end());
+        // factors.push_back(num);
+    } else if (num == 0) {
+        factors.push_back(0);
+        return factors;
+    }
+
     std::sort(factors.begin(), factors.end());
+
     return factors;
 }
 

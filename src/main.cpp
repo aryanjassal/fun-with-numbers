@@ -23,6 +23,7 @@ int main() {
     cnf_render_settings.features_display_text = ">--------------------< NUMBER FEATURES OF |num| >--------------------<";
     cnf_render_settings.input_prompt_text = "Please enter a whole number that will be checked. Press ESC to go back to the menu.";
     cnf_render_settings.allow_empty_input = true;
+    cnf_render_settings.max_width = 80;
 
     CheckNumberFeatures cnf;
     cnf.add_attribute("Positive/Negative/Zero", [] (long long num) -> std::string { return num > 0 ? "Positive" : num < 0 ? "Negative" : "Zero"; }  , false);
@@ -30,7 +31,12 @@ int main() {
     cnf.add_attribute("Factors", [&cnf_render_settings] (long long num) -> std::string { 
         std::vector <long long> factors = find_factors(num);
 
-        std::string factors_out;
+        std::string factors_out = "Factors are: ";
+
+        if (factors.at(0) == 0) {
+            factors_out = "Infinite factors";
+        }
+
         for (long long factor : factors) {
             factors_out.append(std::to_string(factor));
             factors_out.append(" ");
@@ -38,7 +44,7 @@ int main() {
         factors_out.pop_back();
 
         return basic_text_wrapping(factors_out, cnf_render_settings.max_width);
-    } , true);
+    } , false);
     cnf.add_attribute("PrimeOrNot", [] (long long num) -> std::string { return find_factors(num).size() > 2 ? "Composite number" : "Prime number"; } , false);
 
     Menu menu;
