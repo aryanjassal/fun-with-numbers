@@ -26,6 +26,8 @@ ColorRGB g_bg_color = {0, 0, 0};
 ColorRGB g_fg_color = {255, 255, 255};
 ColorRGB g_bg_color_highlighted = {255, 255, 255};
 ColorRGB g_fg_color_highlighted = {0, 0, 0};
+ColorRGB g_bg_color_error = {0, 0, 0};
+ColorRGB g_fg_color_error = {255, 0, 0};
 
 //* Initialise the terminal user interface by setting default parameters
 void init_tui() {
@@ -556,13 +558,16 @@ std::string extend_string(char str, int times) {
 
 //* Fills the screen with blank prints
 Location2D fill_screen() {
+    std::string credit_to_zoelabbb = "Credit to zoelabbb (https://github.com/zoelabbb/) for providing inspiration and some parts of the code from their project \"conio.h for linux\" (https://github.com/zoelabbb/conio.h/blob/master/conio.h)";
+    
+    std::vector<std::string> lines = split(basic_text_wrapping(credit_to_zoelabbb));
+
     Location2D retain_xy = wherexy();
     Location2D xy = wherexy();
-    while (xy.y < t_size.height - 3) {
+    while (xy.y < t_size.height - (2 + (lines.size()))) {
         xy = wherexy();
         print();
     }
-    std::string credit_to_zoelabbb = "Credit to zoelabbb (https://github.com/zoelabbb/) for providing inspiration and some parts of the code from their project \"conio.h for linux\" (https://github.com/zoelabbb/conio.h/blob/master/conio.h)";
     print(basic_text_wrapping(credit_to_zoelabbb) + "\n");
     return retain_xy;
 }

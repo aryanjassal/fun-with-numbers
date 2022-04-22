@@ -18,8 +18,8 @@ struct StatsRenderSettings {
     int padding_below_title = 4;
     bool render_label = true;
 
-    std::string bg_color_hex = "#000000";
-    std::string fg_color_hex = "#ffffff";
+    // std::string bg_color_hex = "#000000";
+    // std::string fg_color_hex = "#ffffff";
 
     bool fill_screen = true;
 };
@@ -121,25 +121,30 @@ struct MenuRenderSettings {
     //! NOT IMPLEMENTED YET
     int pointer_space_from_text;
 
+    int padding_above_title = 3;
+    std::function<void(std::string)> title_renderer;
+    std::string title_style;
+    int padding_below_title = 3;
+
     //* Setting the foreground color using hexadecimal color codes
-    std::string fg_color_hex = "#ffffff";
+    // std::string fg_color_hex = "#ffffff";
     //* Setting the background color using hexadecimal color color
-    std::string bg_color_hex = "#000000";
+    // std::string bg_color_hex = "#000000";
 
     //* Setting the foreground color using a ColorRGB object
-    struct ColorRGB fg_color = {255, 255, 255};
+    // struct ColorRGB fg_color = {255, 255, 255};
     //* Setting the background color using a ColorRGB object
-    struct ColorRGB bg_color = {0, 0, 0};
+    // struct ColorRGB bg_color = {0, 0, 0};
 
     //* Setting the foreground color of the highlighted section using hexadecimal color codes
-    std::string fg_color_highlighted_hex = "#000000";
+    // std::string fg_color_highlighted_hex = "#000000";
     //* Setting the background color of the highlighted section using hexadecimal color codes
-    std::string bg_color_highlighted_hex = "#ffffff";
+    // std::string bg_color_highlighted_hex = "#ffffff";
 
     //* Setting the foreground color of the highlighted section using a ColorRGB object
-    struct ColorRGB fg_color_highlighted = {0, 0, 0};
+    // struct ColorRGB fg_color_highlighted = {0, 0, 0};
     //* Setting the background color of the highlighted section using a ColorRGB object
-    struct ColorRGB bg_color_highlighted = {255, 255, 255};
+    // struct ColorRGB bg_color_highlighted = {255, 255, 255};
 };
 
 //* Menu class
@@ -213,14 +218,14 @@ struct CNFRenderSettings {
     int padding_below_prompt = 2;
     std::string prompt = "# > ";
     std::string input_filler = "_";
-    struct ColorRGB fg_color = { 255, 255, 255 };
-    struct ColorRGB bg_color = { 0, 0, 0 };
-    struct ColorRGB error_fg_color = { 255, 0, 0 };
-    struct ColorRGB error_bg_color = { 0, 0, 0 };
-    std::string error_fg_color_hex = "#ff0000";
-    std::string error_bg_color_hex = "#000000";
-    std::string fg_color_hex = "#ffffff";
-    std::string bg_color_hex = "#000000";
+    // struct ColorRGB fg_color = { 255, 255, 255 };
+    // struct ColorRGB bg_color = { 0, 0, 0 };
+    // struct ColorRGB error_fg_color = { 255, 0, 0 };
+    // struct ColorRGB error_bg_color = { 0, 0, 0 };
+    // std::string error_fg_color_hex = "#ff0000";
+    // std::string error_bg_color_hex = "#000000";
+    // std::string fg_color_hex = "#ffffff";
+    // std::string bg_color_hex = "#000000";
     std::string invalid_input_feedback = "Invalid input";
     std::string failed_conversion_feedback = "Failed conversion";
     bool allow_empty_input = false;
@@ -250,4 +255,71 @@ class CheckNumberFeatures {
         bool error = false;
         std::string error_msg;
         std::string input;
+};
+
+//************************************************************************************************
+//************************************************************************************************
+
+
+struct Setting {
+    std::string label;
+    std::string type;
+    std::vector<std::pair<std::string, std::string>> options;
+    std::string& current_selection;
+};
+
+struct SettingsRenderSettings {
+    int padding_before_title = 3;
+    std::function<void(std::string)> title_renderer;
+    std::string title_style;
+    int padding_after_title = 3;
+    std::string usage_explanation = "Enter to select setting. Enter to save setting. Escape to exit setting without saving. Escape again to go back to the main menu. Backspace to go to menu without saving. Arrow keys to navigate and to increase/decrease values; Enter key to optionally check checkboxes.";
+    int padding_between_settings = 1;
+    std::string alignment = "center";
+};
+
+class Settings {
+    public:
+        void add_setting(Setting setting);
+        void add_setting(std::string label, std::string type, std::vector<std::pair<std::string, std::string>> options, std::string& current_selection);
+        int render();
+        int render(SettingsRenderSettings render_settings);
+        void handle_input();
+    private:
+        Setting currently_selected;
+        std::vector<Setting> all_settings;
+};
+
+
+//************************************************************************************************
+//************************************************************************************************
+
+struct GraphRenderSettings {
+    int padding_before_graph = 0;
+    int graph_width = 0;
+    int graph_height = (int)((t_size.height * 2) / 3);
+
+    int digits;
+    std::string top_left_corner = "╔";
+    std::string top_right_corner = "╗";
+    std::string bottom_left_corner = "╚";
+    std::string bottom_right_corner = "╝";
+    std::string vertical_bar = "║";
+    std::string horizontal_bar = "═";
+    std::string horizontal_padding = " ";
+    // int padding_from_top = 3;
+    std::string input_prompt_text = "Enter coordinates separated by a comma";
+    // int padding_below_prompt = 2;
+    std::string prompt = "coordinates > ";
+    std::string input_filler = "_";
+};
+
+class PointPlotter {
+    public:
+        void add_point(Location2D point);
+        int render();
+        int render(GraphRenderSettings render_settings);
+        int handle_input();
+    private:
+        std::vector<Location2D> points;
 };

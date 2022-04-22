@@ -87,6 +87,15 @@ void Menu::set_entry_loop(bool val) {
 
 //* Render the menu using given render settings 
 void Menu::render(MenuRenderSettings render_settings) {
+    set_cursor_position();
+    //* Set the normal foreground and background color
+    fg_color(g_fg_color);
+    bg_color(g_bg_color);
+    
+    print_loop("", render_settings.padding_above_title);
+    render_settings.title_renderer(render_settings.title_style);
+    print_loop ("", render_settings.padding_below_title);
+
     for (auto& e : entries) {
         //* Align the output to the alignment as specified by the alignment setting
         align(render_settings.alignment);
@@ -95,10 +104,6 @@ void Menu::render(MenuRenderSettings render_settings) {
         std::string label;
         label.append(padded_str(e.label, render_settings.selection_size, ""));
 
-        //* Set the normal foreground and background color
-        fg_color(render_settings.fg_color_hex.c_str());
-        bg_color(render_settings.bg_color_hex.c_str());
-
         if (selection == e.id) { //* If selection matches the choice ID of the option, then draw the entry using highlighted foreground and background settings
             //* Calculate the left and right padding required
             std::string pl = extend_string(" ", calculate_padding_left(label));
@@ -106,15 +111,15 @@ void Menu::render(MenuRenderSettings render_settings) {
 
             if (render_settings.alignment == ALIGN.LEFT) { //* If the menu is left-aligned
                 //* Change the foreground and background color to highlighted colors because this entry is highlighted
-                fg_color(render_settings.fg_color_highlighted_hex.c_str());
-                bg_color(render_settings.bg_color_highlighted_hex.c_str());
+                fg_color(g_fg_color_highlighted);
+                bg_color(g_bg_color_highlighted);
 
                 //* Output the label
                 std::cout << label;
 
                 //* Revert the colors to normal foreground and background colors
-                fg_color(render_settings.fg_color_hex.c_str());
-                bg_color(render_settings.bg_color_hex.c_str());
+                fg_color(g_fg_color);
+                bg_color(g_bg_color);
 
                 //* Print the left padding, right padding, and theending string
                 std::cout << pl << pr << render_settings.end;
@@ -123,15 +128,14 @@ void Menu::render(MenuRenderSettings render_settings) {
                 std::cout << pl;
 
                 //* Change the foreground and background color to highlighted colors because this entry is highlighted
-                fg_color(render_settings.fg_color_highlighted_hex.c_str());
-                bg_color(render_settings.bg_color_highlighted_hex.c_str());
-
+                fg_color(g_fg_color_highlighted);
+                bg_color(g_bg_color_highlighted);
                 //* Output the label
                 std::cout << label;
 
                 //* Revert the colors to normal foreground and background colors
-                fg_color(render_settings.fg_color_hex.c_str());
-                bg_color(render_settings.bg_color_hex.c_str());
+                fg_color(g_fg_color);
+                bg_color(g_bg_color);
 
                 //* Print the right padding then print out the ending string
                 std::cout << pr << render_settings.end;
@@ -140,15 +144,15 @@ void Menu::render(MenuRenderSettings render_settings) {
                 std::cout << pl << pr;
 
                 //* Change the foreground and background color to highlighted colors because this entry is highlighted
-                fg_color(render_settings.fg_color_highlighted_hex.c_str());
-                bg_color(render_settings.bg_color_highlighted_hex.c_str());
+                fg_color(g_fg_color_highlighted);
+                bg_color(g_bg_color_highlighted);
 
                 //* Output the label
                 std::cout << label;
 
                 //* Revert the colors to normal foreground and background colors
-                fg_color(render_settings.fg_color_hex.c_str());
-                bg_color(render_settings.bg_color_hex.c_str());
+                fg_color(g_fg_color);
+                bg_color(g_bg_color);
 
                 //* Print the ending string
                 std::cout << render_settings.end;
@@ -217,8 +221,8 @@ void CheckNumberFeatures::add_attribute(const char* label, std::function<std::st
 
 int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &stats) {
     //* Clear the screen to indicate to the user that we have entered a new section of the program
-    bg_color(render_settings.bg_color_hex);
-    fg_color(render_settings.fg_color_hex);
+    bg_color(g_bg_color);
+    fg_color(g_fg_color);
     clear();
 
     for (;;) {
@@ -245,15 +249,15 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &s
             print_loop("\n", render_settings.padding_before_error, "");
 
             //* Change the foreground and background color
-            bg_color(render_settings.error_bg_color_hex);
-            fg_color(render_settings.error_fg_color_hex);
+            bg_color(g_bg_color_error);
+            fg_color(g_fg_color_error);
 
             //* Print out the error message
             print(error_msg);
 
             //* Revert the change in foreground and background color
-            bg_color(render_settings.bg_color_hex);
-            fg_color(render_settings.fg_color_hex);
+            bg_color(g_bg_color);
+            fg_color(g_fg_color);
 
             //* Print out the padding below the error message
             print_loop("\n", render_settings.padding_after_error, "");
@@ -479,8 +483,8 @@ int Statistics::render(StatsRenderSettings render_settings) {
     set_cursor_position();
     align(render_settings.alignment);
 
-    bg_color(render_settings.bg_color_hex);
-    fg_color(render_settings.fg_color_hex);
+    bg_color(g_bg_color);
+    fg_color(g_fg_color);
 
     print_loop("", render_settings.padding_from_top);
     render_settings.title_renderer(render_settings.title_rendering_style);

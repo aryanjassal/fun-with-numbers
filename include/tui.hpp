@@ -260,8 +260,10 @@ extern Align ALIGN;
 //! GLOBAL COLORS are not used anywhere in the code and should not be set. This is for future use.
 extern ColorRGB g_bg_color;
 extern ColorRGB g_bg_color_highlighted;
+extern ColorRGB g_bg_color_error;
 extern ColorRGB g_fg_color;
 extern ColorRGB g_fg_color_highlighted;
+extern ColorRGB g_fg_color_error;
 //? May be removed
 extern Dimension2D t_size;
 extern std::vector<Key> BASIC_KEYS;
