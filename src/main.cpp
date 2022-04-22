@@ -8,8 +8,9 @@
 #include "classes.hpp"
 
 //TODO: Credit zoelabbb at the bottom of the screen for the kbhit() and getch() functions.
-//TODO: Fix finding factors and make it more efficient
-//TODO: Add manual text wrapping
+//TODO: Find factors of a number FAST
+//TODO: Add enums for alignment and other stuff
+//TODO: Move title rendering code inside Menu.render()
 
 int main() {
     init_program();
@@ -45,25 +46,47 @@ int main() {
 
         return basic_text_wrapping(factors_out, cnf_render_settings.max_width);
     } , false);
-    cnf.add_attribute("PrimeOrNot", [] (long long num) -> std::string { return find_factors(num).size() > 2 ? "Composite number" : "Prime number"; } , false);
+    cnf.add_attribute("PrimeOrNot", [] (long long num) -> std::string { int n = find_factors(num).size(); return n > 2 ? "Composite number" : n != 1 ? "Prime number" : "Unique Number"; } , false);
+
+    Statistics stats;
+    stats.add_stat("Numbers entered");
+    stats.add_stat("Total of numbers");
+    stats.add_stat("Average of numbers");
+    stats.add_stat("Smallest number entered");
+    stats.add_stat("Largest number entered");
+    stats.load_stats();
+
+    StatsRenderSettings s_render_settings;
+    s_render_settings.title_renderer = [&s_render_settings] (std::string style) { print_usage_stats(style); };
+    s_render_settings.bg_color_hex = "#1a1b26";
+    s_render_settings.fg_color_hex = "#f7768e";
 
     Menu menu;
     menu.set_entry_loop(true);
-    menu.add_option("Check number features", [&cnf, &cnf_render_settings] {
+    menu.add_option("Check number features", [&cnf, &cnf_render_settings, &stats] {
         int quit = 0;
 
         while(!quit) {
-            quit = cnf.render(cnf_render_settings);
+            quit = cnf.render(cnf_render_settings, stats);
         }
         return;
     });
     menu.add_option("Plot numbers", [] { return 0; });
-    menu.add_option("Check overall stats", [] { return 0; });
+    menu.add_option("Check overall stats", [&stats, &s_render_settings] { 
+        int quit = 0;
+
+        while(!quit) {
+            quit = stats.render(s_render_settings);
+        }
+    });
     menu.add_option("Memory benchmark", [] { return 0; });
     menu.add_option("Brain speed test", [] { return 0; });
     menu.add_line();
     menu.add_option("Settings", [] { return 0; });
-    menu.add_option("Quit", [] { exit_program(); });
+    menu.add_option("Quit", [&stats, &s_render_settings] { 
+        stats.save_stats();
+        exit_program(); 
+    });
 
     MenuRenderSettings render_settings;
     render_settings.bg_color_hex = "#1a1b26";

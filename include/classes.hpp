@@ -4,6 +4,60 @@
 
 #include "tui.hpp"
 
+
+//************************************************************************************************
+//************************************************************************************************
+
+
+struct StatsRenderSettings {
+    std::string alignment = "center";
+    int padding_between_lines = 1;
+    int padding_from_top = 5;
+    std::string title_rendering_style = "ansi";
+    std::function<void(std::string)> title_renderer;
+    int padding_below_title = 4;
+    bool render_label = true;
+
+    std::string bg_color_hex = "#000000";
+    std::string fg_color_hex = "#ffffff";
+
+    bool fill_screen = true;
+};
+
+struct Stat {
+    //* The ID of the object, so the ordering of the save file won't matter
+    int id;
+
+    //* The label that will be rendered for this specific stat entry
+    std::string label;
+
+    //* The value for this Stat object
+    long long val;
+};
+
+class Statistics {
+    public:
+        void add_stat(Stat stat);
+        void add_stat(std::string label);
+        void add_stat(std::string label, long long val);
+        struct Stat get_stat(int id);
+        void set_stat(int id, long long val);
+        void save_stats();
+        void save_stats(std::string file_name);
+        void load_stats();
+        void load_stats(std::string file_name);
+        int render();
+        int render(StatsRenderSettings render_settings);
+    private:
+        std::vector<Stat> stats;
+        int next_id = 1;
+};
+
+
+//************************************************************************************************
+//************************************************************************************************
+
+
 //TODO: GET THE COLORRGB COLORS WORKING IN THE RENDERER SETTINGS
 
 //* Line struct to store information about each line being displayed on the menu
@@ -41,12 +95,12 @@ struct MenuRenderSettings {
     std::string line_padding_string = " ";
 
     //* Default alignment of the menu entries
-    //* Recommended to use ALIGN.<alignment> to set alignment 
+    //* Recommended to use ALIGN.<alignment> to set alignment
     std::string alignment = "center";
 
     //* Wheather the menu should fill the entire screen or only update the amount of screen it needs to render itself
     bool fill_screen = true;
-    
+
     //* Use angled brackets or any other pointer to provide feedback. Can be used alongside feedback bars
     //! NOT IMPLEMENTED YET
     bool use_entry_pointers = false;
@@ -188,9 +242,9 @@ class CheckNumberFeatures {
         void add_attribute(Attribute attr);
         void add_attribute(std::string label, std::function<std::string(long long)> func, bool append_label);
         void add_attribute(const char* label, std::function<std::string(long long)> func, bool append_label);
-        int render(CNFRenderSettings render_settings);
-        int render();
-        int handle_input(CNFRenderSettings render_settings);
+        int render(CNFRenderSettings render_settings, Statistics &stats);
+        // int render();
+        int handle_input(CNFRenderSettings render_settings, Statistics &stats);
     private:
         std::vector<Attribute> attributes;
         bool error = false;

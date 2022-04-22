@@ -1,5 +1,6 @@
 #include <vector>
 #include <iostream>
+#include <fstream>
 
 #include "classes.hpp"
 #include "tui.hpp"
@@ -214,7 +215,7 @@ void CheckNumberFeatures::add_attribute(const char* label, std::function<std::st
     add_attribute(Attribute {(std::string)label, func, append_label});
 }
 
-int CheckNumberFeatures::render(CNFRenderSettings render_settings) {
+int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &stats) {
     //* Clear the screen to indicate to the user that we have entered a new section of the program
     bg_color(render_settings.bg_color_hex);
     fg_color(render_settings.fg_color_hex);
@@ -295,16 +296,11 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings) {
 
         if (render_settings.fill_screen) set_cursor_position(fill_screen());
 
-        return handle_input(render_settings);
+        return handle_input(render_settings, stats);
     }
 }
 
-int CheckNumberFeatures::render() {
-    CNFRenderSettings render_settings;
-    return render(render_settings);
-}
-
-int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings) {
+int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statistics &stats) {
     Key key = get_key();
 
     if (key == KEY_BACKSPACE) {
@@ -350,6 +346,33 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings) {
             print_loop("", render_settings.padding_between_features);
         }
 
+        long long num_entries = stats.get_stat(1).val;
+        num_entries += 1;
+        long long total = stats.get_stat(2).val;
+        total += num;
+        long long average;
+        
+        if (total > 0 && num_entries > 0) {
+            average = (int)(total / num_entries);
+        }
+
+        long long largest_num, smallest_num;
+
+        if (total == 0) {
+            largest_num = num;
+            smallest_num = num;
+        } else if (num < smallest_num) {
+            smallest_num = num;
+        } else if (num > largest_num) {
+            largest_num = num;
+        }
+
+        stats.set_stat(1, num_entries);
+        stats.set_stat(2, total);
+        stats.set_stat(3, average);
+        stats.set_stat(4, smallest_num);
+        stats.set_stat(5, largest_num);
+
         get_key();
         input = "";
 
@@ -360,4 +383,128 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings) {
         input += key.key;
     } 
     return 0;
+}
+
+
+//*****************************************************************************************************
+//*****************************************************************************************************
+
+
+void Statistics::add_stat(Stat stat) {
+    stat.id == next_id;
+    stats.emplace_back(stat);
+    next_id++;
+}
+
+void Statistics::add_stat(std::string label, long long val) {
+    Stat stat;
+    stat.id = next_id;
+    stat.label = label;
+    stat.val = val;
+    stats.emplace_back(stat);
+    next_id++;
+}
+
+void Statistics::add_stat(std::string label) {
+    Stat stat;
+    stat.id = next_id;
+    stat.label = label;
+    stat.val = 0;
+    stats.emplace_back(stat);
+    next_id++;
+}
+
+struct Stat Statistics::get_stat(int id) {
+        for (auto s : stats) {
+        if (s.id == id) {
+            return s;
+        }
+    }
+    throw std::invalid_argument("Stat with ID not found");
+}
+
+void Statistics::set_stat(int id, long long val) {
+    // auto stat = get_stat(id);
+    // stat.val = val;
+
+    stats.at(id - 1).val = val;
+}
+
+//TODO: Encrypt the save file
+void Statistics::save_stats(std::string file_name) {
+    std::ofstream file;
+    file.open(file_name);
+    for (auto stat : stats) {
+        file << stat.id << ":" << stat.val << "\n";
+    }
+    file.close();
+}
+
+void Statistics::save_stats() {
+    save_stats("statistics.save");
+}
+
+void Statistics::load_stats(std::string file_name) {
+    std::ifstream file;
+    file.open(file_name);
+    // std::vector<std::string> lines;
+    for (auto& stat : stats) {
+        std::string line;
+        getline(file, line, '\n');
+        // lines.push_back(line);
+        std::vector<std::string> id_val_form = split(line, ':');
+        
+        Stat s;
+        try {
+            s = get_stat(std::stoi(id_val_form.at(0)));
+        } catch (...) {
+            // throw std::runtime_error("Save file corrupt. Delete the save file and re-run the program");
+            continue;
+        }
+
+        stat.val = std::stoi(id_val_form.at(1));
+    }
+    file.close();
+}
+
+void Statistics::load_stats() {
+    load_stats("statistics.save");
+}
+
+int Statistics::render(StatsRenderSettings render_settings) {
+    set_cursor_position();
+    align(render_settings.alignment);
+
+    bg_color(render_settings.bg_color_hex);
+    fg_color(render_settings.fg_color_hex);
+
+    print_loop("", render_settings.padding_from_top);
+    render_settings.title_renderer(render_settings.title_rendering_style);
+    print_loop("", render_settings.padding_below_title);
+
+    for (auto s : stats) {
+        std::string out;
+        if (render_settings.render_label) {
+            out.append(s.label);
+            out.append(": ");
+        }
+        out.append(std::to_string(s.val));
+
+        align(render_settings.alignment);
+
+        print(out);
+        print_loop("", render_settings.padding_between_lines);
+    }
+
+    if (render_settings.fill_screen) {
+        fill_screen();
+    }
+
+    get_key();
+    return 1;
+}
+
+int Statistics::render() {
+    StatsRenderSettings render_settings;
+    return render(render_settings); 
 }
