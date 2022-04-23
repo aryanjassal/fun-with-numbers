@@ -77,7 +77,7 @@ int main() {
 
         while(!quit) {
             set_terminal_size();
-            graph_render_settings.graph_height = (int)((t_size.height * 2) / 3);
+            graph_render_settings.graph_height = (int)(t_size.height / 2);
             quit = graph.render(graph_render_settings);
         }
         return;
