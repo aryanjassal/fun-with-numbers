@@ -298,10 +298,12 @@ class Settings {
 struct GraphRenderSettings {
     std::string alignment = "center";
 
-    int padding_before_graph = 1;
+    int padding_before_graph = 3;
     int graph_width = 0;
     int graph_height = (int)((t_size.height * 2) / 3);
     int graph_horizontal_padding = 3;
+    int x_axis_step = 4;
+    int y_axis_step = 2;
 
     int input_width = 5;
     std::string top_left_corner = "╔";
@@ -316,6 +318,8 @@ struct GraphRenderSettings {
     // int padding_below_prompt = 2;
     std::string prompt = "coordinates > ";
     std::string input_filler = "_";
+
+    bool fill_screen = true;
 };
 
 class PointPlotter {

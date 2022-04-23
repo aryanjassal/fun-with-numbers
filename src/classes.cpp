@@ -535,9 +535,13 @@ int PointPlotter::render(GraphRenderSettings render_settings) {
 
     print_loop("", render_settings.padding_before_graph);
     render_graph(render_settings);
+    
     get_key();
 
-    return 1;
+    align_center();
+    if (render_settings.fill_screen) fill_screen();
+
+    return 0;
 }
 
 int PointPlotter::render() {
@@ -546,20 +550,77 @@ int PointPlotter::render() {
 }
 
 void PointPlotter::render_graph(GraphRenderSettings render_settings) {
-    align_center();
+    // align_center();
     // print("x axis");
-    int y_axis_step = 2;
-    int width = render_settings.graph_width == 0 ? t_size.width : render_settings.graph_width;
 
-    for (int i = /*render_settings.graph_height*/24; i > 0; i -= y_axis_step) {
-        std::string line;
-        line.append(extend_string(" ", render_settings.graph_horizontal_padding));
-        line.append(padded_str(std::to_string(i / y_axis_step) + render_settings.vertical_bar, t_size.width, ""));
-        line.append(extend_string(" ", render_settings.graph_horizontal_padding));
-        print(line);
+    // set_cursor_position();
+
+    // print_loop("", render_settings.padding_before_graph);
+
+    // int x_axis_step = 4;
+    // int y_axis_step = 2;
+    int graph_width = render_settings.graph_width <= 0 ? t_size.width : render_settings.graph_width;
+
+    std::string line_padding = padded_str(" ", /*render_settings.vertical_bar.size() + 3*/ /*3 + */render_settings.graph_horizontal_padding, "");
+    std::string top_line;
+    top_line = extend_string(render_settings.horizontal_bar, graph_width - 5 - (render_settings.graph_horizontal_padding * 2) - line_padding.size());
+    align_center();
+    print(line_padding + render_settings.top_left_corner + top_line + render_settings.top_right_corner);
+
+    for (int i = render_settings.graph_height/*24*/; i >= 0; i--) {
+        std::string in_graph = "";
+        if (i % render_settings.y_axis_step == 0) {
+            align_right();
+            std::string line_no = padded_str(std::to_string(i / render_settings.y_axis_step) + render_settings.vertical_bar, /*render_settings.vertical_bar.size() + 3*/ /*3 + */render_settings.graph_horizontal_padding, "");
+
+            for (int j = 0; j <= graph_width - 4 - (render_settings.graph_horizontal_padding * 2) - line_no.size(); j++) {
+                if (j % render_settings.x_axis_step == 0) {
+
+                    Location2D point;
+                    point.x = j / render_settings.x_axis_step;
+                    point.y = i / render_settings.y_axis_step;
+
+                    if (std::count(points.begin(), points.end(), point)) {
+                        in_graph.append("x");
+                    } else {
+                        in_graph.append(" ");
+                    }
+                } else {
+                    in_graph.append(" ");
+                }
+            }
+            align_center();
+            print(line_no + in_graph + render_settings.vertical_bar);
+        } else {
+            align_right();
+            std::string line_no = padded_str(render_settings.vertical_bar, /*render_settings.vertical_bar.size() + 3*/ /*3 + */render_settings.graph_horizontal_padding, "");
+            for (int j = 0; j <= graph_width - 4 - (render_settings.graph_horizontal_padding * 2) - line_no.size(); j++) {
+                in_graph.append(" ");
+            }
+            align_center();
+            print(line_no + in_graph + render_settings.vertical_bar);
+        }
     }
-    // for (int j = render_settings.graph_width; j > 0; j -= 3) {
+
+    // std::string line_padding = padded_str(" ", /*render_settings.vertical_bar.size() + 3*/ /*3 + */render_settings.graph_horizontal_padding, "");
+    std::string bottom_line;
+    bottom_line = extend_string(render_settings.horizontal_bar, graph_width - 5 - (render_settings.graph_horizontal_padding * 2) - line_padding.size());
+    align_center();
+    print(line_padding + render_settings.bottom_left_corner + bottom_line + render_settings.bottom_right_corner);
+
+    std::string x_axis_numbers;
+    for (int i = 0; i <= graph_width - (5 * render_settings.graph_horizontal_padding); i++) {
+        if (i % render_settings.x_axis_step == 0) {
+            std::string temp_num;
+            align_right();
+            temp_num = padded_str(std::to_string(i / render_settings.x_axis_step), render_settings.x_axis_step, "");
             
-    // }
-    get_key();
+            x_axis_numbers.append(temp_num);
+        }
+    }
+    align_left();
+    print(line_padding + extend_string(" ", render_settings.graph_horizontal_padding - 1) + x_axis_numbers);
+
+    // get_key();
+    return;
 }

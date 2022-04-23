@@ -123,6 +123,9 @@ struct Location2D {
     int y;
 };
 
+//* Overloading the == operator to compare Location2D structs
+bool operator == (const Location2D& lhs, const Location2D& rhs);
+
 //* Create a struct to store colour information in RGB
 struct ColorRGB {
     int r;
@@ -265,6 +268,5 @@ extern ColorRGB g_bg_color_error;
 extern ColorRGB g_fg_color;
 extern ColorRGB g_fg_color_highlighted;
 extern ColorRGB g_fg_color_error;
-//? May be removed
 extern Dimension2D t_size;
 extern std::vector<Key> BASIC_KEYS;

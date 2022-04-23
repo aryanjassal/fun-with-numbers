@@ -67,6 +67,7 @@ int main() {
         int quit = 0;
 
         while(!quit) {
+            set_terminal_size();
             quit = cnf.render(cnf_render_settings, stats);
         }
         return;
@@ -75,6 +76,8 @@ int main() {
         int quit = 0;
 
         while(!quit) {
+            set_terminal_size();
+            graph_render_settings.graph_height = (int)((t_size.height * 2) / 3);
             quit = graph.render(graph_render_settings);
         }
         return;
@@ -83,6 +86,7 @@ int main() {
         int quit = 0;
 
         while(!quit) {
+            set_terminal_size();
             quit = stats.render(s_render_settings);
         }
         return;

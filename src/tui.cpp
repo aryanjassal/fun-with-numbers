@@ -45,6 +45,12 @@ bool operator == (const Key& lhs, const Key& rhs) {
     return ((lhs.escape_sequence == rhs.escape_sequence) && (lhs.key == rhs.key) && (lhs.full_string == rhs.full_string));
 }
 
+//* Overloading the == operator to compare Location2D structs
+bool operator == (const Location2D& lhs, const Location2D& rhs) {
+    return ((lhs.x == rhs.x) && (lhs.y == rhs.y));
+};
+
+
 //* Get the dimensions of the terminal
 void get_terminal_size(int& width, int& height) {
     //* Winsize struct is a special struct which stores all the terminal information returned by the following command
@@ -315,7 +321,7 @@ int calculate_padding_right(std::string str) {
     return calculate_padding_right(str, t_size.width);
 }
 
-//* Returns the string which sits in the middle of the width <w>, ending in the character <end>, padded with the character <filler>
+//* Returns the string which is padded to the width <w>, aligned to the global alignment, and ending in the character <end>, while being padded with the character <filler>
 std::string padded_str(std::string str, std::string filler, int w, std::string end) {
     //* If string is empty (""), make the string at least one character wide by assigning it a white space, then rerunning this method to properly pad empty strings
     if (!str.length()) {
@@ -369,7 +375,7 @@ std::string padded_str(std::string str) {
     return padded_str(str, " ", t_size.width, "\n");
 }
 
-//* Return a padded string which is as wide as the current terminal width and ends with <end> and is padded with " " (spaces)
+//* Return a padded string which is as wide as <w> and ends with <end> and is padded with " " (spaces)
 std::string padded_str(std::string str, int w, std::string end) {
     return padded_str(str, " ", w, end);
 }
