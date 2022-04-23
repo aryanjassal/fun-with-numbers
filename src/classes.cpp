@@ -40,6 +40,7 @@ void Menu::add_entry(Entry entry) {
 void Menu::add_line(std::string str) {
     //* Create a new entry object and set its parameters to make the line non-interactable
     Entry entry;
+    entry.id = -1;
     entry.label = str;
     entry.interactable = false;
 

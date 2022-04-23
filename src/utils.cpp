@@ -30,7 +30,6 @@ void exit_program(int return_value) {
 void exit_program() {
     exit_program(0);
 }
-
 //TODO: fix negative -1
 std::vector<long long> find_factors(long long num) {
     std::vector<long long> factors;

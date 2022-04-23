@@ -63,15 +63,16 @@ class Statistics {
 //* Line struct to store information about each line being displayed on the menu
 struct Entry {
     //* ID of the menu entry. Must be unset for non-interactive elements barring unintentional results.
-    int id;
+    int id = -1;
+
     //* The string that should be displayed while rendering the menu
-    std::string label;
+    std::string label = "";
 
     //* The corresponding function that will be run when the option is selected. Will not be called if interactable is unset.
     std::function<void()> func;
 
     //* Whether the option can be selected or not
-    bool interactable;
+    bool interactable = false;
 };
 
 //* Struct to customise menu render settings
