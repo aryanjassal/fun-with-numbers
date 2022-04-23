@@ -373,6 +373,9 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
         if (total > 0 && num_entries > 0) {
             average = (int)(total / num_entries);
         }
+        if (total < 0 || num_entries < 0) {
+            throw std::runtime_error("Total of all numbers or total numbers processed cannot be negative");
+        }
 
         stats.set_stat(1, num_entries);
         stats.set_stat(2, total);
@@ -528,50 +531,103 @@ void PointPlotter::add_point(int x, int y) {
     points.emplace_back(Location2D {x, y});
 }
 
-int PointPlotter::render(GraphRenderSettings render_settings) {
+int PointPlotter::render(GraphRenderSettings render_settings, Statistics &stats) {
     bg_color(g_bg_color);
     fg_color(g_fg_color);
     set_cursor_position();
 
     print_loop("", render_settings.padding_before_graph);
     render_graph(render_settings);
+
+    align(render_settings.alignment);
+
+    print_loop("", render_settings.padding_before_input_prompt);
+    print(render_settings.input_prompt_text);
+    // print(input);
+    print_loop("", render_settings.padding_after_input_prompt);
+
+    align_left();
+    std::string input_line = padded_str(input, render_settings.input_filler, render_settings.input_width, "");
+    align(render_settings.alignment);
+
+    //* Build the first line of the input
+    //TODO: Unicode characters will break the pre-padding; only ASCII characters work
+    std::string top_line;
+    top_line.append(render_settings.top_left_corner);
+    top_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+    top_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+    top_line.append(render_settings.top_right_corner);
+
+    std::string middle_line;
+    middle_line.append(render_settings.vertical_bar);
+    middle_line.append(render_settings.horizontal_padding);
+    middle_line.append(render_settings.prompt);
+    middle_line.append(input_line);
+    middle_line.append(render_settings.horizontal_padding);
+    middle_line.append(render_settings.vertical_bar);
+
+    std::string bottom_line;
+    bottom_line.append(render_settings.bottom_left_corner);
+    bottom_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+    bottom_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+    bottom_line.append(render_settings.bottom_right_corner);
     
-    get_key();
+    if (error) {
+        //* Change the foreground and background color
+        bg_color(g_bg_color_error);
+        fg_color(g_fg_color_error);
+
+        //* Print out the error message
+        print(error_msg);
+
+        //* Revert the change in foreground and background color
+        bg_color(g_bg_color);
+        fg_color(g_fg_color);
+
+        //* Print out the padding below the error message
+        print_loop("", render_settings.padding_after_error, "");
+
+        //* Clear the input and recalculate the padded input too
+        input = "";
+
+        align_left();
+        input_line = padded_str(input, render_settings.input_filler, render_settings.input_width, "");
+        align(render_settings.alignment);
+        
+        error = false;
+        error_msg = "";
+    }
+
+    print(top_line);
+    print(middle_line);
+    print(bottom_line);
+
+    // //* Add padding below the prompt
+    // print_loop("\n", render_settings.padding_below_input);
+
+    // int out = handle_input(render_settings);
 
     align_center();
     if (render_settings.fill_screen) fill_screen();
 
-    return 0;
-}
-
-int PointPlotter::render() {
-    GraphRenderSettings render_settings;
-    return render(render_settings);
+    // return out;
+    return handle_input(render_settings, stats);
 }
 
 void PointPlotter::render_graph(GraphRenderSettings render_settings) {
-    // align_center();
-    // print("x axis");
-
-    // set_cursor_position();
-
-    // print_loop("", render_settings.padding_before_graph);
-
-    // int x_axis_step = 4;
-    // int y_axis_step = 2;
     int graph_width = render_settings.graph_width <= 0 ? t_size.width : render_settings.graph_width;
 
-    std::string line_padding = padded_str(" ", /*render_settings.vertical_bar.size() + 3*/ /*3 + */render_settings.graph_horizontal_padding, "");
+    std::string line_padding = padded_str(" ", render_settings.graph_horizontal_padding, "");
     std::string top_line;
     top_line = extend_string(render_settings.horizontal_bar, graph_width - 5 - (render_settings.graph_horizontal_padding * 2) - line_padding.size());
     align_center();
     print(line_padding + render_settings.top_left_corner + top_line + render_settings.top_right_corner);
 
-    for (int i = render_settings.graph_height/*24*/; i >= 0; i--) {
+    for (int i = render_settings.graph_height; i >= 0; i--) {
         std::string in_graph = "";
         if (i % render_settings.y_axis_step == 0) {
             align_right();
-            std::string line_no = padded_str(std::to_string(i / render_settings.y_axis_step) + render_settings.vertical_bar, /*render_settings.vertical_bar.size() + 3*/ /*3 + */render_settings.graph_horizontal_padding, "");
+            std::string line_no = padded_str(std::to_string(i / render_settings.y_axis_step) + render_settings.vertical_bar, render_settings.graph_horizontal_padding, "");
 
             for (int j = 0; j <= graph_width - 4 - (render_settings.graph_horizontal_padding * 2) - line_no.size(); j++) {
                 if (j % render_settings.x_axis_step == 0) {
@@ -585,6 +641,7 @@ void PointPlotter::render_graph(GraphRenderSettings render_settings) {
                     } else {
                         in_graph.append(" ");
                     }
+                    graph_dimension.height++;
                 } else {
                     in_graph.append(" ");
                 }
@@ -593,7 +650,7 @@ void PointPlotter::render_graph(GraphRenderSettings render_settings) {
             print(line_no + in_graph + render_settings.vertical_bar);
         } else {
             align_right();
-            std::string line_no = padded_str(render_settings.vertical_bar, /*render_settings.vertical_bar.size() + 3*/ /*3 + */render_settings.graph_horizontal_padding, "");
+            std::string line_no = padded_str(render_settings.vertical_bar, render_settings.graph_horizontal_padding, "");
             for (int j = 0; j <= graph_width - 4 - (render_settings.graph_horizontal_padding * 2) - line_no.size(); j++) {
                 in_graph.append(" ");
             }
@@ -602,7 +659,6 @@ void PointPlotter::render_graph(GraphRenderSettings render_settings) {
         }
     }
 
-    // std::string line_padding = padded_str(" ", /*render_settings.vertical_bar.size() + 3*/ /*3 + */render_settings.graph_horizontal_padding, "");
     std::string bottom_line;
     bottom_line = extend_string(render_settings.horizontal_bar, graph_width - 5 - (render_settings.graph_horizontal_padding * 2) - line_padding.size());
     align_center();
@@ -616,11 +672,79 @@ void PointPlotter::render_graph(GraphRenderSettings render_settings) {
             temp_num = padded_str(std::to_string(i / render_settings.x_axis_step), render_settings.x_axis_step, "");
             
             x_axis_numbers.append(temp_num);
+            graph_dimension.width++;
         }
     }
     align_left();
     print(line_padding + extend_string(" ", render_settings.graph_horizontal_padding - 1) + x_axis_numbers);
+}
 
-    // get_key();
-    return;
+int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &stats) {
+    Key key = get_key();
+
+    if (key == KEY_BACKSPACE) {
+        if (!input.empty()) {
+            input.pop_back();
+        }
+    } else if (key == KEY_ENTER) {
+        // if (input.empty()) {
+        if (waited_once && !input.empty()) {
+            input = "";
+            waited_once = false;
+            return 0;
+        }
+        if (!waited_once && !input.empty()) {
+            waited_once = true;
+            // return 0;
+        }
+            // return 0;
+        // }
+
+        // print_loop("\n", render_settings.padding_below_input);
+
+        input = strip(input);
+        std::vector<std::string> c = split(input, ',');
+
+        // for (auto a : c) {
+        //     print(a);
+        // }
+        // get_key();
+
+        if (c.size() != 2) {
+            error = true;
+            error_msg = render_settings.invalid_input_format;
+            return 0;
+        }
+
+        Location2D point;
+        try {
+            point.x = std::stoi(c.at(0));
+            point.y = std::stoi(c.at(1));
+        } catch (...) {
+            error = true;
+            error_msg = render_settings.invalid_input_feedback;
+            return 0;
+        }
+
+        if (point.x < 0 || point.x > graph_dimension.width || point.y < 0 || point.y > graph_dimension.height) {
+            error = true;
+            error_msg = render_settings.out_of_bounds_feedback;
+            return 0;
+        }
+
+        points.emplace_back(point);
+
+        int coordinates_plotted = stats.get_stat(6).val;
+        coordinates_plotted++;
+        stats.set_stat(6, coordinates_plotted);
+
+        // input = "";
+
+        return 0;
+    } else if (key == KEY_ESCAPE) {
+        return 1;
+    } else if (input.length() < render_settings.input_width && std::count(BASIC_KEYS.begin(), BASIC_KEYS.end(), key)) {
+        input += key.key;
+    } 
+    return 0;
 }

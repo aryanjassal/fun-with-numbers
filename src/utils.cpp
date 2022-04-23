@@ -126,3 +126,19 @@ std::vector<long long> PrintFactors(long long factor, PrimeFactors::const_iterat
     std::sort(factors.begin(), factors.end());
     return factors;
 }
+
+std::string strip(std::string str, char target) {
+    std::string out;
+
+    for(int i = 0; i < str.length(); i++) {
+        if (str[i] != target) {
+            out.append(1, str[i]);
+        }
+    }
+
+    return out;
+}
+
+std::string strip(std::string str) {
+    return strip(str, ' ');
+}

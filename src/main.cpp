@@ -8,11 +8,15 @@
 #include "classes.hpp"
 
 //TODO: Find factors of a number FAST
-//TODO: Add enums for alignment and other stuff
-//TODO: Move title rendering code inside Menu.render()
+//TODO: Add max character limit to basic_text_wrapping() and append ... once a word breaches the limit (if word.len + "..." > max_chars) { out.append("...") }
 
 //TODO: Usage stats +1 -> total time in application
 //TODO: Brain Speed option asks you 10 mathematical questions and you have to complete them as fast as possible. It also checks for correct answers as you type, so if you write the correct answer, it will be immediately selected. At the end, you will be able to see your time for your level, and it would be displayed on the usage statistics screen. There are 5 levels. 1. 2 digit addition; 2. 2-3 digit subtraction; 3. 3 digit addition and subtraction, mental 1-2 digit whole number multiplication and perfect division; 4. Square roots up to 20 and cube roots up to 10, addition and subtraction of upto 6 digit number; 5. Square roots up to 50 and cube roots upto 25, first 15 prime numbers check if are prime or composite, ask if number is prime or composite, binary math, decimal multiplication and division.
+
+//TODO: Confirm plotter moodiness has gone away
+//! Negative. See why it happens
+
+//TODO: Add label to points
 
 int main() {
     init_program();
@@ -53,6 +57,7 @@ int main() {
     stats.add_stat("Average of numbers");
     stats.add_stat("Smallest number entered");
     stats.add_stat("Largest number entered");
+    stats.add_stat("Coordinates plotted");
     stats.load_stats();
 
     StatsRenderSettings s_render_settings;
@@ -72,13 +77,13 @@ int main() {
         }
         return;
     });
-    menu.add_option("Plot numbers", [&graph, &graph_render_settings] { 
+    menu.add_option("Plot numbers", [&graph, &graph_render_settings, &stats] { 
         int quit = 0;
 
         while(!quit) {
             set_terminal_size();
             graph_render_settings.graph_height = (int)(t_size.height / 2);
-            quit = graph.render(graph_render_settings);
+            quit = graph.render(graph_render_settings, stats);
         }
         return;
     });
@@ -109,7 +114,7 @@ int main() {
     g_fg_color_highlighted = hex_to_rgb("#9ece6a");
     g_bg_color_highlighted = hex_to_rgb("#414868");
     g_fg_color_error = hex_to_rgb("#9ece6a");
-    g_bg_color_error = hex_to_rgb("#414868");
+    g_bg_color_error = hex_to_rgb("#1a1b26");
 
     for(;;) {
         set_terminal_size();

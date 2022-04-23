@@ -21,3 +21,7 @@ std::vector<std::pair<long long, long long>> FindFactors(long long n);
 
 //* Print the factors into a vector
 std::vector<long long> PrintFactors(long long factor, PrimeFactors::const_iterator pos, PrimeFactors::const_iterator const end);
+
+//* Strips all characters from the input
+std::string strip(std::string str, char target);
+std::string strip(std::string str);

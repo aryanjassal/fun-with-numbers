@@ -305,7 +305,7 @@ struct GraphRenderSettings {
     int x_axis_step = 4;
     int y_axis_step = 2;
 
-    int input_width = 5;
+    int input_width = 15;
     std::string top_left_corner = "╔";
     std::string top_right_corner = "╗";
     std::string bottom_left_corner = "╚";
@@ -314,10 +314,18 @@ struct GraphRenderSettings {
     std::string horizontal_bar = "═";
     std::string horizontal_padding = " ";
     // int padding_from_top = 3;
-    std::string input_prompt_text = "Enter coordinates separated by a comma";
+    int padding_before_input_prompt = 2;
+    std::string input_prompt_text = "Enter numerical whole number coordinates separated by a comma (x axis goes first then y axis comes later)";
+    int padding_after_input_prompt = 2;
+    int padding_after_error = 2;
     // int padding_below_prompt = 2;
     std::string prompt = "coordinates > ";
     std::string input_filler = "_";
+    std::string invalid_input_feedback = "Coordinates need to be integers. Come on, man. It even says so on the instructions above.";
+    std::string invalid_input_format = "Forgot some commas or added too many?";
+    std::string out_of_bounds_feedback = "Forgot some commas or added too many?";
+
+    // int padding_below_input = 3;
 
     bool fill_screen = true;
 };
@@ -326,10 +334,14 @@ class PointPlotter {
     public:
         void add_point(int x, int y);
         void add_point(Location2D point);
-        int render();
-        int render(GraphRenderSettings render_settings);
-        int handle_input();
+        int render(GraphRenderSettings render_settings, Statistics &stats);
+        int handle_input(GraphRenderSettings render_settings, Statistics &stats);
     private:
         std::vector<Location2D> points;
         void render_graph(GraphRenderSettings render_settings);
+        std::string input;
+        bool error = false;
+        std::string error_msg;
+        Dimension2D graph_dimension;
+        bool waited_once = false;
 };
