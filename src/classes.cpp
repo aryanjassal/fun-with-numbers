@@ -194,8 +194,6 @@ void Menu::handle_input() {
                 e.func();
             }
         }
-    } else if (k == KEY_Q || k == KEY_ESCAPE) {
-        exit_program();
     }
 }
 

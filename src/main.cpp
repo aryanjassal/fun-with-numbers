@@ -91,7 +91,7 @@ int main() {
     menu.add_option("Brain speed test", [] { return 0; });
     menu.add_line();
     menu.add_option("Settings", [] { return 0; });
-    menu.add_option("Quit", [&stats, &s_render_settings] { 
+    menu.add_option("Quit", [&stats] {
         stats.save_stats();
         exit_program(); 
     });
