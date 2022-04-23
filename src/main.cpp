@@ -58,6 +58,9 @@ int main() {
     StatsRenderSettings s_render_settings;
     s_render_settings.title_renderer = [&s_render_settings] (std::string style) { print_usage_stats(style); };
 
+    PointPlotter graph;
+    GraphRenderSettings graph_render_settings;
+
     Menu menu;
     menu.set_entry_loop(true);
     menu.add_option("Check number features", [&cnf, &cnf_render_settings, &stats] {
@@ -68,13 +71,21 @@ int main() {
         }
         return;
     });
-    menu.add_option("Plot numbers", [] { return 0; });
+    menu.add_option("Plot numbers", [&graph, &graph_render_settings] { 
+        int quit = 0;
+
+        while(!quit) {
+            quit = graph.render(graph_render_settings);
+        }
+        return;
+    });
     menu.add_option("Check overall stats", [&stats, &s_render_settings] { 
         int quit = 0;
 
         while(!quit) {
             quit = stats.render(s_render_settings);
         }
+        return;
     });
     menu.add_option("Memory benchmark", [] { return 0; });
     menu.add_option("Brain speed test", [] { return 0; });

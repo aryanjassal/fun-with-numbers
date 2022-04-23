@@ -193,7 +193,7 @@ void Menu::handle_input() {
                 e.func();
             }
         }
-    } else if (k == KEY_Q) {
+    } else if (k == KEY_Q || k == KEY_ESCAPE) {
         exit_program();
     }
 }
@@ -515,4 +515,52 @@ int Statistics::render(StatsRenderSettings render_settings) {
 int Statistics::render() {
     StatsRenderSettings render_settings;
     return render(render_settings); 
+}
+
+
+//*****************************************************************************************************
+//*****************************************************************************************************
+
+void PointPlotter::add_point(Location2D point) {
+    points.emplace_back(point);
+}
+
+void PointPlotter::add_point(int x, int y) {
+    points.emplace_back(Location2D {x, y});
+}
+
+int PointPlotter::render(GraphRenderSettings render_settings) {
+    bg_color(g_bg_color);
+    fg_color(g_fg_color);
+    set_cursor_position();
+
+    print_loop("", render_settings.padding_before_graph);
+    render_graph(render_settings);
+    get_key();
+
+    return 1;
+}
+
+int PointPlotter::render() {
+    GraphRenderSettings render_settings;
+    return render(render_settings);
+}
+
+void PointPlotter::render_graph(GraphRenderSettings render_settings) {
+    align_center();
+    // print("x axis");
+    int y_axis_step = 2;
+    int width = render_settings.graph_width == 0 ? t_size.width : render_settings.graph_width;
+
+    for (int i = /*render_settings.graph_height*/24; i > 0; i -= y_axis_step) {
+        std::string line;
+        line.append(extend_string(" ", render_settings.graph_horizontal_padding));
+        line.append(padded_str(std::to_string(i / y_axis_step) + render_settings.vertical_bar, t_size.width, ""));
+        line.append(extend_string(" ", render_settings.graph_horizontal_padding));
+        print(line);
+    }
+    // for (int j = render_settings.graph_width; j > 0; j -= 3) {
+            
+    // }
+    get_key();
 }

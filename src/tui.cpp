@@ -556,6 +556,11 @@ std::string extend_string(char str, int times) {
     return extend_string(std::string(1, str), times);
 }
 
+//* Append a character to a string <times> amount of times and return the string
+std::string extend_string(const char* str, int times) {
+    return extend_string(std::string(str), times);
+}
+
 //* Fills the screen with blank prints
 Location2D fill_screen() {
     std::string credit_to_zoelabbb = "Credit to zoelabbb (https://github.com/zoelabbb/) for providing inspiration and some parts of the code from their project \"conio.h for linux\" (https://github.com/zoelabbb/conio.h/blob/master/conio.h)";

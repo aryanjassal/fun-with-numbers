@@ -295,11 +295,14 @@ class Settings {
 //************************************************************************************************
 
 struct GraphRenderSettings {
-    int padding_before_graph = 0;
+    std::string alignment = "center";
+
+    int padding_before_graph = 1;
     int graph_width = 0;
     int graph_height = (int)((t_size.height * 2) / 3);
+    int graph_horizontal_padding = 3;
 
-    int digits;
+    int input_width = 5;
     std::string top_left_corner = "╔";
     std::string top_right_corner = "╗";
     std::string bottom_left_corner = "╚";
@@ -316,10 +319,12 @@ struct GraphRenderSettings {
 
 class PointPlotter {
     public:
+        void add_point(int x, int y);
         void add_point(Location2D point);
         int render();
         int render(GraphRenderSettings render_settings);
         int handle_input();
     private:
         std::vector<Location2D> points;
+        void render_graph(GraphRenderSettings render_settings);
 };

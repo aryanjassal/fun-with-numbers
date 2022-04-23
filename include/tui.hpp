@@ -244,6 +244,7 @@ Key get_key();
 
 //* Works like (string * num) in python, appending a string x amount of times and returning the string
 std::string extend_string(std::string str, int times);
+std::string extend_string(const char* str, int times);
 std::string extend_string(char str, int times);
 
 //* Fills the remaining lines on the screen
