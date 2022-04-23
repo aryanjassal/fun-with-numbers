@@ -18,6 +18,7 @@ int main() {
     init_program();
 
     CNFRenderSettings cnf_render_settings;
+    cnf_render_settings.prompt = "enter number > ";
     cnf_render_settings.invalid_input_feedback = "Seriously? I asked you to do ONE thing: enter a WHOLE number.";
     cnf_render_settings.features_display_text = ">--------------------< NUMBER FEATURES OF |num| >--------------------<";
     cnf_render_settings.input_prompt_text = "Please enter a whole number that will be checked. Press ESC to go back to the menu.";

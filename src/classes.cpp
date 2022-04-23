@@ -223,7 +223,7 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &s
     //* Clear the screen to indicate to the user that we have entered a new section of the program
     bg_color(g_bg_color);
     fg_color(g_fg_color);
-    clear();
+    // clear();
 
     for (;;) {
         //* Set the cursor to home (0, 0)
