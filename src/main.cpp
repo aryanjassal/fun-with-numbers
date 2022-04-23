@@ -17,6 +17,7 @@
 //TODO: Fix std::stoi in Plot Points for each axis
 //TODO: Number features waits for enter
 //TODO: -1 is not prime; its unique
+//TODO: Exiting plotter gives residual text
 
 int main() {
     init_program();
