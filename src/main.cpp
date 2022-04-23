@@ -89,7 +89,7 @@ int main() {
     });
     menu.add_option("Memory benchmark", [] { return 0; });
     menu.add_option("Brain speed test", [] { return 0; });
-    menu.add_line();
+    // menu.add_line();
     menu.add_option("Settings", [] { return 0; });
     menu.add_option("Quit", [&stats, &s_render_settings] { 
         stats.save_stats();
