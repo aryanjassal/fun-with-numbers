@@ -14,6 +14,9 @@
 //TODO: Brain Speed option asks you 10 mathematical questions and you have to complete them as fast as possible. It also checks for correct answers as you type, so if you write the correct answer, it will be immediately selected. At the end, you will be able to see your time for your level, and it would be displayed on the usage statistics screen. There are 5 levels. 1. 2 digit addition; 2. 2-3 digit subtraction; 3. 3 digit addition and subtraction, mental 1-2 digit whole number multiplication and perfect division; 4. Square roots up to 20 and cube roots up to 10, addition and subtraction of upto 6 digit number; 5. Square roots up to 50 and cube roots upto 25, first 15 prime numbers check if are prime or composite, ask if number is prime or composite, binary math, decimal multiplication and division.
 
 //TODO: Add label to points
+//TODO: Fix std::stoi in Plot Points for each axis
+//TODO: Number features waits for enter
+//TODO: -1 is not prime; its unique
 
 int main() {
     init_program();
@@ -36,13 +39,13 @@ int main() {
 
         if (factors.at(0) == 0) {
             factors_out = "Infinite factors";
+        } else {
+            for (long long factor : factors) {
+                factors_out.append(std::to_string(factor));
+                factors_out.append(" ");
+            }
+            factors_out.pop_back();
         }
-
-        for (long long factor : factors) {
-            factors_out.append(std::to_string(factor));
-            factors_out.append(" ");
-        }
-        factors_out.pop_back();
 
         return basic_text_wrapping(factors_out, cnf_render_settings.max_width);
     } , false);
