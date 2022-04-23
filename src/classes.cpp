@@ -682,12 +682,16 @@ void PointPlotter::render_graph(GraphRenderSettings render_settings) {
 int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &stats) {
     Key key = get_key();
 
+    if (waited_once) {
+        input = "";
+        waited_once = false;
+    }
+
     if (key == KEY_BACKSPACE) {
         if (!input.empty()) {
             input.pop_back();
         }
     } else if (key == KEY_ENTER) {
-        // if (input.empty()) {
         if (waited_once && !input.empty()) {
             input = "";
             waited_once = false;
@@ -695,12 +699,11 @@ int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &
         }
         if (!waited_once && !input.empty()) {
             waited_once = true;
-            // return 0;
         }
-            // return 0;
-        // }
 
-        // print_loop("\n", render_settings.padding_below_input);
+        if (input.empty()) {
+            return 0;
+        }
 
         input = strip(input);
         std::vector<std::string> c = split(input, ',');
@@ -737,8 +740,6 @@ int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &
         int coordinates_plotted = stats.get_stat(6).val;
         coordinates_plotted++;
         stats.set_stat(6, coordinates_plotted);
-
-        // input = "";
 
         return 0;
     } else if (key == KEY_ESCAPE) {
