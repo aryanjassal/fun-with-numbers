@@ -36,7 +36,7 @@ void init_tui() {
 
     //* Emplacing keys in the keys array
     for (int i = 1; i < 256; i++) {
-        BASIC_KEYS.emplace_back(Key {false, i, std::to_string(i)});
+        BASIC_KEYS.emplace_back(Key {false, (char)i, std::to_string(i)});
     }
 }
 
