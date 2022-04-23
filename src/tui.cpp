@@ -564,8 +564,10 @@ Location2D fill_screen() {
 
     Location2D retain_xy = wherexy();
     Location2D xy = wherexy();
-    while (xy.y < t_size.height - (2 + (lines.size()))) {
-        xy = wherexy();
+    int l = xy.y;
+    while (l < t_size.height - (2 + (lines.size()))) {
+        // xy = wherexy();
+        l++;
         print();
     }
     print(basic_text_wrapping(credit_to_zoelabbb) + "\n");
