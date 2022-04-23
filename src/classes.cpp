@@ -395,6 +395,10 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
     return 0;
 }
 
+void CheckNumberFeatures::reset() {
+    input = "";
+} 
+
 
 //*****************************************************************************************************
 //*****************************************************************************************************
@@ -532,6 +536,11 @@ void PointPlotter::add_point(int x, int y) {
 }
 
 int PointPlotter::render(GraphRenderSettings render_settings, Statistics &stats) {
+    Dimension2D origin;
+    origin.width = -1;
+    origin.height = -1;
+    graph_dimension = origin;
+
     bg_color(g_bg_color);
     fg_color(g_fg_color);
     set_cursor_position();
@@ -626,6 +635,7 @@ void PointPlotter::render_graph(GraphRenderSettings render_settings) {
     for (int i = render_settings.graph_height; i >= 0; i--) {
         std::string in_graph = "";
         if (i % render_settings.y_axis_step == 0) {
+            graph_dimension.height++;
             align_right();
             std::string line_no = padded_str(std::to_string(i / render_settings.y_axis_step) + render_settings.vertical_bar, render_settings.graph_horizontal_padding, "");
 
@@ -641,7 +651,6 @@ void PointPlotter::render_graph(GraphRenderSettings render_settings) {
                     } else {
                         in_graph.append(" ");
                     }
-                    graph_dimension.height++;
                 } else {
                     in_graph.append(" ");
                 }
@@ -667,12 +676,12 @@ void PointPlotter::render_graph(GraphRenderSettings render_settings) {
     std::string x_axis_numbers;
     for (int i = 0; i <= graph_width - (5 * render_settings.graph_horizontal_padding); i++) {
         if (i % render_settings.x_axis_step == 0) {
+            graph_dimension.width++;
             std::string temp_num;
             align_right();
             temp_num = padded_str(std::to_string(i / render_settings.x_axis_step), render_settings.x_axis_step, "");
             
             x_axis_numbers.append(temp_num);
-            graph_dimension.width++;
         }
     }
     align_left();
@@ -711,6 +720,8 @@ int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &
         // for (auto a : c) {
         //     print(a);
         // }
+        // print(std::to_string(graph_dimension.width));
+        // print(std::to_string(graph_dimension.height));
         // get_key();
 
         if (c.size() != 2) {
@@ -736,6 +747,8 @@ int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &
         }
 
         points.emplace_back(point);
+        // print("Point added!");
+        // get_key();
 
         int coordinates_plotted = stats.get_stat(6).val;
         coordinates_plotted++;
@@ -748,4 +761,10 @@ int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &
         input += key.key;
     } 
     return 0;
+}
+
+void PointPlotter::reset_graph() {
+    points.clear();
+    input = "";
+    waited_once = false;
 }

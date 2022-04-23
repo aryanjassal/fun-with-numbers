@@ -13,9 +13,6 @@
 //TODO: Usage stats +1 -> total time in application
 //TODO: Brain Speed option asks you 10 mathematical questions and you have to complete them as fast as possible. It also checks for correct answers as you type, so if you write the correct answer, it will be immediately selected. At the end, you will be able to see your time for your level, and it would be displayed on the usage statistics screen. There are 5 levels. 1. 2 digit addition; 2. 2-3 digit subtraction; 3. 3 digit addition and subtraction, mental 1-2 digit whole number multiplication and perfect division; 4. Square roots up to 20 and cube roots up to 10, addition and subtraction of upto 6 digit number; 5. Square roots up to 50 and cube roots upto 25, first 15 prime numbers check if are prime or composite, ask if number is prime or composite, binary math, decimal multiplication and division.
 
-//TODO: Confirm plotter moodiness has gone away
-//! Negative. See why it happens
-
 //TODO: Add label to points
 
 int main() {
@@ -70,6 +67,7 @@ int main() {
     menu.set_entry_loop(true);
     menu.add_option("Check number features", [&cnf, &cnf_render_settings, &stats] {
         int quit = 0;
+        cnf.reset();
 
         while(!quit) {
             set_terminal_size();
@@ -79,6 +77,7 @@ int main() {
     });
     menu.add_option("Plot numbers", [&graph, &graph_render_settings, &stats] { 
         int quit = 0;
+        graph.reset_graph();
 
         while(!quit) {
             set_terminal_size();

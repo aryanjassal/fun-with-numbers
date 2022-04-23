@@ -249,8 +249,8 @@ class CheckNumberFeatures {
         void add_attribute(std::string label, std::function<std::string(long long)> func, bool append_label);
         void add_attribute(const char* label, std::function<std::string(long long)> func, bool append_label);
         int render(CNFRenderSettings render_settings, Statistics &stats);
-        // int render();
         int handle_input(CNFRenderSettings render_settings, Statistics &stats);
+        void reset();
     private:
         std::vector<Attribute> attributes;
         bool error = false;
@@ -323,7 +323,7 @@ struct GraphRenderSettings {
     std::string input_filler = "_";
     std::string invalid_input_feedback = "Coordinates need to be integers. Come on, man. It even says so on the instructions above.";
     std::string invalid_input_format = "Forgot some commas or added too many?";
-    std::string out_of_bounds_feedback = "Forgot some commas or added too many?";
+    std::string out_of_bounds_feedback = "Number out of bounds.";
 
     // int padding_below_input = 3;
 
@@ -336,6 +336,7 @@ class PointPlotter {
         void add_point(Location2D point);
         int render(GraphRenderSettings render_settings, Statistics &stats);
         int handle_input(GraphRenderSettings render_settings, Statistics &stats);
+        void reset_graph();
     private:
         std::vector<Location2D> points;
         void render_graph(GraphRenderSettings render_settings);
