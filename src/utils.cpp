@@ -31,13 +31,14 @@ void exit_program() {
     exit_program(0);
 }
 
+//TODO: fix negative -1
 std::vector<long long> find_factors(long long num) {
     std::vector<long long> factors;
 
     for (long long i = 2; i <= abs(num) / 2; i++) {
         if (num % i == 0) factors.push_back(i);
     }
-    if (num != 1) factors.push_back(abs(num));
+    if (num != 1 && num != -1) factors.push_back(abs(num));
     factors.push_back(1);
 
     if (num < 0) {
