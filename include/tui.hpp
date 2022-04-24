@@ -252,6 +252,7 @@ std::string extend_string(char str, int times);
 
 //* Fills the remaining lines on the screen
 Location2D fill_screen();
+Location2D fill_screen(bool c_text);
 
 //* Wraps the text by a given width
 std::string basic_text_wrapping(std::string str);

@@ -1,8 +1,9 @@
 #include <iostream>
 #include <algorithm>
-#include <utility>
 #include <vector>
-#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 #include "utils.hpp"
 #include "tui.hpp"
@@ -64,74 +65,7 @@ std::vector<long long> find_factors(long long num) {
 
 //* Finding prime factors of a given number extremely efficiently.
 //* Credit to fabian (https://stackoverflow.com/questions/70411886/whats-the-fastest-way-to-find-the-factors-of-a-number-in-c) for creating this code
-using PrimeFactors = std::vector<std::pair<long long, long long>>;
-
-std::vector<std::pair<long long, long long>> FindFactors(long long n)
-{
-    PrimeFactors primeFactors;
-
-    long long square = static_cast<long long>(std::sqrt(n));
-    for (long long i = 2; i <= square && i <= n; ++i)
-    {
-        bool isPrime = true;
-        for (auto [prime, exponent] : primeFactors)
-        {
-            if (prime * prime > i)
-            {
-                break;
-            }
-            if (i % prime == 0u)
-            {
-                isPrime = false;
-                break;
-            }
-        }
-
-        if (isPrime)
-        {
-            long long count = 0;
-            while (n % i == 0)
-            {
-                ++count;
-                n /= i;
-            }
-            primeFactors.emplace_back(i, count);
-            if (count != 0)
-            {
-                square = static_cast<long long>(std::sqrt(n));
-            }
-        }
-    }
-    if (n != 1)
-    {
-        primeFactors.emplace_back(n, 1);
-    }
-    return primeFactors;
-}
-
-std::vector<long long> PrintFactors(long long factor, PrimeFactors::const_iterator pos, PrimeFactors::const_iterator const end)
-{
-    std::vector<long long> factors;
-    while (pos != end)
-    {
-        while (pos != end && pos->second == 0)
-        {
-            ++pos;
-        }
-        auto newFactor = factor;
-        for (auto count = pos->second; count != 0; --count)
-        {
-            newFactor *= pos->first;
-            // std::cout << newFactor << '\n';
-            factors.emplace_back(newFactor);
-            PrintFactors(newFactor, pos + 1, end);
-        }
-        ++pos;
-    }
-
-    std::sort(factors.begin(), factors.end());
-    return factors;
-}
+//TODO: Understand and use the abovementioned function
 
 std::string strip(std::string str, char target) {
     std::string out;
@@ -147,4 +81,13 @@ std::string strip(std::string str, char target) {
 
 std::string strip(std::string str) {
     return strip(str, ' ');
+}
+
+//* Returns a random number between <min> and <min> + <range> inclusive
+long long random_number(long long min, long long range, long long seed_offset) {
+    //* Initialise random seed
+    srand(time(NULL) + seed_offset);
+
+    //* Generate random number between the given inputs and return it
+    return rand() % range + min;
 }

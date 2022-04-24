@@ -567,7 +567,7 @@ std::string extend_string(const char* str, int times) {
 }
 
 //* Fills the screen with blank prints
-Location2D fill_screen() {
+Location2D fill_screen(bool c_text) {
     std::string credit_to_zoelabbb = "Credit to zoelabbb (https://github.com/zoelabbb/) for providing inspiration and some parts of the code from their project \"conio.h for linux\" (https://github.com/zoelabbb/conio.h/blob/master/conio.h)";
     
     std::vector<std::string> lines = split(basic_text_wrapping(credit_to_zoelabbb));
@@ -575,14 +575,25 @@ Location2D fill_screen() {
     Location2D retain_xy = wherexy();
     Location2D xy = wherexy();
     int l = xy.y;
-    while (l < t_size.height - (0 + (lines.size()))) {
-        // xy = wherexy();
-        l++;
-        print();
+    if (c_text) {
+        while (l < t_size.height - (0 + (lines.size()))) {
+            l++;
+            print();
+        }
+        print(basic_text_wrapping(credit_to_zoelabbb));
+        print("", "");
+    } else {
+        while (l < t_size.height - 1) {
+            l++;
+            print();
+        }
+        print("", "");
     }
-    print(basic_text_wrapping(credit_to_zoelabbb));
-    print("", "");
     return retain_xy;
+}
+
+Location2D fill_screen() {
+    return fill_screen(true);
 }
 
 //* Wraps the string to fit in the width

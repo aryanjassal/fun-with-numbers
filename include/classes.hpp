@@ -3,6 +3,7 @@
 #include <functional>
 #include <iostream>
 #include <vector>
+#include <chrono>
 
 #include "tui.hpp"
 
@@ -340,4 +341,52 @@ class PointPlotter {
         std::string error_msg;
         Dimension2D graph_dimension;
         bool waited_once = false;
+};
+
+
+//************************************************************************************************
+//************************************************************************************************
+
+struct BSTRenderSettings {
+    int padding_from_top = 3;
+    std::string title_style = "ansi";
+    std::function<void(std::string)> title_renderer;
+    int padding_below_title = 4;
+    std::string alignment = "center";
+    int max_questions = 5;
+
+    std::string explanation = "There will be |num| questions asked. Just type in the answer. Incorrect answer will not be accepted. Alphabets will not be accepted. Correct answer will automatically be accepted and you will advance to the next question.";
+    std::string first_time_end = "Press any key to start the timer and the questions. The helper text will remain on screen for the duration of the test. Alternatively, press ESC to go back to the menu anytime. Your progress will not be saved.";
+
+    int padding_from_help = 2;
+
+    int input_width = 15;
+    std::string prompt = "your answer > ";
+    std::string input_filler = "_";
+    std::string top_left_corner = "╔";
+    std::string top_right_corner = "╗";
+    std::string bottom_left_corner = "╚";
+    std::string bottom_right_corner = "╝";
+    std::string vertical_bar = "║";
+    std::string horizontal_bar = "═";
+    std::string horizontal_padding = " ";
+    int padding_after_question = 2;
+
+    std::string test_finished = "Well done! The test was finished in |time| seconds. Press any key to escape to the main menu.";
+
+    bool fill_screen = true;
+};
+
+class BrainSpeedTest {
+    public:
+        void render(BSTRenderSettings render_settings, Statistics &stats);
+        int handle_input(BSTRenderSettings render_settings, Statistics &stats);
+        void reset();
+    private:
+        std::chrono::steady_clock::time_point start_time;
+        std::chrono::steady_clock::time_point end_time;
+        std::string input = "";
+        int question_number = 1;
+        bool test_started = false;
+        int want_exit = false;
 };

@@ -8,11 +8,12 @@
 #include "tui.hpp"
 #include "classes.hpp"
 
-//TODO: Find factors of a number FAST
-//TODO: Add max character limit to basic_text_wrapping() and append ... once a word breaches the limit (if word.len + "..." > max_chars) { out.append("...") }
+//TODO: Find factors of a number FAST =
+//TODO: Add max character limit to basic_text_wrapping() and append ... once a word breaches the limit (if word.len + "..." > max_chars) { out.append("...") } =
 
-//TODO: Get string based values in Stats
-//TODO: Brain Speed will not have levels; only one level with a clock. The questions will become harder and harder as they go by.
+//TODO: Get string based values in Stats ^
+//TODO: Time in program converted to appropriate units while rendering ^
+//TODO: Brain Speed will not have levels; only one level with a clock. The questions will become harder and harder as they go by. |^|
 
 int main() {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -63,6 +64,11 @@ int main() {
     PointPlotter graph;
     GraphRenderSettings graph_render_settings;
 
+    BrainSpeedTest bst;
+    BSTRenderSettings bst_render_settings;
+    bst_render_settings.title_renderer = [] (std::string style) { print_think_fast(style); };
+    bst_render_settings.title_style = "ansi";
+
     Menu menu;
     menu.set_entry_loop(true);
     menu.add_option("Check number features", [&cnf, &cnf_render_settings, &stats] {
@@ -96,7 +102,10 @@ int main() {
         return;
     });
     menu.add_option("Memory benchmark", [] { return 0; });
-    menu.add_option("Brain speed test", [] { return 0; });
+    menu.add_option("Brain speed test", [&bst, &bst_render_settings, &stats] {
+        bst.render(bst_render_settings, stats);
+        return;
+    });
     menu.add_line();
     menu.add_option("Settings", [] { return 0; });
     menu.add_option("Quit", [&stats, &begin] {
@@ -120,6 +129,23 @@ int main() {
     g_bg_color_highlighted = hex_to_rgb("#414868");
     g_fg_color_error = hex_to_rgb("#9ece6a");
     g_bg_color_error = hex_to_rgb("#1a1b26");
+
+    set_cursor_position();
+    fill_screen(false);
+
+    Dimension2D size = get_terminal_size();
+    if (size.width < 127 || size.height < 43) {
+        std::string prompt_string = "Your terminal size is too small and may result in poor rendering of the user interface and bad user experience. Press any key to continue or ESC to exit right away.";
+        print(basic_text_wrapping(prompt_string));
+
+        Key k = get_key();
+        if (k == KEY_ESCAPE) {
+            reset_formatting();
+            print();
+            exit(0);
+        }
+    }
+    set_cursor_position();
 
     for(;;) {
         set_terminal_size();

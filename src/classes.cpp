@@ -86,13 +86,13 @@ void Menu::set_entry_loop(bool val) {
     loop_menu_options = val;
 }
 
-//* Render the menu using given render settings 
+//* Render the menu using given render settings
 void Menu::render(MenuRenderSettings render_settings) {
     set_cursor_position();
     //* Set the normal foreground and background color
     fg_color(g_fg_color);
     bg_color(g_bg_color);
-    
+
     print_loop("", render_settings.padding_above_title);
     render_settings.title_renderer(render_settings.title_style);
     print_loop ("", render_settings.padding_below_title);
@@ -362,14 +362,14 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
         long long num_entries = stats.get_stat(1).val;
         long long total = stats.get_stat(2).val;
         long long average;
-        
+
         long long smallest_num = stats.get_stat(4).val;
         long long largest_num = stats.get_stat(5).val;
 
         if (total == 0) {
             largest_num = num;
             smallest_num = num;
-        } 
+        }
         if (num < smallest_num) {
             smallest_num = num;
         }
@@ -401,13 +401,13 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
         return 1;
     } else if (input.length() < render_settings.digits && std::count(BASIC_KEYS.begin(), BASIC_KEYS.end(), key)) {
         input += key.key;
-    } 
+    }
     return 0;
 }
 
 void CheckNumberFeatures::reset() {
     input = "";
-} 
+}
 
 
 //*****************************************************************************************************
@@ -493,7 +493,7 @@ void Statistics::load_stats(std::string file_name) {
         std::string line;
         getline(file, line, '\n');
         std::vector<std::string> id_val_form = split(line, ':');
-        
+
         Stat s;
         try {
             s = get_stat(std::stoi(id_val_form.at(0)));
@@ -551,7 +551,7 @@ int Statistics::render(StatsRenderSettings render_settings) {
 
 int Statistics::render() {
     StatsRenderSettings render_settings;
-    return render(render_settings); 
+    return render(render_settings);
 }
 
 
@@ -611,7 +611,7 @@ int PointPlotter::render(GraphRenderSettings render_settings, Statistics &stats)
     bottom_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
     bottom_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
     bottom_line.append(render_settings.bottom_right_corner);
-    
+
     if (error) {
         //* Change the foreground and background color
         bg_color(g_bg_color_error);
@@ -633,7 +633,7 @@ int PointPlotter::render(GraphRenderSettings render_settings, Statistics &stats)
         align_left();
         input_line = padded_str(input, render_settings.input_filler, render_settings.input_width, "");
         align(render_settings.alignment);
-        
+
         error = false;
         error_msg = "";
     }
@@ -705,7 +705,7 @@ void PointPlotter::render_graph(GraphRenderSettings render_settings) {
             std::string temp_num;
             align_right();
             temp_num = padded_str(std::to_string(i / render_settings.x_axis_step), render_settings.x_axis_step, "");
-            
+
             x_axis_numbers.append(temp_num);
         }
     }
@@ -780,7 +780,7 @@ int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &
         return 1;
     } else if (input.length() < render_settings.input_width && std::count(BASIC_KEYS.begin(), BASIC_KEYS.end(), key)) {
         input += key.key;
-    } 
+    }
     return 0;
 }
 
@@ -788,4 +788,146 @@ void PointPlotter::reset_graph() {
     points.clear();
     input = "";
     waited_once = false;
+}
+
+
+
+//************************************************************************************************
+//************************************************************************************************
+
+void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats) {
+    set_cursor_position();
+    fg_color(g_fg_color);
+    bg_color(g_bg_color);
+
+    print_loop("", render_settings.padding_from_top);
+    render_settings.title_renderer(render_settings.title_style);
+    print_loop("", render_settings.padding_below_title);
+
+    align(render_settings.alignment);
+
+    std::string explanation = render_settings.explanation.replace(render_settings.explanation.find("|num|"), 5, std::to_string(render_settings.max_questions));
+
+    print(basic_text_wrapping(explanation + " " + render_settings.first_time_end));
+    if (render_settings.fill_screen) fill_screen();
+
+    Key k = get_key();
+    if (k == KEY_ESCAPE) return;
+
+    for (int i = 0; i < render_settings.max_questions; i++) {
+        int num1 = random_number(10, 30, 5);
+        int num2 = random_number(10, 30, 99);
+        int operation = random_number(0, 2, 8);
+        int ans;
+        char op;
+
+        switch (operation) {
+            case 0: op = '+'; ans = num1 + num2; break;
+            case 1: op = '-'; ans = num1 - num2; break;
+            case 2: op = '*'; ans = num1 * num2; break;
+            // case 3: op = '/';
+            default: throw "Operation conversion error";
+        }
+
+        for (;;) {
+            set_cursor_position();
+
+            print_loop("", render_settings.padding_from_top);
+            render_settings.title_renderer(render_settings.title_style);
+            print_loop("", render_settings.padding_below_title);
+
+            align(render_settings.alignment);
+
+            print(basic_text_wrapping(render_settings.explanation));
+            print_loop("", render_settings.padding_from_help);
+
+            print("(" + std::to_string(question_number) + ") " + std::to_string(num1) + " " + op + " " + std::to_string(num2) + " " + "=" + " " + "?");
+
+            print_loop("", render_settings.padding_after_question);
+
+            try {
+                if (std::stoll(input) == ans) {
+                    question_number++;
+                    input = "";
+                    break;
+                }
+            } catch (...) {
+                //* Error in converting input string to an integer
+                input = "";
+            }
+
+            align_left();
+            std::string input_line = padded_str(input, render_settings.input_filler, render_settings.input_width, "");
+            align(render_settings.alignment);
+
+            std::string top_line;
+            top_line.append(render_settings.top_left_corner);
+            top_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+            top_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+            top_line.append(render_settings.top_right_corner);
+
+            std::string middle_line;
+            middle_line.append(render_settings.vertical_bar);
+            middle_line.append(render_settings.horizontal_padding);
+            middle_line.append(render_settings.prompt);
+            middle_line.append(input_line);
+            middle_line.append(render_settings.horizontal_padding);
+            middle_line.append(render_settings.vertical_bar);
+
+            std::string bottom_line;
+            bottom_line.append(render_settings.bottom_left_corner);
+            bottom_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+            bottom_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+            bottom_line.append(render_settings.bottom_right_corner);
+
+            print(top_line);
+            print(middle_line);
+            print(bottom_line);
+
+            if (render_settings.fill_screen) fill_screen();
+            // question_number = i + 1;
+
+            want_exit = handle_input(render_settings, stats);
+            if (want_exit) break;
+        }
+        if (want_exit) break;
+    }
+
+    //* On test clear
+    set_cursor_position();
+
+    print_loop("", render_settings.padding_from_top);
+    render_settings.title_renderer(render_settings.title_style);
+    print_loop("", render_settings.padding_below_title);
+
+    align(render_settings.alignment);
+
+    std::string finished_text = render_settings.test_finished.replace(render_settings.test_finished.find("|time|"), 6, std::to_string(10));
+    print(basic_text_wrapping(finished_text));
+
+    if (render_settings.fill_screen) fill_screen();
+
+    get_key();
+}
+
+int BrainSpeedTest::handle_input(BSTRenderSettings render_settings, Statistics &stats) {
+    Key key = get_key();
+
+    if (key == KEY_BACKSPACE) {
+        if (!input.empty()) {
+            input.pop_back();
+        }
+    } else if (key == KEY_ESCAPE) {
+        return 1;
+    } else if (input.length() < render_settings.input_width && (key == KEY_ONE || key == KEY_TWO || key == KEY_THREE || key == KEY_FOUR || key == KEY_FIVE || key == KEY_SIX || key == KEY_SEVEN || key == KEY_EIGHT || key == KEY_NINE || key == KEY_ZERO || key == KEY_DASH)) {
+        input += key.key;
+    }
+    return 0;
+}
+
+void BrainSpeedTest::reset() {
+    input = "";
+    question_number = 1;
+    test_started = false;
+    want_exit = false;
 }
