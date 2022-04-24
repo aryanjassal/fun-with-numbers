@@ -425,6 +425,27 @@ void Statistics::add_stat(std::string label, long long val) {
     stat.id = next_id;
     stat.label = label;
     stat.val = val;
+    stat.units = "";
+    stats.emplace_back(stat);
+    next_id++;
+}
+
+void Statistics::add_stat(std::string label, std::string units) {
+    Stat stat;
+    stat.id = next_id;
+    stat.label = label;
+    stat.val = 0;
+    stat.units = units;
+    stats.emplace_back(stat);
+    next_id++;
+}
+
+void Statistics::add_stat(std::string label, long long val, std::string units) {
+    Stat stat;
+    stat.id = next_id;
+    stat.label = label;
+    stat.val = val;
+    stat.units = units;
     stats.emplace_back(stat);
     next_id++;
 }
@@ -448,9 +469,6 @@ struct Stat Statistics::get_stat(int id) {
 }
 
 void Statistics::set_stat(int id, long long val) {
-    // auto stat = get_stat(id);
-    // stat.val = val;
-
     stats.at(id - 1).val = val;
 }
 
@@ -471,11 +489,9 @@ void Statistics::save_stats() {
 void Statistics::load_stats(std::string file_name) {
     std::ifstream file;
     file.open(file_name);
-    // std::vector<std::string> lines;
     for (auto& stat : stats) {
         std::string line;
         getline(file, line, '\n');
-        // lines.push_back(line);
         std::vector<std::string> id_val_form = split(line, ':');
         
         Stat s;
@@ -513,6 +529,11 @@ int Statistics::render(StatsRenderSettings render_settings) {
             out.append(": ");
         }
         out.append(std::to_string(s.val));
+
+        if (!s.units.empty()) {
+            out.append(" ");
+            out.append(s.units);
+        }
 
         align(render_settings.alignment);
 

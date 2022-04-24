@@ -1,9 +1,10 @@
+#pragma once
+
 #include <functional>
 #include <iostream>
 #include <vector>
 
 #include "tui.hpp"
-
 
 //************************************************************************************************
 //************************************************************************************************
@@ -18,9 +19,6 @@ struct StatsRenderSettings {
     int padding_below_title = 4;
     bool render_label = true;
 
-    // std::string bg_color_hex = "#000000";
-    // std::string fg_color_hex = "#ffffff";
-
     bool fill_screen = true;
 };
 
@@ -33,6 +31,9 @@ struct Stat {
 
     //* The value for this Stat object
     long long val;
+
+    //* The units optionally displayed after the value
+    std::string units;
 };
 
 class Statistics {
@@ -40,6 +41,8 @@ class Statistics {
         void add_stat(Stat stat);
         void add_stat(std::string label);
         void add_stat(std::string label, long long val);
+        void add_stat(std::string label, std::string units);
+        void add_stat(std::string label, long long val, std::string units);
         struct Stat get_stat(int id);
         void set_stat(int id, long long val);
         void save_stats();

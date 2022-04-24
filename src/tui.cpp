@@ -352,8 +352,7 @@ std::string padded_str(std::string str, std::string filler, int w, std::string e
         out.append(str);
         out.append(end);
     } else { //* Otherwise, the alignment state is set to be in an invalid state. Warn the user about it and then exit the program gracefully.
-        std::cout << "Alignment state not valid";
-        exit_program();
+        throw "Alignment state invalid";
     }
 
     //* Failsafe to append extra spaces if the resultant string is not quite as wide as the width. May happen when the width is an odd number

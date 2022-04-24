@@ -18,7 +18,10 @@ void init_program() {
 }
 
 //* Clean up and exit the program
-void exit_program(int return_value) {
+void exit_program(Statistics &stats, int return_value) {
+    //* Save the stats to the stats file before exiting
+    stats.save_stats();
+
     //* Remove all formatting
     reset_formatting();
     //* Print a new line. Not necessary but closing looks more graceful
@@ -27,10 +30,10 @@ void exit_program(int return_value) {
     exit(return_value);
 }
 
-void exit_program() {
-    exit_program(0);
+void exit_program(Statistics &stats) {
+    exit_program(stats, 0);
 }
-//TODO: fix negative -1
+
 std::vector<long long> find_factors(long long num) {
     std::vector<long long> factors;
 

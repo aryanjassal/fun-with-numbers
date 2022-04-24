@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <chrono>
 
 #include "utils.hpp"
 #include "ascii.hpp"
@@ -10,10 +11,11 @@
 //TODO: Find factors of a number FAST
 //TODO: Add max character limit to basic_text_wrapping() and append ... once a word breaches the limit (if word.len + "..." > max_chars) { out.append("...") }
 
-//TODO: Usage stats +1 -> total time in application
+//TODO: Get string based values in Stats
 //TODO: Brain Speed will not have levels; only one level with a clock. The questions will become harder and harder as they go by.
 
 int main() {
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     init_program();
 
     CNFRenderSettings cnf_render_settings;
@@ -52,6 +54,7 @@ int main() {
     stats.add_stat("Smallest number entered");
     stats.add_stat("Largest number entered");
     stats.add_stat("Coordinates plotted");
+    stats.add_stat("Time spent in application", 0, "seconds");
     stats.load_stats();
 
     StatsRenderSettings s_render_settings;
@@ -96,9 +99,15 @@ int main() {
     menu.add_option("Brain speed test", [] { return 0; });
     menu.add_line();
     menu.add_option("Settings", [] { return 0; });
-    menu.add_option("Quit", [&stats] {
-        stats.save_stats();
-        exit_program(); 
+    menu.add_option("Quit", [&stats, &begin] {
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        auto new_dur = std::chrono::duration_cast<std::chrono::seconds> (end - begin).count();
+
+        auto duration = stats.get_stat(7).val;
+        duration += new_dur;
+        stats.set_stat(7, duration);
+
+        exit_program(stats); 
     });
 
     MenuRenderSettings render_settings;
@@ -119,5 +128,5 @@ int main() {
         menu.handle_input();
     }
 
-    exit_program();
+    exit_program(stats);
 }
