@@ -219,17 +219,8 @@ struct CNFRenderSettings {
     int padding_below_prompt = 2;
     std::string prompt = "# > ";
     std::string input_filler = "_";
-    // struct ColorRGB fg_color = { 255, 255, 255 };
-    // struct ColorRGB bg_color = { 0, 0, 0 };
-    // struct ColorRGB error_fg_color = { 255, 0, 0 };
-    // struct ColorRGB error_bg_color = { 0, 0, 0 };
-    // std::string error_fg_color_hex = "#ff0000";
-    // std::string error_bg_color_hex = "#000000";
-    // std::string fg_color_hex = "#ffffff";
-    // std::string bg_color_hex = "#000000";
     std::string invalid_input_feedback = "Invalid input";
     std::string failed_conversion_feedback = "Failed conversion";
-    bool allow_empty_input = false;
     std::string empty_input_feedback = "Empty input";
     int padding_before_error = 2;
     int padding_after_error = 2;
@@ -256,6 +247,7 @@ class CheckNumberFeatures {
         bool error = false;
         std::string error_msg;
         std::string input;
+        bool waited_once = false;
 };
 
 //************************************************************************************************

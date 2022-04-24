@@ -11,12 +11,7 @@
 //TODO: Add max character limit to basic_text_wrapping() and append ... once a word breaches the limit (if word.len + "..." > max_chars) { out.append("...") }
 
 //TODO: Usage stats +1 -> total time in application
-//TODO: Brain Speed option asks you 10 mathematical questions and you have to complete them as fast as possible. It also checks for correct answers as you type, so if you write the correct answer, it will be immediately selected. At the end, you will be able to see your time for your level, and it would be displayed on the usage statistics screen. There are 5 levels. 1. 2 digit addition; 2. 2-3 digit subtraction; 3. 3 digit addition and subtraction, mental 1-2 digit whole number multiplication and perfect division; 4. Square roots up to 20 and cube roots up to 10, addition and subtraction of upto 6 digit number; 5. Square roots up to 50 and cube roots upto 25, first 15 prime numbers check if are prime or composite, ask if number is prime or composite, binary math, decimal multiplication and division.
-
-//TODO: Add label to points
-//TODO: Fix std::stoi in Plot Points for each axis
-//TODO: Number features waits for enter
-//TODO: -1 is not prime; its unique
+//TODO: Brain Speed will not have levels; only one level with a clock. The questions will become harder and harder as they go by.
 
 int main() {
     init_program();
@@ -26,7 +21,6 @@ int main() {
     cnf_render_settings.invalid_input_feedback = "Seriously? I asked you to do ONE thing: enter a WHOLE number.";
     cnf_render_settings.features_display_text = ">--------------------< NUMBER FEATURES OF |num| >--------------------<";
     cnf_render_settings.input_prompt_text = "Please enter a whole number that will be checked. Press ESC to go back to the menu.";
-    cnf_render_settings.allow_empty_input = true;
     cnf_render_settings.max_width = 80;
 
     CheckNumberFeatures cnf;
@@ -49,7 +43,7 @@ int main() {
 
         return basic_text_wrapping(factors_out, cnf_render_settings.max_width);
     } , false);
-    cnf.add_attribute("PrimeOrNot", [] (long long num) -> std::string { int n = find_factors(num).size(); return n > 2 ? "Composite number" : n != 1 ? "Prime number" : "Unique Number"; } , false);
+    cnf.add_attribute("PrimeOrNot", [] (long long num) -> std::string { auto n = find_factors(num); return n.size() > 2 ? "Composite number" : n.size() == 1 || (n.at(0) == -1 && n.at(1) == 1) ? "Unique number" : "Prime number"; } , false);
 
     Statistics stats;
     stats.add_stat("Numbers entered");

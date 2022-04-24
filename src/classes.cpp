@@ -306,16 +306,26 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &s
 int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statistics &stats) {
     Key key = get_key();
 
+    if (waited_once) {
+        input = "";
+        waited_once = false;
+    }
+
     if (key == KEY_BACKSPACE) {
         if (!input.empty()) {
             input.pop_back();
         }
     } else if (key == KEY_ENTER) {
-        if (render_settings.allow_empty_input && input.empty()) {
+        if (waited_once && !input.empty()) {
+            input = "";
+            waited_once = false;
             return 0;
-        } else if (!render_settings.allow_empty_input && input.empty()) {
-            error = true;
-            error_msg = render_settings.empty_input_feedback;
+        }
+        if (!waited_once && !input.empty()) {
+            waited_once = true;
+        }
+
+        if (input.empty()) {
             return 0;
         }
 
@@ -611,15 +621,9 @@ int PointPlotter::render(GraphRenderSettings render_settings, Statistics &stats)
     print(middle_line);
     print(bottom_line);
 
-    // //* Add padding below the prompt
-    // print_loop("\n", render_settings.padding_below_input);
-
-    // int out = handle_input(render_settings);
-
     align_center();
     if (render_settings.fill_screen) fill_screen();
 
-    // return out;
     return handle_input(render_settings, stats);
 }
 
@@ -717,13 +721,6 @@ int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &
         input = strip(input);
         std::vector<std::string> c = split(input, ',');
 
-        // for (auto a : c) {
-        //     print(a);
-        // }
-        // print(std::to_string(graph_dimension.width));
-        // print(std::to_string(graph_dimension.height));
-        // get_key();
-
         if (c.size() != 2) {
             error = true;
             error_msg = render_settings.invalid_input_format;
@@ -732,8 +729,13 @@ int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &
 
         Location2D point;
         try {
-            point.x = std::stoi(c.at(0));
-            point.y = std::stoi(c.at(1));
+            std::size_t pos1, pos2 = 0;
+            point.x = std::stoi(c.at(0), &pos1);
+            point.y = std::stoi(c.at(1), &pos2);
+
+            if (pos1 < c.at(0).size() || pos2 < c.at(1).size()) {
+                throw "Words in input";
+            }
         } catch (...) {
             error = true;
             error_msg = render_settings.invalid_input_feedback;
@@ -747,8 +749,6 @@ int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &
         }
 
         points.emplace_back(point);
-        // print("Point added!");
-        // get_key();
 
         int coordinates_plotted = stats.get_stat(6).val;
         coordinates_plotted++;
