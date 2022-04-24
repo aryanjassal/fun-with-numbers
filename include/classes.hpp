@@ -52,6 +52,7 @@ class Statistics {
         void load_stats(std::string file_name);
         int render();
         int render(StatsRenderSettings render_settings);
+        void reset();
     private:
         std::vector<Stat> stats;
         int next_id = 1;
@@ -61,8 +62,6 @@ class Statistics {
 //************************************************************************************************
 //************************************************************************************************
 
-
-//TODO: GET THE COLORRGB COLORS WORKING IN THE RENDERER SETTINGS
 
 //* Line struct to store information about each line being displayed on the menu
 struct Entry {
@@ -355,10 +354,9 @@ struct BSTRenderSettings {
     std::string alignment = "center";
     int max_questions = 5;
 
-    std::string explanation = "There will be |num| questions asked. Just type in the answer. Incorrect answer will not be accepted. Alphabets will not be accepted. Correct answer will automatically be accepted and you will advance to the next question.";
-    std::string first_time_end = "Press any key to start the timer and the questions. The helper text will remain on screen for the duration of the test. Alternatively, press ESC to go back to the menu anytime. Your progress will not be saved.";
-
+    std::vector<std::string> explanation;
     int padding_from_help = 2;
+    int padding_for_left_text = 5;
 
     int input_width = 15;
     std::string prompt = "your answer > ";
@@ -371,6 +369,8 @@ struct BSTRenderSettings {
     std::string horizontal_bar = "═";
     std::string horizontal_padding = " ";
     int padding_after_question = 2;
+    int padding_below_input = 1;
+    std::string answer_correct = "Correct answer!";
 
     std::string test_finished = "Well done! The test was finished in |time| seconds. Press any key to escape to the main menu.";
 
@@ -389,4 +389,62 @@ class BrainSpeedTest {
         int question_number = 1;
         bool test_started = false;
         int want_exit = false;
+        int ans;
+        int num1, num2 = 0;
+        char op;
+};
+
+
+//************************************************************************************************
+//************************************************************************************************
+
+
+struct MBRenderSettings {
+    int padding_from_top = 3;
+    std::string title_style = "ansi";
+    std::function<void(std::string)> title_renderer;
+    int padding_below_title = 4;
+    std::string alignment = "center";
+    int max_digits = 5;
+
+    std::vector<std::string> explanation;
+    // explanation.push_back("Random number with increasing digits will be displayed.");//"There will be random numbers with increasing digits shown for a particular period of set time in which you have to memorise the number. After this time has elapsed, you will be asked to remember the number. You can only enter integers; no other character will be accepted.";
+    // explanation.push_back();
+
+    std::string first_time_end = "Press any key to start the game. The helper text will remain on screen for the duration of the test. Alternatively, press ESC to go back to the menu anytime. Your progress will not be saved.";
+
+    int padding_from_help = 2;
+
+    int input_width = max_digits;
+    std::string prompt = "the number > ";
+    std::string input_filler = "_";
+    std::string top_left_corner = "╔";
+    std::string top_right_corner = "╗";
+    std::string bottom_left_corner = "╚";
+    std::string bottom_right_corner = "╝";
+    std::string vertical_bar = "║";
+    std::string horizontal_bar = "═";
+    std::string horizontal_padding = " ";
+    int padding_after_question = 2;
+    int padding_for_left_text = 5;
+
+    std::string test_failed = "Incorrect! Your answer was |input| and the correct answer was |answer|. Your score was |score|!";
+    std::string test_finished = "Correct! You have cleared |max| digits! That was the end of the test. Press any key to escape to the main menu.";
+    std::string answer_correct = "Correct! Your score is |score|! Press any key to continue.";
+
+    bool fill_screen = true;
+};
+
+class MemoryBenchmark {
+    public:
+        void render(MBRenderSettings render_settings, Statistics &stats);
+        int handle_input(MBRenderSettings render_settings, Statistics &stats);
+        void reset();
+    private:
+        std::string input;
+        int digits = 1;
+        int want_exit = false;
+        int num;
+        bool calculate_new_num = true;
+        bool test_finished = false;
 };

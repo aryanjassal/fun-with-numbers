@@ -91,3 +91,12 @@ long long random_number(long long min, long long range, long long seed_offset) {
     //* Generate random number between the given inputs and return it
     return rand() % range + min;
 }
+
+std::string replace(std::string str, std::string match, std::string replacement) {
+    if (str.find(match) != std::string::npos) return str.replace(str.find(match), match.size(), replacement);
+    return str;
+}
+
+int unicode_len(std::string str) {
+    return (str.length() - count_if(str.begin(), str.end(), [](char c) -> bool { return (c & 0xc0) == 0x80; }));
+}

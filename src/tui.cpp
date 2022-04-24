@@ -351,7 +351,7 @@ std::string padded_str(std::string str, std::string filler, int w, std::string e
         out.append(pr);
         out.append(str);
         out.append(end);
-    } else { //* Otherwise, the alignment state is set to be in an invalid state. Warn the user about it and then exit the program gracefully.
+    } else { //* Otherwise, the alignment state is set to be in an invalid state. Throw an error message.
         throw "Alignment state invalid";
     }
 
@@ -572,24 +572,25 @@ Location2D fill_screen(bool c_text) {
     
     std::vector<std::string> lines = split(basic_text_wrapping(credit_to_zoelabbb));
 
-    Location2D retain_xy = wherexy();
     Location2D xy = wherexy();
-    int l = xy.y;
+    int h = xy.y;
+    int ht = t_size.height - lines.size();
     if (c_text) {
-        while (l < t_size.height - (0 + (lines.size()))) {
-            l++;
+        while (h < ht) {
+            h++;
             print();
         }
         print(basic_text_wrapping(credit_to_zoelabbb));
         print("", "");
+        return xy;
     } else {
-        while (l < t_size.height - 1) {
-            l++;
+        while (h < t_size.height - 1) {
+            h++;
             print();
         }
         print("", "");
+        return xy;
     }
-    return retain_xy;
 }
 
 Location2D fill_screen() {
@@ -598,7 +599,7 @@ Location2D fill_screen() {
 
 //* Wraps the string to fit in the width
 //TODO: Long words break this. Need to add hypenation.
-//! Warning: Breaks on using UTF-8 characters. Only ASCII characters supported.
+//? Testing unicode characters
 std::string basic_text_wrapping(std::string str, int width) {
     std::vector<std::string> words = split(str, ' ');
     std::string temp;
@@ -606,7 +607,7 @@ std::string basic_text_wrapping(std::string str, int width) {
     int new_lines = 0;
 
     for(auto word : words) {
-        if (temp.length() + word.length() < width) {
+        if (unicode_len(temp) + unicode_len(word) < width) {
             temp.append(word);
             temp.append(" ");
             new_lines = 0;
@@ -620,7 +621,7 @@ std::string basic_text_wrapping(std::string str, int width) {
         }
     }
 
-    if (temp.length() > 0) {
+    if (unicode_len(temp) > 0) {
         temp.pop_back();
         out.append(temp);
     }

@@ -1,6 +1,8 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <chrono>
+#include <thread>
 
 #include "classes.hpp"
 #include "tui.hpp"
@@ -272,7 +274,6 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &s
         }
 
         //* Build the first line of the input
-        //TODO: Unicode characters will break the pre-padding; only ASCII characters work
         std::string top_line;
         top_line.append(render_settings.top_left_corner);
         top_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
@@ -343,7 +344,6 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
         }
 
         print_loop("\n", render_settings.padding_below_input_field);
-
         print(render_settings.features_display_text.replace(render_settings.features_display_text.find("|num|"), 5, input), "");
         print_loop("", render_settings.padding_before_features);
 
@@ -387,11 +387,11 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
             throw std::runtime_error("Total of all numbers or total numbers processed cannot be negative");
         }
 
-        stats.set_stat(1, num_entries);
-        stats.set_stat(2, total);
-        stats.set_stat(3, average);
-        stats.set_stat(4, smallest_num);
-        stats.set_stat(5, largest_num);
+        stats.set_stat(NUMBERS_ENTERED, num_entries);
+        stats.set_stat(TOTAL_OF_NUMBERS, total);
+        stats.set_stat(AVERAGE_OF_NUMBERS, average);
+        stats.set_stat(SMALLEST_NUMBER_ENTERED, smallest_num);
+        stats.set_stat(LARGEEST_NUMBER_ENTERED, largest_num);
 
         get_key();
         input = "";
@@ -470,9 +470,9 @@ struct Stat Statistics::get_stat(int id) {
 
 void Statistics::set_stat(int id, long long val) {
     stats.at(id - 1).val = val;
+    save_stats();
 }
 
-//TODO: Encrypt the save file
 void Statistics::save_stats(std::string file_name) {
     std::ofstream file;
     file.open(file_name);
@@ -541,9 +541,7 @@ int Statistics::render(StatsRenderSettings render_settings) {
         print_loop("", render_settings.padding_between_lines);
     }
 
-    if (render_settings.fill_screen) {
-        fill_screen();
-    }
+    if (render_settings.fill_screen) fill_screen();
 
     get_key();
     return 1;
@@ -552,6 +550,12 @@ int Statistics::render(StatsRenderSettings render_settings) {
 int Statistics::render() {
     StatsRenderSettings render_settings;
     return render(render_settings);
+}
+
+void Statistics::reset() {
+    for (int i = 0; i < stats.size(); i++) {
+        set_stat(i, 0);
+    }
 }
 
 
@@ -591,7 +595,7 @@ int PointPlotter::render(GraphRenderSettings render_settings, Statistics &stats)
     align(render_settings.alignment);
 
     //* Build the first line of the input
-    //TODO: Unicode characters will break the pre-padding; only ASCII characters work
+    //!: Unicode characters will break the pre-padding; only ASCII characters work
     std::string top_line;
     top_line.append(render_settings.top_left_corner);
     top_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
@@ -773,7 +777,7 @@ int PointPlotter::handle_input(GraphRenderSettings render_settings, Statistics &
 
         int coordinates_plotted = stats.get_stat(6).val;
         coordinates_plotted++;
-        stats.set_stat(6, coordinates_plotted);
+        stats.set_stat(COORDINATE_ENTERED, coordinates_plotted);
 
         return 0;
     } else if (key == KEY_ESCAPE) {
@@ -800,31 +804,36 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
     fg_color(g_fg_color);
     bg_color(g_bg_color);
 
+    align(render_settings.alignment);
     print_loop("", render_settings.padding_from_top);
     render_settings.title_renderer(render_settings.title_style);
     print_loop("", render_settings.padding_below_title);
 
+    align_left();
+    for (auto s : render_settings.explanation) {
+        print(basic_text_wrapping(extend_string(' ', render_settings.padding_for_left_text) + "• " + s));
+        print();
+    }
+    print_loop("", render_settings.padding_from_help);
+
     align(render_settings.alignment);
-
-    std::string explanation = render_settings.explanation.replace(render_settings.explanation.find("|num|"), 5, std::to_string(render_settings.max_questions));
-
-    print(basic_text_wrapping(explanation + " " + render_settings.first_time_end));
     if (render_settings.fill_screen) fill_screen();
 
     Key k = get_key();
     if (k == KEY_ESCAPE) return;
 
+    start_time = std::chrono::steady_clock::now();
+
     for (int i = 0; i < render_settings.max_questions; i++) {
-        int num1 = random_number(10, 30, 5);
-        int num2 = random_number(10, 30, 99);
+        num1 = random_number(10, 30, 5);
+        num2 = random_number(10, 30, 99);
         int operation = random_number(0, 2, 8);
-        int ans;
-        char op;
+        // char op;
 
         switch (operation) {
             case 0: op = '+'; ans = num1 + num2; break;
             case 1: op = '-'; ans = num1 - num2; break;
-            case 2: op = '*'; ans = num1 * num2; break;
+            // case 2: op = '*'; ans = num1 * num2; break;
             // case 3: op = '/';
             default: throw "Operation conversion error";
         }
@@ -838,23 +847,9 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
 
             align(render_settings.alignment);
 
-            print(basic_text_wrapping(render_settings.explanation));
-            print_loop("", render_settings.padding_from_help);
-
             print("(" + std::to_string(question_number) + ") " + std::to_string(num1) + " " + op + " " + std::to_string(num2) + " " + "=" + " " + "?");
 
             print_loop("", render_settings.padding_after_question);
-
-            try {
-                if (std::stoll(input) == ans) {
-                    question_number++;
-                    input = "";
-                    break;
-                }
-            } catch (...) {
-                //* Error in converting input string to an integer
-                input = "";
-            }
 
             align_left();
             std::string input_line = padded_str(input, render_settings.input_filler, render_settings.input_width, "");
@@ -885,25 +880,32 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
             print(bottom_line);
 
             if (render_settings.fill_screen) fill_screen();
-            // question_number = i + 1;
 
             want_exit = handle_input(render_settings, stats);
-            if (want_exit) break;
+            if (want_exit == 1) break;
+            if (want_exit == 2) break;
         }
-        if (want_exit) break;
+        if (want_exit == 1) break;
     }
 
     //* On test clear
     set_cursor_position();
+    end_time = std::chrono::steady_clock::now();
 
     print_loop("", render_settings.padding_from_top);
     render_settings.title_renderer(render_settings.title_style);
     print_loop("", render_settings.padding_below_title);
 
     align(render_settings.alignment);
+    long long time_taken = std::chrono::duration_cast<std::chrono::seconds> (end_time - start_time).count();
 
-    std::string finished_text = render_settings.test_finished.replace(render_settings.test_finished.find("|time|"), 6, std::to_string(10));
+    std::string finished_text = replace(render_settings.test_finished, "|time|", std::to_string(time_taken));
     print(basic_text_wrapping(finished_text));
+
+    long long score = stats.get_stat(BRAIN_SPEED_TEST_SCORE).val;
+    if (time_taken < score || score == 0) {
+        stats.set_stat(BRAIN_SPEED_TEST_SCORE, time_taken);
+    }
 
     if (render_settings.fill_screen) fill_screen();
 
@@ -921,6 +923,63 @@ int BrainSpeedTest::handle_input(BSTRenderSettings render_settings, Statistics &
         return 1;
     } else if (input.length() < render_settings.input_width && (key == KEY_ONE || key == KEY_TWO || key == KEY_THREE || key == KEY_FOUR || key == KEY_FIVE || key == KEY_SIX || key == KEY_SEVEN || key == KEY_EIGHT || key == KEY_NINE || key == KEY_ZERO || key == KEY_DASH)) {
         input += key.key;
+
+        try {
+            if (std::stoll(input) == ans) {
+                set_cursor_position();
+
+                print_loop("", render_settings.padding_from_top);
+                render_settings.title_renderer(render_settings.title_style);
+                print_loop("", render_settings.padding_below_title);
+
+                align(render_settings.alignment);
+
+                print("(" + std::to_string(question_number) + ") " + std::to_string(num1) + " " + op + " " + std::to_string(num2) + " " + "=" + " " + "?");
+
+                print_loop("", render_settings.padding_after_question);
+
+                align_left();
+                std::string input_line = padded_str(input, render_settings.input_filler, render_settings.input_width, "");
+                align(render_settings.alignment);
+
+                std::string top_line;
+                top_line.append(render_settings.top_left_corner);
+                top_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+                top_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+                top_line.append(render_settings.top_right_corner);
+
+                std::string middle_line;
+                middle_line.append(render_settings.vertical_bar);
+                middle_line.append(render_settings.horizontal_padding);
+                middle_line.append(render_settings.prompt);
+                middle_line.append(input_line);
+                middle_line.append(render_settings.horizontal_padding);
+                middle_line.append(render_settings.vertical_bar);
+
+                std::string bottom_line;
+                bottom_line.append(render_settings.bottom_left_corner);
+                bottom_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+                bottom_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+                bottom_line.append(render_settings.bottom_right_corner);
+
+                print(top_line);
+                print(middle_line);
+                print(bottom_line);
+                print_loop("", render_settings.padding_below_input);
+                print(render_settings.answer_correct);
+
+                if (render_settings.fill_screen) fill_screen();
+
+                get_key();
+
+                question_number++;
+                input = "";
+                return 2;
+            }
+        } catch (...) {
+            //* Error in converting input string to an integer
+            if (input != "-") input = "";
+        }
     }
     return 0;
 }
@@ -929,5 +988,197 @@ void BrainSpeedTest::reset() {
     input = "";
     question_number = 1;
     test_started = false;
+    want_exit = false;
+
+    start_time = std::chrono::steady_clock::now();
+    end_time = std::chrono::steady_clock::now();
+}
+
+
+//**************************************************************************************************
+//**************************************************************************************************
+
+void MemoryBenchmark::render(MBRenderSettings render_settings, Statistics &stats) {
+    set_cursor_position();
+    bg_color(g_bg_color);
+    fg_color(g_fg_color);
+
+    align_center();
+    print_loop("", render_settings.padding_from_top);
+    render_settings.title_renderer(render_settings.title_style);
+    print_loop("", render_settings.padding_below_title);
+
+
+    // print(basic_text_wrapping(render_settings.explanation + " " + render_settings.first_time_end));
+    align_left();
+    for (auto s : render_settings.explanation) {
+        print(basic_text_wrapping(extend_string(' ', render_settings.padding_for_left_text) + "• " + s));
+        print();
+    }
+    print_loop("", render_settings.padding_from_help);
+
+    align(render_settings.alignment);
+    if (render_settings.fill_screen) fill_screen();
+
+    Key k = get_key();
+    if (k == KEY_ESCAPE) return;
+
+    for(;;) {
+        set_cursor_position();
+
+        print_loop("", render_settings.padding_from_top);
+        render_settings.title_renderer(render_settings.title_style);
+        print_loop("", render_settings.padding_below_title);
+
+        align(render_settings.alignment);
+
+        if (calculate_new_num) {
+            if (digits > render_settings.max_digits) break;
+
+            std::string num_str;
+
+            for (int i = 0; i < digits; i++) {
+                num_str.append(std::to_string(random_number(0, 10, (i * i))));
+            }
+            num = std::stoll(num_str);
+            calculate_new_num = false;
+
+            print(std::to_string(num));
+            fill_screen();
+            std::this_thread::sleep_for(std::chrono::seconds((int)((float)digits * 1.2) + (int)(2 / digits)));
+            continue;
+        }
+
+        align_left();
+        std::string input_line = padded_str(input, render_settings.input_filler, render_settings.input_width, "");
+        align(render_settings.alignment);
+
+        std::string top_line;
+        top_line.append(render_settings.top_left_corner);
+        top_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+        top_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+        top_line.append(render_settings.top_right_corner);
+
+        std::string middle_line;
+        middle_line.append(render_settings.vertical_bar);
+        middle_line.append(render_settings.horizontal_padding);
+        middle_line.append(render_settings.prompt);
+        middle_line.append(input_line);
+        middle_line.append(render_settings.horizontal_padding);
+        middle_line.append(render_settings.vertical_bar);
+
+        std::string bottom_line;
+        bottom_line.append(render_settings.bottom_left_corner);
+        bottom_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+        bottom_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+        bottom_line.append(render_settings.bottom_right_corner);
+
+        print(top_line);
+        print(middle_line);
+        print(bottom_line);
+
+        if (render_settings.fill_screen) fill_screen();
+
+        want_exit = handle_input(render_settings, stats);
+        if (want_exit) break;
+    }
+    
+    //* Test finished or aborted
+    if (want_exit) return;
+}
+
+int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &stats) {
+    Key key = get_key();
+
+    if (key == KEY_BACKSPACE) {
+        if (!input.empty()) {
+            input.pop_back();
+        }
+    } else if (key == KEY_ESCAPE) {
+        return 1;
+    } else if (key == KEY_ENTER) {
+        try {
+            if (std::stoll(input) == num) {
+                digits++;
+                input = "";
+                calculate_new_num = true;
+
+                if (digits > render_settings.max_digits) {
+                    set_cursor_position();
+                    print_loop("", render_settings.padding_from_top);
+                    render_settings.title_renderer(render_settings.title_style);
+                    print_loop("", render_settings.padding_below_title);
+
+                    align_center();
+
+                    std::string finished = render_settings.test_finished;
+                    finished = replace(finished, "|max|", std::to_string(render_settings.max_digits));
+
+                    print(basic_text_wrapping(finished));
+
+                    long long max_digits_memorised = stats.get_stat(MEMORY_BENCHMARK_MAX_DIGITS).val;
+                    if (digits > max_digits_memorised || max_digits_memorised == 0) {
+                        stats.set_stat(MEMORY_BENCHMARK_MAX_DIGITS, digits - 1);
+                    }
+
+                    if (render_settings.fill_screen) fill_screen();
+                    get_key();
+
+                    return 1;
+                } else {
+                    set_cursor_position();
+                    print_loop("", render_settings.padding_from_top);
+                    render_settings.title_renderer(render_settings.title_style);
+                    print_loop("", render_settings.padding_below_title);
+
+                    align_center();
+
+                    std::string correct = render_settings.answer_correct;
+                    correct = replace(correct, "|score|", std::to_string(digits - 1));
+
+                    print(basic_text_wrapping(correct));
+
+                    if (render_settings.fill_screen) fill_screen();
+                    get_key();
+
+                    return 0;
+                }
+            } else {
+                set_cursor_position();
+                print_loop("", render_settings.padding_from_top);
+                render_settings.title_renderer(render_settings.title_style);
+                print_loop("", render_settings.padding_below_title);
+
+                align_center();
+
+                std::string failed = render_settings.test_failed;
+                failed = replace(failed, "|input|", input);
+                failed = replace(failed, "|answer|", std::to_string(num));
+                failed = replace(failed, "|score|", std::to_string(digits));
+
+                print(basic_text_wrapping(failed));
+
+                long long max_digits_memorised = stats.get_stat(MEMORY_BENCHMARK_MAX_DIGITS).val;
+                if (digits > max_digits_memorised || max_digits_memorised == 0) {
+                    stats.set_stat(MEMORY_BENCHMARK_MAX_DIGITS, digits);
+                }
+
+                if (render_settings.fill_screen) fill_screen();
+                get_key();
+                return 1;
+            }
+        } catch (...) {
+            //* Error in converting input string to an integer
+            input = "";
+        }
+    } else if (input.length() < render_settings.input_width && (key == KEY_ONE || key == KEY_TWO || key == KEY_THREE || key == KEY_FOUR || key == KEY_FIVE || key == KEY_SIX || key == KEY_SEVEN || key == KEY_EIGHT || key == KEY_NINE || key == KEY_ZERO)) {
+        input += key.key;
+    }
+    return 0;
+}
+
+void MemoryBenchmark::reset() {
+    input = "";
+    digits = 1;
     want_exit = false;
 }
