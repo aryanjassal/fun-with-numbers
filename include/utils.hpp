@@ -31,6 +31,9 @@ std::string replace(std::string str, std::string match, std::string replacement)
 //* Return unicode-aware length of a stirng
 int unicode_len(std::string str);
 
+//* Seconds to formatted string
+std::string seconds_to_string(long long seconds);
+
 //* Creating an enumerator for easier access to each element according to its ID
 enum {
     NUMBERS_ENTERED = 1,

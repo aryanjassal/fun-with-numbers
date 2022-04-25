@@ -14,7 +14,7 @@
 struct StatsRenderSettings {
     std::string alignment = "center";
     int padding_between_lines = 1;
-    int padding_from_top = 5;
+    int padding_from_top = 4;
     std::string title_rendering_style = "ansi";
     std::function<void(std::string)> title_renderer;
     int padding_below_title = 4;
@@ -129,26 +129,6 @@ struct MenuRenderSettings {
     std::function<void(std::string)> title_renderer;
     std::string title_style;
     int padding_below_title = 3;
-
-    //* Setting the foreground color using hexadecimal color codes
-    // std::string fg_color_hex = "#ffffff";
-    //* Setting the background color using hexadecimal color color
-    // std::string bg_color_hex = "#000000";
-
-    //* Setting the foreground color using a ColorRGB object
-    // struct ColorRGB fg_color = {255, 255, 255};
-    //* Setting the background color using a ColorRGB object
-    // struct ColorRGB bg_color = {0, 0, 0};
-
-    //* Setting the foreground color of the highlighted section using hexadecimal color codes
-    // std::string fg_color_highlighted_hex = "#000000";
-    //* Setting the background color of the highlighted section using hexadecimal color codes
-    // std::string bg_color_highlighted_hex = "#ffffff";
-
-    //* Setting the foreground color of the highlighted section using a ColorRGB object
-    // struct ColorRGB fg_color_highlighted = {0, 0, 0};
-    //* Setting the background color of the highlighted section using a ColorRGB object
-    // struct ColorRGB bg_color_highlighted = {255, 255, 255};
 };
 
 //* Menu class
@@ -161,23 +141,23 @@ class Menu {
         void add_entry(Entry entry);
 
         //* Add a non-selectable line on the menu screen to add padding or display text
-        void add_line();
         void add_line(std::string str);
+        void add_line();
 
         //* Move the current selection up by a given amount
-        void move_selection_up();
         void move_selection_up(int by);
+        void move_selection_up();
 
         //* Move the current selection down by a given amount
-        void move_selection_down();
         void move_selection_down(int by);
+        void move_selection_down();
 
         //* Should the menu entry loop back up to the first element after attempting to go down after the last element?
         void set_entry_loop(bool val);
 
         //* Render the menu with the given settings
-        void render();
         void render(MenuRenderSettings render_settings);
+        void render();
 
         //* Handle the input by the user.
         //* Typically used after rendering the menu
@@ -225,6 +205,7 @@ struct CNFRenderSettings {
     std::string invalid_input_feedback = "Invalid input";
     std::string failed_conversion_feedback = "Failed conversion";
     std::string empty_input_feedback = "Empty input";
+    std::string num_too_big_error = "The number you have entered exceeds the 64-bit signed integer limit. Please try entering a smaller number.";
     int padding_before_error = 2;
     int padding_after_error = 2;
     int padding_below_input_field = 3;
@@ -251,39 +232,6 @@ class CheckNumberFeatures {
         std::string error_msg;
         std::string input;
         bool waited_once = false;
-};
-
-//************************************************************************************************
-//************************************************************************************************
-
-
-struct Setting {
-    std::string label;
-    std::string type;
-    std::vector<std::pair<std::string, std::string>> options;
-    std::string& current_selection;
-};
-
-struct SettingsRenderSettings {
-    int padding_before_title = 3;
-    std::function<void(std::string)> title_renderer;
-    std::string title_style;
-    int padding_after_title = 3;
-    std::string usage_explanation = "Enter to select setting. Enter to save setting. Escape to exit setting without saving. Escape again to go back to the main menu. Backspace to go to menu without saving. Arrow keys to navigate and to increase/decrease values; Enter key to optionally check checkboxes.";
-    int padding_between_settings = 1;
-    std::string alignment = "center";
-};
-
-class Settings {
-    public:
-        void add_setting(Setting setting);
-        void add_setting(std::string label, std::string type, std::vector<std::pair<std::string, std::string>> options, std::string& current_selection);
-        int render();
-        int render(SettingsRenderSettings render_settings);
-        void handle_input();
-    private:
-        Setting currently_selected;
-        std::vector<Setting> all_settings;
 };
 
 
@@ -352,7 +300,7 @@ struct BSTRenderSettings {
     std::function<void(std::string)> title_renderer;
     int padding_below_title = 4;
     std::string alignment = "center";
-    int max_questions = 5;
+    int max_questions = 10;
 
     std::vector<std::string> explanation;
     int padding_from_help = 2;
@@ -372,7 +320,7 @@ struct BSTRenderSettings {
     int padding_below_input = 1;
     std::string answer_correct = "Correct answer!";
 
-    std::string test_finished = "Well done! The test was finished in |time| seconds. Press any key to escape to the main menu.";
+    std::string test_finished = "Well done! The test was finished in |time|. Press any key to escape to the main menu.";
 
     bool fill_screen = true;
 };
@@ -405,14 +353,9 @@ struct MBRenderSettings {
     std::function<void(std::string)> title_renderer;
     int padding_below_title = 4;
     std::string alignment = "center";
-    int max_digits = 5;
+    int max_digits = 17;
 
     std::vector<std::string> explanation;
-    // explanation.push_back("Random number with increasing digits will be displayed.");//"There will be random numbers with increasing digits shown for a particular period of set time in which you have to memorise the number. After this time has elapsed, you will be asked to remember the number. You can only enter integers; no other character will be accepted.";
-    // explanation.push_back();
-
-    std::string first_time_end = "Press any key to start the game. The helper text will remain on screen for the duration of the test. Alternatively, press ESC to go back to the menu anytime. Your progress will not be saved.";
-
     int padding_from_help = 2;
 
     int input_width = max_digits;

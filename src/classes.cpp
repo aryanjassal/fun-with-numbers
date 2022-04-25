@@ -3,6 +3,7 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
+#include <math.h>
 
 #include "classes.hpp"
 #include "tui.hpp"
@@ -268,6 +269,7 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &s
             input_line = padded_str(input, render_settings.input_filler, render_settings.digits, "");
             error = false;
             error_msg = "";
+            waited_once = false;
         } else {
             //* Add padding below the prompt
             print_loop("\n", render_settings.padding_below_prompt);
@@ -337,6 +339,10 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
             if (pos < input.size()) {
                 throw "Words in input";
             }
+        } catch (std::out_of_range &err) {
+            error = true;
+            error_msg = render_settings.num_too_big_error;
+            return 0;
         } catch (...) {
             error = true;
             error_msg = render_settings.invalid_input_feedback;
@@ -359,12 +365,12 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
             print_loop("", render_settings.padding_between_features);
         }
 
-        long long num_entries = stats.get_stat(1).val;
-        long long total = stats.get_stat(2).val;
+        long long num_entries = stats.get_stat(NUMBERS_ENTERED).val;
+        long long total = stats.get_stat(TOTAL_OF_NUMBERS).val;
         long long average;
 
-        long long smallest_num = stats.get_stat(4).val;
-        long long largest_num = stats.get_stat(5).val;
+        long long smallest_num = stats.get_stat(SMALLEST_NUMBER_ENTERED).val;
+        long long largest_num = stats.get_stat(LARGEEST_NUMBER_ENTERED).val;
 
         if (total == 0) {
             largest_num = num;
@@ -383,8 +389,8 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
         if (total > 0 && num_entries > 0) {
             average = (int)(total / num_entries);
         }
-        if (total < 0 || num_entries < 0) {
-            throw std::runtime_error("Total of all numbers or total numbers processed cannot be negative");
+        if (num_entries < 0) {
+            throw std::runtime_error("Total numbers processed cannot be negative");
         }
 
         stats.set_stat(NUMBERS_ENTERED, num_entries);
@@ -392,6 +398,8 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
         stats.set_stat(AVERAGE_OF_NUMBERS, average);
         stats.set_stat(SMALLEST_NUMBER_ENTERED, smallest_num);
         stats.set_stat(LARGEEST_NUMBER_ENTERED, largest_num);
+
+        if (render_settings.fill_screen) fill_screen();
 
         get_key();
         input = "";
@@ -496,13 +504,13 @@ void Statistics::load_stats(std::string file_name) {
 
         Stat s;
         try {
-            s = get_stat(std::stoi(id_val_form.at(0)));
+            s = get_stat(std::stoll(id_val_form.at(0)));
         } catch (...) {
             // throw std::runtime_error("Save file corrupt. Delete the save file and re-run the program");
             continue;
         }
 
-        stat.val = std::stoi(id_val_form.at(1));
+        stat.val = std::stoll(id_val_form.at(1));
     }
     file.close();
 }
@@ -513,11 +521,11 @@ void Statistics::load_stats() {
 
 int Statistics::render(StatsRenderSettings render_settings) {
     set_cursor_position();
-    align(render_settings.alignment);
 
     bg_color(g_bg_color);
     fg_color(g_fg_color);
 
+    align(render_settings.alignment);
     print_loop("", render_settings.padding_from_top);
     render_settings.title_renderer(render_settings.title_rendering_style);
     print_loop("", render_settings.padding_below_title);
@@ -528,15 +536,16 @@ int Statistics::render(StatsRenderSettings render_settings) {
             out.append(s.label);
             out.append(": ");
         }
-        out.append(std::to_string(s.val));
 
         if (!s.units.empty()) {
-            out.append(" ");
-            out.append(s.units);
+            if (s.units == "time|seconds") {
+                out.append(seconds_to_string(s.val));   
+            }
+        } else {
+            out.append(std::to_string(s.val));
         }
 
         align(render_settings.alignment);
-
         print(out);
         print_loop("", render_settings.padding_between_lines);
     }
@@ -553,7 +562,7 @@ int Statistics::render() {
 }
 
 void Statistics::reset() {
-    for (int i = 0; i < stats.size(); i++) {
+    for (int i = 1; i <= stats.size(); i++) {
         set_stat(i, 0);
     }
 }
@@ -811,7 +820,7 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
 
     align_left();
     for (auto s : render_settings.explanation) {
-        print(basic_text_wrapping(extend_string(' ', render_settings.padding_for_left_text) + "• " + s));
+        print(basic_text_wrapping(extend_string(' ', render_settings.padding_for_left_text) + "• " + replace(s, "|num|", std::to_string(render_settings.max_questions))));
         print();
     }
     print_loop("", render_settings.padding_from_help);
@@ -899,7 +908,7 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
     align(render_settings.alignment);
     long long time_taken = std::chrono::duration_cast<std::chrono::seconds> (end_time - start_time).count();
 
-    std::string finished_text = replace(render_settings.test_finished, "|time|", std::to_string(time_taken));
+    std::string finished_text = replace(render_settings.test_finished, "|time|", seconds_to_string(time_taken));
     print(basic_text_wrapping(finished_text));
 
     long long score = stats.get_stat(BRAIN_SPEED_TEST_SCORE).val;

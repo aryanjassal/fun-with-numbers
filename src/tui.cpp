@@ -304,6 +304,7 @@ int calculate_padding_right(std::string str, int w) {
     //* This complicated looking code basically counts the number of characters in the given string
     //* Unicode characters are long codes which get interpreted as multiple characters even though they output one character
     //* This code counts each unicode character as one instead of counting the number of characters
+    //TODO: [REQU] Use the function unicode_len() instead of this redundant piece of code
     int l = (str.length() - count_if(str.begin(), str.end(), [](char c) -> bool { return (c & 0xc0) == 0x80; }));
 
     //* Return the right padding using some basic math
@@ -353,11 +354,6 @@ std::string padded_str(std::string str, std::string filler, int w, std::string e
         out.append(end);
     } else { //* Otherwise, the alignment state is set to be in an invalid state. Throw an error message.
         throw "Alignment state invalid";
-    }
-
-    //* Failsafe to append extra spaces if the resultant string is not quite as wide as the width. May happen when the width is an odd number
-    while (out.length() < w) {
-        out.append(filler);
     }
 
     //* Return the padded string
@@ -568,9 +564,9 @@ std::string extend_string(const char* str, int times) {
 
 //* Fills the screen with blank prints
 Location2D fill_screen(bool c_text) {
-    std::string credit_to_zoelabbb = "Credit to zoelabbb (https://github.com/zoelabbb/) for providing inspiration and some parts of the code from their project \"conio.h for linux\" (https://github.com/zoelabbb/conio.h/blob/master/conio.h)";
+    std::string credit = "Credit to zoelabbb (https://github.com/zoelabbb/) for providing inspiration and some parts of the code from their project \"conio.h for linux\" (https://github.com/zoelabbb/conio.h/blob/master/conio.h). Credit to brynblack (https://github.com/brynblack) for providing the integer factorisation method used in this project.";
     
-    std::vector<std::string> lines = split(basic_text_wrapping(credit_to_zoelabbb));
+    std::vector<std::string> lines = split(basic_text_wrapping(credit));
 
     Location2D xy = wherexy();
     int h = xy.y;
@@ -580,17 +576,16 @@ Location2D fill_screen(bool c_text) {
             h++;
             print();
         }
-        print(basic_text_wrapping(credit_to_zoelabbb));
+        print(basic_text_wrapping(credit));
         print("", "");
-        return xy;
     } else {
         while (h < t_size.height - 1) {
             h++;
             print();
         }
         print("", "");
-        return xy;
     }
+    return xy;
 }
 
 Location2D fill_screen() {

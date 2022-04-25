@@ -8,17 +8,12 @@
 #include "tui.hpp"
 #include "classes.hpp"
 
-//TODO: [NORM] Find factors of a number FAST
-//TODO: [LOW] Add max character limit to basic_text_wrapping() and append ... once a word breaches the limit (if word.len + "..." > max_chars) { out.append("...") }
+//? Ideal if a font with font ligatures is used.
+//! Windows Terminal (the new terminal for Windows 11) breaks whenever print statements cause a scrolling, making the colors look weird. Use legacy Windows Console Host (aka cmd.exe) to run the application, or just use some other linux terminal (tested on Kitty) because most of the terminals work fine. Note that there is a high chance that tmux terminal will break this code.
+//* Superior highly composite numbers = 367567200 or -720720
 
-//TODO: [LOW] Get string based values in Stats
-//TODO: [LOW] Time in program converted to appropriate units while rendering
-//TODO: [LOW] Get function-based stat rendering
 //TODO: [NORM] Stats scrolls for some reason
-//TODO: [HIGH] Confirmation prompt before actually clearing stats
-
-//TODO: [HIGH] Fix many factors error with numbers like 367567200 or -720720
-//TODO: [HIGH] Keep the bottom copyright text right there even if the height exceeds the terminal size. ISSUE SEEMS TO BE IN PRINT - PRINT BUGS OUT WHILE PRINTING MORE THAN THE HEIGHT OF THE TERMINAL
+//TODO: [NORM] Comment code everywhere
 
 int main() {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -63,8 +58,8 @@ int main() {
     stats.add_stat("Largest number entered");
     stats.add_stat("Coordinates plotted");
     stats.add_stat("Max digits in memory benchark");
-    stats.add_stat("Brain speed test score", "seconds");
-    stats.add_stat("Time spent in application", "seconds");
+    stats.add_stat("Brain speed test score", "time|seconds");
+    stats.add_stat("Time spent in application", "time|seconds");
     stats.load_stats();
 
     StatsRenderSettings s_render_settings;
@@ -140,7 +135,23 @@ int main() {
     });
     menu.add_line();
     menu.add_option("Clear Statistics", [&stats] {
-        stats.reset();
+        align_center();
+        for (;;) {
+            set_cursor_position();
+            print_loop("", 4);
+            print_are_you_sure("ansi");
+            print_loop("", 4);
+            align_center();
+            print("Are you sure you want to reset all statistics? Press enter to reset all statistics or press escape to return to main menu.");
+            fill_screen();
+            Key k = get_key();
+            if (k == KEY_ESCAPE) {
+                return;
+            } else if (k == KEY_ENTER) {
+                stats.reset();
+                return;
+            }
+        }
     });
     menu.add_option("Quit", [&stats, &begin] {
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
