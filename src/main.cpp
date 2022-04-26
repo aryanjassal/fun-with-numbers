@@ -11,8 +11,7 @@
 //? Ideal if a font with font ligatures is used.
 //! Windows Terminal (the new terminal for Windows 11) breaks whenever print statements cause a scrolling, making the colors look weird. Use legacy Windows Console Host (aka cmd.exe) to run the application, or just use some other linux terminal (tested on Kitty) because most of the terminals work fine. Note that there is a high chance that tmux terminal will break this code.
 //* Superior highly composite numbers = 367567200 or -720720
-
-//TODO: [NORM] Stats scrolls for some reason
+//TODO: [NORM] Some pages scroll the terminal for some reason
 //TODO: [NORM] Comment code everywhere
 
 int main() {
@@ -48,18 +47,22 @@ int main() {
 
         return basic_text_wrapping(factors_out, cnf_render_settings.max_width);
     } , false);
+    cnf.add_attribute("Number of factors", [&fac] (long long num) -> std::string { return std::to_string(fac.size()); }, true);
     cnf.add_attribute("PrimeOrNot", [&fac] (long long num) -> std::string { return fac.size() > 2 ? "Composite number" : fac.size() == 1 || (fac.at(0) == -1 && fac.at(1) == 1) ? "Unique number" : "Prime number"; } , false);
 
     Statistics stats;
-    stats.add_stat("Numbers entered");
-    stats.add_stat("Total of numbers");
-    stats.add_stat("Average of numbers");
-    stats.add_stat("Smallest number entered");
-    stats.add_stat("Largest number entered");
-    stats.add_stat("Coordinates plotted");
-    stats.add_stat("Max digits in memory benchark");
-    stats.add_stat("Brain speed test score", "time|seconds");
-    stats.add_stat("Time spent in application", "time|seconds");
+    stats.add_stat("Numbers entered", "check number features");
+    stats.add_stat("Total of numbers", "check number features");
+    stats.add_stat("Average of numbers", "check number features");
+    stats.add_stat("Smallest number entered", "check number features");
+    stats.add_stat("Largest number entered", "check number features");
+    stats.add_stat("Coordinates plotted", "plot numbers");
+    stats.add_stat("Max digits memorised", "memory benchmark");
+    stats.add_stat("Fastest test completion", "brain speed test", "time|seconds");
+    stats.add_stat("Total questions asked", "brain speed test", false);
+    stats.add_stat("Total questions correct", "brain speed test", false);
+    stats.add_stat("Accuracy", "brain speed test", (std::string)"unit|percentage");
+    stats.add_stat("Time spent in application", "general", (std::string)"time|seconds");
     stats.load_stats();
 
     StatsRenderSettings s_render_settings;
@@ -114,16 +117,6 @@ int main() {
         }
         return;
     });
-    menu.add_option("Check overall stats", [&stats, &s_render_settings] { 
-        int quit = 0;
-        stats.load_stats();
-
-        while(!quit) {
-            // set_terminal_size();
-            quit = stats.render(s_render_settings);
-        }
-        return;
-    });
     menu.add_option("Memory benchmark", [&mb, &mb_render_settings, &stats] {
         mb.reset();
         mb.render(mb_render_settings, stats);
@@ -134,6 +127,15 @@ int main() {
         return;
     });
     menu.add_line();
+    menu.add_option("Check overall stats", [&stats, &s_render_settings] { 
+        int quit = 0;
+        stats.load_stats();
+
+        while(!quit) {
+            quit = stats.render(s_render_settings);
+        }
+        return;
+    });
     menu.add_option("Clear Statistics", [&stats] {
         align_center();
         for (;;) {
@@ -142,7 +144,7 @@ int main() {
             print_are_you_sure("ansi");
             print_loop("", 4);
             align_center();
-            print("Are you sure you want to reset all statistics? Press enter to reset all statistics or press escape to return to main menu.");
+            print("Are you sure you want to reset all statistics? Press ENTER to reset all statistics or press ESC to return to main menu.");
             fill_screen();
             Key k = get_key();
             if (k == KEY_ESCAPE) {

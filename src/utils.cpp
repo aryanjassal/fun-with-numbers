@@ -37,33 +37,44 @@ void exit_program(Statistics &stats) {
 }
 
 std::vector<long long> find_factors(long long num) {
+    //* Create an empty vector of factors
     std::vector<long long> factors;
 
-    for (long long i = 2; i * i <= abs(num); ++i) {
+    //* If the number is 0, then it has infinite factors. Push 0 in the factors vector and return it.
+    //* The code needs to know how to handle 0 being a factor.
+    if (num == 0) {
+        factors.push_back(0);
+        return factors;
+    }
+
+    //* Otherwise, find the factors of the number
+    long long limit = std::sqrt(abs(num));
+    for (long long i = 2; i <= limit; ++i) {
         if (num % i == 0) {
             factors.push_back(i);
             if (num / i != i) { factors.push_back(num / i); }
         }
     }
     
+    //* Append 1 to the factors vector depending on the number.
     if (num != 0) {
         if (num != 1 && num != -1) factors.push_back(abs(num));
         factors.push_back(1);
-    } 
+    }
     
+    //* If the number is negative, then duplicate its positive factors, flip it, and append it at the beginning of the factors vector.
     if (num < 0) {
         std::vector<long long> temp;
         for (auto fac : factors) {
             temp.push_back(-fac);
         }
-        factors.insert(factors.end(), temp.begin(), temp.end());
-    } else if (num == 0) {
-        factors.push_back(0);
-        return factors;
+        factors.insert(factors.begin(), temp.begin(), temp.end());
     }
 
+    //* Sort the vector in ascending order
     std::sort(factors.begin(), factors.end());
 
+    //* Return the vector of factors
     return factors;
 }
 

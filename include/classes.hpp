@@ -12,11 +12,23 @@
 
 
 struct StatsRenderSettings {
+    std::string title_rendering_style = "ansi";
+    std::function<void(std::string)> title_renderer;
+    
+    std::string text_start = "{";
+    std::string text_end = "}";
+    std::string top_left_corner = "╭";
+    std::string top_right_corner = "╮";
+    std::string bottom_left_corner = "╰";
+    std::string bottom_right_corner = "╯";
+    std::string vertical_bar = "│";
+    std::string horizontal_bar = "─";
+    int section_width = 80;
+
     std::string alignment = "center";
     int padding_between_lines = 1;
     int padding_from_top = 4;
-    std::string title_rendering_style = "ansi";
-    std::function<void(std::string)> title_renderer;
+
     int padding_below_title = 4;
     bool render_label = true;
 
@@ -35,15 +47,25 @@ struct Stat {
 
     //* The units optionally displayed after the value
     std::string units;
+
+    //* The section in which they belong
+    std::string section;
+
+    //* Should this stat be rendered?
+    bool rendered = true;
 };
 
 class Statistics {
     public:
         void add_stat(Stat stat);
-        void add_stat(std::string label);
-        void add_stat(std::string label, long long val);
-        void add_stat(std::string label, std::string units);
-        void add_stat(std::string label, long long val, std::string units);
+        void add_stat(std::string label, std::string section_id);
+        void add_stat(std::string label, std::string section_id, bool rendered);
+        void add_stat(std::string label, long long val, std::string section_id);
+        void add_stat(std::string label, std::string section_id, std::string units);
+        void add_stat(std::string label, long long val, std::string section_id, bool rendered);
+        void add_stat(std::string label, std::string section_id, std::string units, bool rendered);
+        void add_stat(std::string label, long long val, std::string section_id, std::string units);
+        void add_stat(std::string label, long long val, std::string section_id, std::string units, bool rendered);
         struct Stat get_stat(int id);
         void set_stat(int id, long long val);
         void save_stats();
@@ -189,7 +211,6 @@ struct Attribute {
 
 //* Render settings for the Check Number Features renderer
 struct CNFRenderSettings {
-    int digits = 19;
     std::string top_left_corner = "╔";
     std::string top_right_corner = "╗";
     std::string bottom_left_corner = "╚";
@@ -197,6 +218,7 @@ struct CNFRenderSettings {
     std::string vertical_bar = "║";
     std::string horizontal_bar = "═";
     std::string horizontal_padding = " ";
+    int digits = 19;
     int padding_from_top = 3;
     std::string input_prompt_text = "Enter a number";
     int padding_below_prompt = 2;
@@ -256,19 +278,15 @@ struct GraphRenderSettings {
     std::string vertical_bar = "║";
     std::string horizontal_bar = "═";
     std::string horizontal_padding = " ";
-    // int padding_from_top = 3;
     int padding_before_input_prompt = 2;
     std::string input_prompt_text = "Enter numerical whole number coordinates separated by a comma (x axis goes first then y axis comes later)";
     int padding_after_input_prompt = 2;
     int padding_after_error = 2;
-    // int padding_below_prompt = 2;
     std::string prompt = "coordinates > ";
     std::string input_filler = "_";
     std::string invalid_input_feedback = "Coordinates need to be integers. Come on, man. It even says so on the instructions above.";
     std::string invalid_input_format = "Forgot some commas or added too many?";
     std::string out_of_bounds_feedback = "Number out of bounds.";
-
-    // int padding_below_input = 3;
 
     bool fill_screen = true;
 };
@@ -300,7 +318,7 @@ struct BSTRenderSettings {
     std::function<void(std::string)> title_renderer;
     int padding_below_title = 4;
     std::string alignment = "center";
-    int max_questions = 10;
+    int max_questions = 3;
 
     std::vector<std::string> explanation;
     int padding_from_help = 2;
@@ -318,7 +336,8 @@ struct BSTRenderSettings {
     std::string horizontal_padding = " ";
     int padding_after_question = 2;
     int padding_below_input = 1;
-    std::string answer_correct = "Correct answer!";
+    std::string answer_correct = "Correct answer! Took |time|.";
+    std::string answer_incorrect = "Incorrect answer! Please try again.";
 
     std::string test_finished = "Well done! The test was finished in |time|. Press any key to escape to the main menu.";
 
@@ -333,6 +352,8 @@ class BrainSpeedTest {
     private:
         std::chrono::steady_clock::time_point start_time;
         std::chrono::steady_clock::time_point end_time;
+        std::chrono::steady_clock::time_point question_start;
+        std::chrono::steady_clock::time_point question_end;
         std::string input = "";
         int question_number = 1;
         bool test_started = false;
@@ -340,6 +361,8 @@ class BrainSpeedTest {
         int ans;
         int num1, num2 = 0;
         char op;
+        int questions_asked;
+        int correct_answers;
 };
 
 
@@ -348,7 +371,7 @@ class BrainSpeedTest {
 
 
 struct MBRenderSettings {
-    int padding_from_top = 3;
+    int padding_from_top = 4;
     std::string title_style = "ansi";
     std::function<void(std::string)> title_renderer;
     int padding_below_title = 4;
@@ -370,6 +393,7 @@ struct MBRenderSettings {
     std::string horizontal_padding = " ";
     int padding_after_question = 2;
     int padding_for_left_text = 5;
+    int padding_before_feedback = 3;
 
     std::string test_failed = "Incorrect! Your answer was |input| and the correct answer was |answer|. Your score was |score|!";
     std::string test_finished = "Correct! You have cleared |max| digits! That was the end of the test. Press any key to escape to the main menu.";
@@ -390,4 +414,5 @@ class MemoryBenchmark {
         int num;
         bool calculate_new_num = true;
         bool test_finished = false;
+        bool waited_once;
 };

@@ -225,7 +225,6 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &s
     //* Clear the screen to indicate to the user that we have entered a new section of the program
     bg_color(g_bg_color);
     fg_color(g_fg_color);
-    // clear();
 
     for (;;) {
         //* Set the cursor to home (0, 0)
@@ -428,41 +427,98 @@ void Statistics::add_stat(Stat stat) {
     next_id++;
 }
 
-void Statistics::add_stat(std::string label, long long val) {
+void Statistics::add_stat(std::string label, long long val, std::string section_id) {
     Stat stat;
     stat.id = next_id;
     stat.label = label;
     stat.val = val;
     stat.units = "";
+    stat.section = section_id;
+    stat.rendered = true;
     stats.emplace_back(stat);
     next_id++;
 }
 
-void Statistics::add_stat(std::string label, std::string units) {
+void Statistics::add_stat(std::string label, std::string section_id, std::string units) {
     Stat stat;
     stat.id = next_id;
     stat.label = label;
     stat.val = 0;
     stat.units = units;
+    stat.section = section_id;
+    stat.rendered = true;
     stats.emplace_back(stat);
     next_id++;
 }
 
-void Statistics::add_stat(std::string label, long long val, std::string units) {
+void Statistics::add_stat(std::string label, long long val, std::string section_id, std::string units) {
     Stat stat;
     stat.id = next_id;
     stat.label = label;
     stat.val = val;
     stat.units = units;
+    stat.section = section_id;
+    stat.rendered = true;
     stats.emplace_back(stat);
     next_id++;
 }
 
-void Statistics::add_stat(std::string label) {
+void Statistics::add_stat(std::string label, std::string section_id) {
     Stat stat;
     stat.id = next_id;
     stat.label = label;
     stat.val = 0;
+    stat.section = section_id;
+    stat.units = "";
+    stat.rendered = true;
+    stats.emplace_back(stat);
+    next_id++;
+}
+
+void Statistics::add_stat(std::string label, long long val, std::string section_id, bool rendered) {
+    Stat stat;
+    stat.rendered = rendered;
+    stat.id = next_id;
+    stat.label = label;
+    stat.val = val;
+    stat.units = "";
+    stat.section = section_id;
+    stats.emplace_back(stat);
+    next_id++;
+}
+
+void Statistics::add_stat(std::string label, std::string section_id, std::string units, bool rendered) {
+    Stat stat;
+    stat.rendered = rendered;
+    stat.id = next_id;
+    stat.label = label;
+    stat.val = 0;
+    stat.units = units;
+    stat.section = section_id;
+    stats.emplace_back(stat);
+    next_id++;
+}
+
+void Statistics::add_stat(std::string label, long long val, std::string section_id, std::string units, bool rendered) {
+    Stat stat;
+    stat.rendered = rendered;
+    stat.id = next_id;
+    stat.label = label;
+    stat.val = val;
+    stat.units = units;
+    stat.section = section_id;
+    stats.emplace_back(stat);
+    next_id++;
+}
+
+void Statistics::add_stat(std::string label, std::string section_id, bool rendered) {
+    Stat stat;
+    stat.rendered = rendered;
+    stat.id = next_id;
+    stat.label = label;
+    stat.val = 0;
+    stat.section = section_id;
+    stat.units = "";
     stats.emplace_back(stat);
     next_id++;
 }
@@ -478,6 +534,8 @@ struct Stat Statistics::get_stat(int id) {
 
 void Statistics::set_stat(int id, long long val) {
     stats.at(id - 1).val = val;
+    // print(stats.at(id - 1).label + ": " + std::to_string(val));
+    // get_key();
     save_stats();
 }
 
@@ -485,7 +543,7 @@ void Statistics::save_stats(std::string file_name) {
     std::ofstream file;
     file.open(file_name);
     for (auto stat : stats) {
-        file << stat.id << ":" << stat.val << "\n";
+        file << stat.id << ":" << stat.val << ":" << stat.section << "\n";
     }
     file.close();
 }
@@ -511,6 +569,7 @@ void Statistics::load_stats(std::string file_name) {
         }
 
         stat.val = std::stoll(id_val_form.at(1));
+        stat.section = id_val_form.at(2);
     }
     file.close();
 }
@@ -520,36 +579,65 @@ void Statistics::load_stats() {
 }
 
 int Statistics::render(StatsRenderSettings render_settings) {
-    set_cursor_position();
-
     bg_color(g_bg_color);
     fg_color(g_fg_color);
+    set_cursor_position();
 
     align(render_settings.alignment);
     print_loop("", render_settings.padding_from_top);
     render_settings.title_renderer(render_settings.title_rendering_style);
     print_loop("", render_settings.padding_below_title);
 
+    std::string section_blank_line = render_settings.vertical_bar + padded_str("", render_settings.section_width - 4, "") + render_settings.vertical_bar;
+    std::string section_bottom_line = render_settings.bottom_left_corner + extend_string(render_settings.horizontal_bar, render_settings.section_width - 4) + render_settings.bottom_right_corner + "\n";
+
+    std::string o_sec = "";
     for (auto s : stats) {
-        std::string out;
-        if (render_settings.render_label) {
-            out.append(s.label);
-            out.append(": ");
-        }
+        if (s.rendered) {
+            std::string section;
 
-        if (!s.units.empty()) {
-            if (s.units == "time|seconds") {
-                out.append(seconds_to_string(s.val));   
+            std::string out;
+            if (render_settings.render_label) {
+                out.append(s.label);
+                out.append(": ");
             }
-        } else {
-            out.append(std::to_string(s.val));
-        }
 
-        align(render_settings.alignment);
-        print(out);
-        print_loop("", render_settings.padding_between_lines);
+            if (!s.units.empty()) {
+                if (s.units == "time|seconds") {
+                    out.append(seconds_to_string(s.val));   
+                } else if (s.units == "unit|percentage") {
+                    out.append(std::to_string(s.val) + "%");
+                    // out.append("%");
+                }
+            } else {
+                out.append(std::to_string(s.val));
+            }
+
+            align_center();
+
+            if (s.section != o_sec) {
+                if (s.id != stats.at(0).id) {
+                    print_loop(section_blank_line, render_settings.padding_between_lines, "");
+                    print(section_bottom_line, "");
+                    print();
+                }
+                align_center();
+                section.append(render_settings.top_left_corner + padded_str(render_settings.text_start + " " + s.section + " " + render_settings.text_end, render_settings.horizontal_bar, render_settings.section_width - 4, "") + render_settings.top_right_corner + "\n");
+                section.append(section_blank_line + "\n");
+                section.append(render_settings.vertical_bar + padded_str(out, render_settings.section_width - 4, "") + render_settings.vertical_bar);
+            } else {
+                section.append(render_settings.vertical_bar + padded_str(out, render_settings.section_width - 4, "") + render_settings.vertical_bar);
+                print_loop(section_blank_line, render_settings.padding_between_lines);
+            }
+            o_sec = s.section;   
+            print(section, "");
+        }
     }
 
+    print_loop(section_blank_line, render_settings.padding_between_lines, "");
+    print(section_bottom_line, "");
+
+    align_center();
     if (render_settings.fill_screen) fill_screen();
 
     get_key();
@@ -809,21 +897,23 @@ void PointPlotter::reset_graph() {
 //************************************************************************************************
 
 void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats) {
-    set_cursor_position();
     fg_color(g_fg_color);
     bg_color(g_bg_color);
+    set_cursor_position();
 
     align(render_settings.alignment);
-    print_loop("", render_settings.padding_from_top);
+    print_loop("\n", render_settings.padding_from_top);
     render_settings.title_renderer(render_settings.title_style);
-    print_loop("", render_settings.padding_below_title);
+    print_loop("\n", render_settings.padding_below_title);
 
+    print("  Instructions:");
+    print();
     align_left();
     for (auto s : render_settings.explanation) {
         print(basic_text_wrapping(extend_string(' ', render_settings.padding_for_left_text) + "• " + replace(s, "|num|", std::to_string(render_settings.max_questions))));
         print();
     }
-    print_loop("", render_settings.padding_from_help);
+    print_loop("\n", render_settings.padding_from_help);
 
     align(render_settings.alignment);
     if (render_settings.fill_screen) fill_screen();
@@ -832,12 +922,12 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
     if (k == KEY_ESCAPE) return;
 
     start_time = std::chrono::steady_clock::now();
+    int old_i = -1;
 
     for (int i = 0; i < render_settings.max_questions; i++) {
         num1 = random_number(10, 30, 5);
         num2 = random_number(10, 30, 99);
         int operation = random_number(0, 2, 8);
-        // char op;
 
         switch (operation) {
             case 0: op = '+'; ans = num1 + num2; break;
@@ -846,6 +936,8 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
             // case 3: op = '/';
             default: throw "Operation conversion error";
         }
+
+
 
         for (;;) {
             set_cursor_position();
@@ -857,6 +949,8 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
             align(render_settings.alignment);
 
             print("(" + std::to_string(question_number) + ") " + std::to_string(num1) + " " + op + " " + std::to_string(num2) + " " + "=" + " " + "?");
+            if (i != old_i) question_start = std::chrono::steady_clock::now();
+            old_i = i;
 
             print_loop("", render_settings.padding_after_question);
 
@@ -891,34 +985,64 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
             if (render_settings.fill_screen) fill_screen();
 
             want_exit = handle_input(render_settings, stats);
-            if (want_exit == 1) break;
-            if (want_exit == 2) break;
+            if (want_exit != 0) break;
         }
         if (want_exit == 1) break;
     }
 
-    //* On test clear
-    set_cursor_position();
-    end_time = std::chrono::steady_clock::now();
+    if (want_exit == 1) {
+        set_cursor_position();
+        end_time = std::chrono::steady_clock::now();
 
-    print_loop("", render_settings.padding_from_top);
-    render_settings.title_renderer(render_settings.title_style);
-    print_loop("", render_settings.padding_below_title);
+        print_loop("", render_settings.padding_from_top);
+        render_settings.title_renderer(render_settings.title_style);
+        print_loop("", render_settings.padding_below_title);
 
-    align(render_settings.alignment);
-    long long time_taken = std::chrono::duration_cast<std::chrono::seconds> (end_time - start_time).count();
+        align(render_settings.alignment);
 
-    std::string finished_text = replace(render_settings.test_finished, "|time|", seconds_to_string(time_taken));
-    print(basic_text_wrapping(finished_text));
+        print(basic_text_wrapping("Test aborted. Press any key to return to the main menu. Your score or progress will not be saved."));
 
-    long long score = stats.get_stat(BRAIN_SPEED_TEST_SCORE).val;
-    if (time_taken < score || score == 0) {
-        stats.set_stat(BRAIN_SPEED_TEST_SCORE, time_taken);
+        if (render_settings.fill_screen) fill_screen();
+
+        get_key();
+        return;
+    } else {
+        //* On test clear
+        set_cursor_position();
+        end_time = std::chrono::steady_clock::now();
+
+        print_loop("", render_settings.padding_from_top);
+        render_settings.title_renderer(render_settings.title_style);
+        print_loop("", render_settings.padding_below_title);
+
+        align(render_settings.alignment);
+        long long time_taken = std::chrono::duration_cast<std::chrono::seconds> (end_time - start_time).count();
+
+        std::string finished_text = replace(render_settings.test_finished, "|time|", seconds_to_string(time_taken));
+        print(basic_text_wrapping(finished_text));
+
+        long long q_all = stats.get_stat(BRAIN_SPEED_TOTAL_QUESTIONS).val;
+        long long q_correct = stats.get_stat(BRAIN_SPEED_CORRECT_ANSWERS).val;
+        long long score = stats.get_stat(BRAIN_SPEED_TEST_SCORE).val;
+        q_all += questions_asked;
+        q_correct += correct_answers;
+        stats.set_stat(BRAIN_SPEED_TOTAL_QUESTIONS, q_all);
+        stats.set_stat(BRAIN_SPEED_CORRECT_ANSWERS, q_correct);
+
+        int percentage = 0;
+        if (q_all != 0) {
+            percentage = (int)(((float)(q_correct) / (float)(q_all)) * 100);
+        }
+        stats.set_stat(BRAIN_SPEED_ACCURACY_PERCENTAGE, percentage);
+
+        if (time_taken < score || score == 0) {
+            stats.set_stat(BRAIN_SPEED_TEST_SCORE, time_taken);
+        }
+
+        if (render_settings.fill_screen) fill_screen();
+
+        get_key();
     }
-
-    if (render_settings.fill_screen) fill_screen();
-
-    get_key();
 }
 
 int BrainSpeedTest::handle_input(BSTRenderSettings render_settings, Statistics &stats) {
@@ -930,11 +1054,14 @@ int BrainSpeedTest::handle_input(BSTRenderSettings render_settings, Statistics &
         }
     } else if (key == KEY_ESCAPE) {
         return 1;
-    } else if (input.length() < render_settings.input_width && (key == KEY_ONE || key == KEY_TWO || key == KEY_THREE || key == KEY_FOUR || key == KEY_FIVE || key == KEY_SIX || key == KEY_SEVEN || key == KEY_EIGHT || key == KEY_NINE || key == KEY_ZERO || key == KEY_DASH)) {
-        input += key.key;
-
+    } else if (key == KEY_ENTER) {
         try {
             if (std::stoll(input) == ans) {
+                question_end = std::chrono::steady_clock::now();
+
+                questions_asked++;
+                correct_answers++;
+
                 set_cursor_position();
 
                 print_loop("", render_settings.padding_from_top);
@@ -943,7 +1070,7 @@ int BrainSpeedTest::handle_input(BSTRenderSettings render_settings, Statistics &
 
                 align(render_settings.alignment);
 
-                print("(" + std::to_string(question_number) + ") " + std::to_string(num1) + " " + op + " " + std::to_string(num2) + " " + "=" + " " + "?");
+                print("(" + std::to_string(question_number) + ") " + std::to_string(num1) + " " + op + " " + std::to_string(num2) + " = ?");
 
                 print_loop("", render_settings.padding_after_question);
 
@@ -975,7 +1102,7 @@ int BrainSpeedTest::handle_input(BSTRenderSettings render_settings, Statistics &
                 print(middle_line);
                 print(bottom_line);
                 print_loop("", render_settings.padding_below_input);
-                print(render_settings.answer_correct);
+                print(replace(render_settings.answer_correct, "|time|", seconds_to_string(std::chrono::duration_cast<std::chrono::seconds> (question_end - question_start).count())));
 
                 if (render_settings.fill_screen) fill_screen();
 
@@ -984,11 +1111,64 @@ int BrainSpeedTest::handle_input(BSTRenderSettings render_settings, Statistics &
                 question_number++;
                 input = "";
                 return 2;
+            } else {
+                questions_asked++;
+
+                set_cursor_position();
+
+                print_loop("", render_settings.padding_from_top);
+                render_settings.title_renderer(render_settings.title_style);
+                print_loop("", render_settings.padding_below_title);
+
+                align(render_settings.alignment);
+
+                print("(" + std::to_string(question_number) + ") " + std::to_string(num1) + " " + op + " " + std::to_string(num2) + " = ?");
+
+                print_loop("", render_settings.padding_after_question);
+
+                align_left();
+                std::string input_line = padded_str(input, render_settings.input_filler, render_settings.input_width, "");
+                align(render_settings.alignment);
+
+                std::string top_line;
+                top_line.append(render_settings.top_left_corner);
+                top_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+                top_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+                top_line.append(render_settings.top_right_corner);
+
+                std::string middle_line;
+                middle_line.append(render_settings.vertical_bar);
+                middle_line.append(render_settings.horizontal_padding);
+                middle_line.append(render_settings.prompt);
+                middle_line.append(input_line);
+                middle_line.append(render_settings.horizontal_padding);
+                middle_line.append(render_settings.vertical_bar);
+
+                std::string bottom_line;
+                bottom_line.append(render_settings.bottom_left_corner);
+                bottom_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+                bottom_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+                bottom_line.append(render_settings.bottom_right_corner);
+
+                print(top_line);
+                print(middle_line);
+                print(bottom_line);
+                print_loop("", render_settings.padding_below_input);
+                print(render_settings.answer_incorrect);
+
+                if (render_settings.fill_screen) fill_screen();
+
+                get_key();
+
+                input = "";
+                return 0;
             }
         } catch (...) {
             //* Error in converting input string to an integer
             if (input != "-") input = "";
         }
+    } else if (input.length() < render_settings.input_width && (key == KEY_ONE || key == KEY_TWO || key == KEY_THREE || key == KEY_FOUR || key == KEY_FIVE || key == KEY_SIX || key == KEY_SEVEN || key == KEY_EIGHT || key == KEY_NINE || key == KEY_ZERO || key == KEY_DASH)) {
+        input += key.key;
     }
     return 0;
 }
@@ -998,9 +1178,13 @@ void BrainSpeedTest::reset() {
     question_number = 1;
     test_started = false;
     want_exit = false;
+    questions_asked = 0;
+    correct_answers = 0;
 
     start_time = std::chrono::steady_clock::now();
     end_time = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point question_start = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point question_end = std::chrono::steady_clock::now();
 }
 
 
@@ -1008,9 +1192,9 @@ void BrainSpeedTest::reset() {
 //**************************************************************************************************
 
 void MemoryBenchmark::render(MBRenderSettings render_settings, Statistics &stats) {
-    set_cursor_position();
     bg_color(g_bg_color);
     fg_color(g_fg_color);
+    set_cursor_position();
 
     align_center();
     print_loop("", render_settings.padding_from_top);
@@ -1018,11 +1202,12 @@ void MemoryBenchmark::render(MBRenderSettings render_settings, Statistics &stats
     print_loop("", render_settings.padding_below_title);
 
 
-    // print(basic_text_wrapping(render_settings.explanation + " " + render_settings.first_time_end));
     align_left();
+    print("  Instructions:");
+    print();
     for (auto s : render_settings.explanation) {
         print(basic_text_wrapping(extend_string(' ', render_settings.padding_for_left_text) + "• " + s));
-        print();
+        print("", "");
     }
     print_loop("", render_settings.padding_from_help);
 
@@ -1047,14 +1232,15 @@ void MemoryBenchmark::render(MBRenderSettings render_settings, Statistics &stats
             std::string num_str;
 
             for (int i = 0; i < digits; i++) {
-                num_str.append(std::to_string(random_number(0, 10, (i * i))));
+                if (i == 0) num_str.append(std::to_string(random_number(1, 10, (i * i))));
+                else num_str.append(std::to_string(random_number(0, 10, (i * i))));
             }
             num = std::stoll(num_str);
             calculate_new_num = false;
 
             print(std::to_string(num));
             fill_screen();
-            std::this_thread::sleep_for(std::chrono::seconds((int)((float)digits * 1.2) + (int)(2 / digits)));
+            std::this_thread::sleep_for(std::chrono::seconds((int)((float)digits * 0.8) + (int)(2 / digits)));
             continue;
         }
 
@@ -1089,27 +1275,47 @@ void MemoryBenchmark::render(MBRenderSettings render_settings, Statistics &stats
         if (render_settings.fill_screen) fill_screen();
 
         want_exit = handle_input(render_settings, stats);
-        if (want_exit) break;
+        if (want_exit > 0) break;
     }
     
     //* Test finished or aborted
-    if (want_exit) return;
+    if (want_exit == 1) return;
+    if (want_exit == 2) {
+        set_cursor_position();
+
+        print_loop("", render_settings.padding_from_top);
+        render_settings.title_renderer(render_settings.title_style);
+        print_loop("", render_settings.padding_below_title);
+
+        align(render_settings.alignment);
+
+        print(basic_text_wrapping("Test aborted. Press any key to return to the main menu. Your score or progress will not be saved."));
+
+        if (render_settings.fill_screen) fill_screen();
+
+        get_key();
+        return;
+    }
 }
 
 int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &stats) {
     Key key = get_key();
+
+    if (waited_once) {
+        input = "";
+        waited_once = false;
+    }
 
     if (key == KEY_BACKSPACE) {
         if (!input.empty()) {
             input.pop_back();
         }
     } else if (key == KEY_ESCAPE) {
-        return 1;
-    } else if (key == KEY_ENTER) {
+        return 2;
+    } else if (key == KEY_ENTER) {        
         try {
             if (std::stoll(input) == num) {
                 digits++;
-                input = "";
                 calculate_new_num = true;
 
                 if (digits > render_settings.max_digits) {
@@ -1123,6 +1329,35 @@ int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &
                     std::string finished = render_settings.test_finished;
                     finished = replace(finished, "|max|", std::to_string(render_settings.max_digits));
 
+                    align_left();
+                    std::string input_line = padded_str(input, render_settings.input_filler, render_settings.input_width, "");
+                    align(render_settings.alignment);
+
+                    std::string top_line;
+                    top_line.append(render_settings.top_left_corner);
+                    top_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+                    top_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+                    top_line.append(render_settings.top_right_corner);
+
+                    std::string middle_line;
+                    middle_line.append(render_settings.vertical_bar);
+                    middle_line.append(render_settings.horizontal_padding);
+                    middle_line.append(render_settings.prompt);
+                    middle_line.append(input_line);
+                    middle_line.append(render_settings.horizontal_padding);
+                    middle_line.append(render_settings.vertical_bar);
+
+                    std::string bottom_line;
+                    bottom_line.append(render_settings.bottom_left_corner);
+                    bottom_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+                    bottom_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+                    bottom_line.append(render_settings.bottom_right_corner);
+
+                    print(top_line);
+                    print(middle_line);
+                    print(bottom_line);
+
+                    print_loop("", render_settings.padding_before_feedback);
                     print(basic_text_wrapping(finished));
 
                     long long max_digits_memorised = stats.get_stat(MEMORY_BENCHMARK_MAX_DIGITS).val;
@@ -1131,6 +1366,7 @@ int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &
                     }
 
                     if (render_settings.fill_screen) fill_screen();
+                    input = "";
                     get_key();
 
                     return 1;
@@ -1145,11 +1381,41 @@ int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &
                     std::string correct = render_settings.answer_correct;
                     correct = replace(correct, "|score|", std::to_string(digits - 1));
 
+                    align_left();
+                    std::string input_line = padded_str(input, render_settings.input_filler, render_settings.input_width, "");
+                    align(render_settings.alignment);
+
+                    std::string top_line;
+                    top_line.append(render_settings.top_left_corner);
+                    top_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+                    top_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+                    top_line.append(render_settings.top_right_corner);
+
+                    std::string middle_line;
+                    middle_line.append(render_settings.vertical_bar);
+                    middle_line.append(render_settings.horizontal_padding);
+                    middle_line.append(render_settings.prompt);
+                    middle_line.append(input_line);
+                    middle_line.append(render_settings.horizontal_padding);
+                    middle_line.append(render_settings.vertical_bar);
+
+                    std::string bottom_line;
+                    bottom_line.append(render_settings.bottom_left_corner);
+                    bottom_line.append(extend_string(render_settings.horizontal_bar, render_settings.prompt.length() + (2 * render_settings.horizontal_padding.length())));
+                    bottom_line.append(padded_str("", render_settings.horizontal_bar, render_settings.input_width, ""));
+                    bottom_line.append(render_settings.bottom_right_corner);
+
+                    print(top_line);
+                    print(middle_line);
+                    print(bottom_line);
+
+                    print_loop("", render_settings.padding_before_feedback);
+
                     print(basic_text_wrapping(correct));
 
                     if (render_settings.fill_screen) fill_screen();
                     get_key();
-
+                    input = "";
                     return 0;
                 }
             } else {
