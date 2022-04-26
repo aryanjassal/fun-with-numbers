@@ -226,9 +226,15 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &s
     bg_color(g_bg_color);
     fg_color(g_fg_color);
 
+
     for (;;) {
         //* Set the cursor to home (0, 0)
         set_cursor_position();
+
+        //* Print the title and the appropriate padding
+        print_loop("", render_settings.padding_from_top);
+        render_settings.title_renderer(render_settings.title_style);
+        print_loop("", render_settings.padding_below_title);
 
         //* Align left so the padding works properly
         align_left();
@@ -240,14 +246,14 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &s
         align(render_settings.alignment);
 
         //* Print spaces before the input
-        print_loop("\n", render_settings.padding_from_top, "");
+        print_loop("", render_settings.padding_from_top, "");
 
         //* Render the text to prompt the user to enter a number
         print(render_settings.input_prompt_text);
 
         if (error) {
             //* Print padding below the prompt
-            print_loop("\n", render_settings.padding_before_error, "");
+            print_loop("", render_settings.padding_before_error, "");
 
             //* Change the foreground and background color
             bg_color(g_bg_color_error);
@@ -261,7 +267,7 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &s
             fg_color(g_fg_color);
 
             //* Print out the padding below the error message
-            print_loop("\n", render_settings.padding_after_error, "");
+            print_loop("", render_settings.padding_after_error, "");
 
             //* Clear the input and recalculate the padded input too
             input = "";
@@ -271,7 +277,7 @@ int CheckNumberFeatures::render(CNFRenderSettings render_settings, Statistics &s
             waited_once = false;
         } else {
             //* Add padding below the prompt
-            print_loop("\n", render_settings.padding_below_prompt);
+            print_loop("", render_settings.padding_below_prompt);
         }
 
         //* Build the first line of the input
@@ -348,7 +354,7 @@ int CheckNumberFeatures::handle_input(CNFRenderSettings render_settings, Statist
             return 0;
         }
 
-        print_loop("\n", render_settings.padding_below_input_field);
+        print_loop("", render_settings.padding_below_input_field);
         print(render_settings.features_display_text.replace(render_settings.features_display_text.find("|num|"), 5, input), "");
         print_loop("", render_settings.padding_before_features);
 
@@ -534,8 +540,6 @@ struct Stat Statistics::get_stat(int id) {
 
 void Statistics::set_stat(int id, long long val) {
     stats.at(id - 1).val = val;
-    // print(stats.at(id - 1).label + ": " + std::to_string(val));
-    // get_key();
     save_stats();
 }
 
@@ -555,21 +559,29 @@ void Statistics::save_stats() {
 void Statistics::load_stats(std::string file_name) {
     std::ifstream file;
     file.open(file_name);
-    for (auto& stat : stats) {
-        std::string line;
-        getline(file, line, '\n');
-        std::vector<std::string> id_val_form = split(line, ':');
 
-        Stat s;
-        try {
-            s = get_stat(std::stoll(id_val_form.at(0)));
-        } catch (...) {
-            // throw std::runtime_error("Save file corrupt. Delete the save file and re-run the program");
-            continue;
+    try {
+        for (auto& stat : stats) {
+            std::string line;
+            getline(file, line, '\n');
+            std::vector<std::string> id_val_form = split(line, ':');
+
+            Stat s;
+            try {
+                s = get_stat(std::stoll(id_val_form.at(0)));
+            } catch (...) {
+                continue;
+            }
+
+            stat.val = std::stoll(id_val_form.at(1));
+            stat.section = id_val_form.at(2);
         }
-
-        stat.val = std::stoll(id_val_form.at(1));
-        stat.section = id_val_form.at(2);
+    } catch (...) {
+        clear();
+        print("Save file corrupt. Remove the " + file_name + " file and re-launch the program.");
+        reset_formatting();
+        print();
+        exit(1);
     }
     file.close();
 }
@@ -902,9 +914,9 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
     set_cursor_position();
 
     align(render_settings.alignment);
-    print_loop("\n", render_settings.padding_from_top);
+    print_loop("", render_settings.padding_from_top);
     render_settings.title_renderer(render_settings.title_style);
-    print_loop("\n", render_settings.padding_below_title);
+    print_loop("", render_settings.padding_below_title);
 
     print("  Instructions:");
     print();
@@ -1018,8 +1030,9 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
         align(render_settings.alignment);
         long long time_taken = std::chrono::duration_cast<std::chrono::seconds> (end_time - start_time).count();
 
-        std::string finished_text = replace(render_settings.test_finished, "|time|", seconds_to_string(time_taken));
-        print(basic_text_wrapping(finished_text));
+        for (auto s : render_settings.test_finished) {
+            print(basic_text_wrapping(replace(s, "|time|", seconds_to_string(time_taken)) + "\n"));
+        }
 
         long long q_all = stats.get_stat(BRAIN_SPEED_TOTAL_QUESTIONS).val;
         long long q_correct = stats.get_stat(BRAIN_SPEED_CORRECT_ANSWERS).val;
@@ -1325,9 +1338,10 @@ int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &
                     print_loop("", render_settings.padding_below_title);
 
                     align_center();
-
-                    std::string finished = render_settings.test_finished;
-                    finished = replace(finished, "|max|", std::to_string(render_settings.max_digits));
+                    for (auto s : render_settings.test_finished) {
+                        print(basic_text_wrapping(replace(s, "|max|", std::to_string(render_settings.max_digits))));
+                        print();
+                    }
 
                     align_left();
                     std::string input_line = padded_str(input, render_settings.input_filler, render_settings.input_width, "");
@@ -1358,7 +1372,10 @@ int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &
                     print(bottom_line);
 
                     print_loop("", render_settings.padding_before_feedback);
-                    print(basic_text_wrapping(finished));
+                    for (auto s : render_settings.test_finished) {
+                        print(basic_text_wrapping(replace(s, "|max|", std::to_string(render_settings.max_digits))));
+                        print();
+                    }
 
                     long long max_digits_memorised = stats.get_stat(MEMORY_BENCHMARK_MAX_DIGITS).val;
                     if (digits > max_digits_memorised || max_digits_memorised == 0) {
@@ -1426,12 +1443,15 @@ int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &
 
                 align_center();
 
-                std::string failed = render_settings.test_failed;
-                failed = replace(failed, "|input|", input);
-                failed = replace(failed, "|answer|", std::to_string(num));
-                failed = replace(failed, "|score|", std::to_string(digits));
-
-                print(basic_text_wrapping(failed));
+                //! Do not leave multiple matches in. They would not work, and only the last match will be processed.
+                for (auto s : render_settings.test_failed) {
+                    std::string r = s;
+                    if (s.find("|input|") != std::string::npos) r = replace(s, "|input|", input);
+                    if (s.find("|answer|") != std::string::npos) r = replace(s, "|answer|", std::to_string(num));
+                    if (s.find("|score|") != std::string::npos) r = replace(s, "|score|", std::to_string(digits));
+                    print(basic_text_wrapping(r));
+                    print();
+                }
 
                 long long max_digits_memorised = stats.get_stat(MEMORY_BENCHMARK_MAX_DIGITS).val;
                 if (digits > max_digits_memorised || max_digits_memorised == 0) {
@@ -1453,7 +1473,11 @@ int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &
 }
 
 void MemoryBenchmark::reset() {
-    input = "";
-    digits = 1;
-    want_exit = false;
+    std::string input = "";
+    int digits = 1;
+    int want_exit = false;
+    int num = 0;
+    bool calculate_new_num = true;
+    bool test_finished = false;
+    bool waited_once = false;
 }

@@ -211,6 +211,11 @@ struct Attribute {
 
 //* Render settings for the Check Number Features renderer
 struct CNFRenderSettings {
+    std::function<void(std::string)> title_renderer;
+    std::string title_style;
+    int padding_from_top = 4;
+    int padding_below_title = 3;
+
     std::string top_left_corner = "╔";
     std::string top_right_corner = "╗";
     std::string bottom_left_corner = "╚";
@@ -219,7 +224,7 @@ struct CNFRenderSettings {
     std::string horizontal_bar = "═";
     std::string horizontal_padding = " ";
     int digits = 19;
-    int padding_from_top = 3;
+    // int padding_from_top = 3;
     std::string input_prompt_text = "Enter a number";
     int padding_below_prompt = 2;
     std::string prompt = "# > ";
@@ -318,7 +323,7 @@ struct BSTRenderSettings {
     std::function<void(std::string)> title_renderer;
     int padding_below_title = 4;
     std::string alignment = "center";
-    int max_questions = 3;
+    int max_questions = 10;
 
     std::vector<std::string> explanation;
     int padding_from_help = 2;
@@ -339,7 +344,7 @@ struct BSTRenderSettings {
     std::string answer_correct = "Correct answer! Took |time|.";
     std::string answer_incorrect = "Incorrect answer! Please try again.";
 
-    std::string test_finished = "Well done! The test was finished in |time|. Press any key to escape to the main menu.";
+    std::vector<std::string> test_finished;
 
     bool fill_screen = true;
 };
@@ -376,7 +381,7 @@ struct MBRenderSettings {
     std::function<void(std::string)> title_renderer;
     int padding_below_title = 4;
     std::string alignment = "center";
-    int max_digits = 17;
+    int max_digits = 40;
 
     std::vector<std::string> explanation;
     int padding_from_help = 2;
@@ -395,8 +400,8 @@ struct MBRenderSettings {
     int padding_for_left_text = 5;
     int padding_before_feedback = 3;
 
-    std::string test_failed = "Incorrect! Your answer was |input| and the correct answer was |answer|. Your score was |score|!";
-    std::string test_finished = "Correct! You have cleared |max| digits! That was the end of the test. Press any key to escape to the main menu.";
+    std::vector<std::string> test_failed;
+    std::vector<std::string> test_finished;
     std::string answer_correct = "Correct! Your score is |score|! Press any key to continue.";
 
     bool fill_screen = true;

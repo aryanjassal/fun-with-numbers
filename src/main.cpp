@@ -24,12 +24,14 @@ int main() {
     cnf_render_settings.features_display_text = ">--------------------< NUMBER FEATURES OF |num| >--------------------<";
     cnf_render_settings.input_prompt_text = "Please enter a whole number that will be checked. Press ESC to go back to the menu.";
     cnf_render_settings.max_width = 80;
+    cnf_render_settings.title_renderer = [] (std::string style) { print_number_features(style); };
+    cnf_render_settings.title_style = "ansi";
 
     std::vector<long long> fac;
     CheckNumberFeatures cnf;
     cnf.add_attribute("Positive/Negative/Zero", [] (long long num) -> std::string { return num > 0 ? "Positive" : num < 0 ? "Negative" : "Zero"; }  , false);
     cnf.add_attribute("Even/Odd", [] (long long num) -> std::string { return num % 2 == 0 ? "Even" : "Odd"; } , false);
-    cnf.add_attribute("Factors", [&cnf_render_settings, &fac] (long long num) -> std::string { 
+    cnf.add_attribute("Factors", [&cnf_render_settings, &fac] (long long num) -> std::string {
         std::vector <long long> factors = find_factors(num);
         fac = factors;
 
@@ -58,7 +60,7 @@ int main() {
     stats.add_stat("Largest number entered", "check number features");
     stats.add_stat("Coordinates plotted", "plot numbers");
     stats.add_stat("Max digits memorised", "memory benchmark");
-    stats.add_stat("Fastest test completion", "brain speed test", "time|seconds");
+    stats.add_stat("Fastest test completion", "brain speed test", (std::string)"time|seconds");
     stats.add_stat("Total questions asked", "brain speed test", false);
     stats.add_stat("Total questions correct", "brain speed test", false);
     stats.add_stat("Accuracy", "brain speed test", (std::string)"unit|percentage");
@@ -82,6 +84,9 @@ int main() {
     bst_render_settings.explanation.push_back("Only numeric values and the minus (-) sign will be accepted as valid input, no other key will be registered.");
     bst_render_settings.explanation.push_back("Press ESC to go back to the main menu.");
     bst_render_settings.explanation.push_back("Press any other key to continue.");
+    bst_render_settings.test_finished.push_back("Well done!");
+    bst_render_settings.test_finished.push_back("The test was finished in |time|.");
+    bst_render_settings.test_finished.push_back("Press any key to return to the main menu.");
 
     MemoryBenchmark mb;
     MBRenderSettings mb_render_settings;
@@ -93,6 +98,14 @@ int main() {
     mb_render_settings.explanation.push_back("Press ESC to go back to the main menu anytime.");
     mb_render_settings.explanation.push_back("Your progress is not saved.");
     mb_render_settings.explanation.push_back("Press any other key to start the game.");
+    mb_render_settings.test_failed.push_back("Incorrect!");
+    mb_render_settings.test_failed.push_back("Your answer was |input|.");
+    mb_render_settings.test_failed.push_back("The correct answer is |answer|.");
+    mb_render_settings.test_failed.push_back("Your score is |score|.");
+    mb_render_settings.test_finished.push_back("Correct!");
+    mb_render_settings.test_finished.push_back("Your score is |score|.");
+    mb_render_settings.test_finished.push_back("You have reached the end of the test.");
+    mb_render_settings.test_finished.push_back("Press any key to return to the main menu.");
 
     Menu menu;
     menu.set_entry_loop(true);
@@ -127,7 +140,16 @@ int main() {
         return;
     });
     menu.add_line();
-    menu.add_option("Check overall stats", [&stats, &s_render_settings] { 
+    menu.add_option("Check overall stats", [&stats, &s_render_settings, &begin] {
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        long long time_till_now = std::chrono::duration_cast<std::chrono::seconds> (end - begin).count();
+
+        long long duration = stats.get_stat(TIME_IN_APPLICATION).val;
+        duration += time_till_now;
+        stats.set_stat(TIME_IN_APPLICATION, duration);
+
+        begin = std::chrono::steady_clock::now();
+
         int quit = 0;
         stats.load_stats();
 

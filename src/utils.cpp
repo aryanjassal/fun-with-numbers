@@ -122,7 +122,7 @@ std::string seconds_to_string(long long s) {
             out.append(std::to_string(minutes) + ((minutes == 1) ? " minute, and " : " minutes, and "));
             out.append(std::to_string(seconds) + ((seconds == 1) ? " second" : " seconds"));
         } else {
-            out.append(std::to_string(minutes) + ((minutes == 1) ? " minute, " : " minutes and "));
+            out.append(std::to_string(minutes) + ((minutes == 1) ? " minute and " : " minutes and "));
             out.append(std::to_string(seconds) + ((seconds == 1) ? " second" : " seconds"));
         }
     } else {
