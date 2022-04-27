@@ -1,21 +1,19 @@
 #pragma once
 
-#include <iostream>
-#include <algorithm>
-#include <vector>
+#include <iostream>  //* for std::string ...
+#include <algorithm>  //* for ...
+#include <vector>  //* for std::vector ...
 
-#include "classes.hpp"
-
-//* Required for the prime factor finding process
-using PrimeFactors = std::vector<std::pair<long long, long long>>;
+#include "classes.hpp"  //* for Statistics
 
 //* Initialise the program
 void init_program();
+
 //* Clean up and exit the program
 void exit_program(Statistics &stats);
 void exit_program(Statistics &stats, int return_value);
 
-//* Find all factors of a number the standard way
+//* Find all factors of a number
 std::vector<long long> find_factors(long long num);
 
 //* Strips all characters from the input
@@ -34,7 +32,7 @@ int unicode_len(std::string str);
 //* Seconds to formatted string
 std::string seconds_to_string(long long seconds);
 
-//* Creating an enumerator for easier access to each element according to its ID
+//* Creating an enumerator for easier access to each Statistics element according to its ID
 enum {
     NUMBERS_ENTERED = 1,
     TOTAL_OF_NUMBERS = 2,

@@ -1,8 +1,9 @@
-#include <iostream>
+#include <iostream>  //* For std::string
 
-#include "tui.hpp"
-#include "ascii.hpp"
+#include "tui.hpp"  //* For align_center(), print(), align_left()
+#include "ascii.hpp"  //* For predefined declaration of the functions
 
+//* Print the title "Fun with Numbers" using the given style
 void print_title(std::string style) {
     if (style == "ansi") {
         align_center();
@@ -16,6 +17,7 @@ void print_title(std::string style) {
     }
 }
 
+//* Print the title "Usage Statistis" using the given style
 void print_usage_stats(std::string style) {
     if (style == "ansi") {
         align_center();
@@ -29,6 +31,7 @@ void print_usage_stats(std::string style) {
     }
 }
 
+//* Print the title "Think Fast" using the given style
 void print_think_fast(std::string style) {
     if (style == "ansi") {
         align_center();
@@ -42,6 +45,7 @@ void print_think_fast(std::string style) {
     }
 }
 
+//* Print the title "Memory Test" using the given style
 void print_memory_test(std::string style) {
     if (style == "ansi") {
         align_center();
@@ -55,6 +59,7 @@ void print_memory_test(std::string style) {
     }
 }
 
+//* Print the title "Are You Sure?" using the given style
 void print_are_you_sure(std::string style) {
     if (style == "ansi") {
         align_center();
@@ -68,6 +73,7 @@ void print_are_you_sure(std::string style) {
     }
 }
 
+//* Print the title "Number Features" using the given style
 void print_number_features(std::string style) {
     if (style == "ansi") {
         align_center();

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <iostream>
+#include <iostream>  //* For std::string
 
+//* Define methods to print title text of the given style to the screen
 void print_title(std::string style);
 void print_usage_stats(std::string style);
 void print_think_fast(std::string style);
