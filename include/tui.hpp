@@ -219,7 +219,6 @@ void revert_align();
 
 //* Return the string padded to fit the width
 std::string padded_str(std::string str);
-std::string wpadded_str(std::wstring str);
 std::string padded_str(std::string str, int w);
 std::string padded_str(std::string str, std::string end);
 std::string padded_str(std::string str, std::string filler);
@@ -239,7 +238,6 @@ int calculate_padding_right(std::string str, int w);
 //* Printing text to the terminal
 void print();
 void print(std::string str);
-void print(std::wstring str);
 void print(std::string str, int w);
 void print(std::string str, std::string end);
 void print(std::string str, std::string end, int w);

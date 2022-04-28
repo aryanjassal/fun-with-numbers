@@ -1,12 +1,12 @@
 #if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#define VC_EXTRALEAN
-#include <Windows.h>
-#include <conio.h>
+    #define WIN32_LEAN_AND_MEAN
+    #define VC_EXTRALEAN
+    #include <Windows.h>
+    #include <conio.h>
 #elif defined(__linux__)
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <unistd.h>
+    #include <sys/ioctl.h>
+    #include <termios.h>
+    #include <unistd.h>
 #endif
 
 //* Including required modules
@@ -426,21 +426,6 @@ void print(std::string str, std::string end, int w) {
     }
 }
 
-void print(std::wstring str) {
-    //* Print statement first splits the string by newline (\n)
-    std::vector<std::wstring> lines = wsplit(str, '\n');
-
-    //* If the given width is less than or equal to zero, then instead use the current terminal width
-    //? This behaviour may change in the future
-    // int width = (w <= 0) ? t_size.width : w;
-
-    //* Loop over each line in the vector of split strings
-    for (auto line : lines) {
-        //* Output the padded line which is padded to the given width and the end character
-        std::cout << wpadded_str(line);
-    }
-}
-
 //* Prints a new line
 void print() {
     print("", "\n", 0);
@@ -514,6 +499,9 @@ Key get_key() {
                 while(kbhit()) getch();
             case 27:
                 if (!kbhit()) return KEY_ESCAPE;
+                while(kbhit()) getch();
+            case 8: 
+                if (!kbhit()) return KEY_BACKSPACE;
                 while(kbhit()) getch();
             default:
                 //* If the key is in BASIC_KEYS, then return that object

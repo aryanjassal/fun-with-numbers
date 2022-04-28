@@ -7,14 +7,42 @@
 
 #include <string.h> //
 #include <conio.h>
-#include <fcntl.h>
-#include <io.h>
 
 //? Ideal if a font with ligatures enabled is used.
 //! Windows Terminal (the new terminal for Windows 11) breaks whenever print statements cause a scrolling, making the colors look weird. Use legacy Windows Console Host (aka cmd.exe) to run the application, or just use some other linux terminal (tested on Kitty) because most of the terminals work fine. Note that there is a high chance that tmux terminal will break this code.
 //* Superior highly composite numbers = 367567200 or -720720
 //TODO: [NORM] Some pages scroll the terminal for some reason
 //TODO: [NORM] Comment code everywhere
+
+#if defined(_WIN32)
+    std::string TITLE_STYLE = "doom";
+    std::string THICK_HORIZONTAL_BAR = "-";
+    std::string THICK_VERTICAL_BAR = "|";
+    std::string THICK_TOP_LEFT_CORNER = "+";
+    std::string THICK_TOP_RIGHT_CORNER = "+";
+    std::string THICK_BOTTOM_LEFT_CORNER = "+";
+    std::string THICK_BOTTOM_RIGHT_CORNER = "+";
+    std::string THIN_HORIZONTAL_BAR = "-";
+    std::string THIN_VERTICAL_BAR = "|";
+    std::string THIN_TOP_LEFT_CORNER = "+";
+    std::string THIN_TOP_RIGHT_CORNER = "+";
+    std::string THIN_BOTTOM_LEFT_CORNER = "+";
+    std::string THIN_BOTTOM_RIGHT_CORNER = "+";
+#elif defined(__linux__)
+    std::string TITLE_STYLE = "ansi";
+    std::string THICK_HORIZONTAL_BAR = "═";
+    std::string THICK_VERTICAL_BAR = "║";
+    std::string THICK_TOP_LEFT_CORNER = "╔";
+    std::string THICK_TOP_RIGHT_CORNER = "╗";
+    std::string THICK_BOTTOM_LEFT_CORNER = "╚";
+    std::string THICK_BOTTOM_RIGHT_CORNER = "╝";
+    std::string THIN_HORIZONTAL_BAR = "─";
+    std::string THIN_VERTICAL_BAR = "│";
+    std::string THIN_TOP_LEFT_CORNER = "╭";
+    std::string THIN_TOP_RIGHT_CORNER = "╮";
+    std::string THIN_BOTTOM_LEFT_CORNER = "╰";
+    std::string THIN_BOTTOM_RIGHT_CORNER = "╯"
+#endif
 
 int main() {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -27,7 +55,13 @@ int main() {
     cnf_render_settings.input_prompt_text = "Please enter a whole number that will be checked. Press ESC to go back to the menu.";
     cnf_render_settings.max_width = 80;
     cnf_render_settings.title_renderer = [] (std::string style) { print_number_features(style); };
-    cnf_render_settings.title_style = "ansi";
+    cnf_render_settings.title_style = TITLE_STYLE;
+    cnf_render_settings.horizontal_bar = THICK_HORIZONTAL_BAR;
+    cnf_render_settings.vertical_bar = THICK_VERTICAL_BAR;
+    cnf_render_settings.top_left_corner = THICK_TOP_LEFT_CORNER;
+    cnf_render_settings.top_right_corner = THICK_TOP_RIGHT_CORNER;
+    cnf_render_settings.bottom_left_corner = THICK_BOTTOM_LEFT_CORNER;
+    cnf_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
 
     std::vector<long long> fac;
     CheckNumberFeatures cnf;
@@ -71,14 +105,27 @@ int main() {
 
     StatsRenderSettings s_render_settings;
     s_render_settings.title_renderer = [] (std::string style) { print_usage_stats(style); };
+    s_render_settings.title_rendering_style = TITLE_STYLE;
+    s_render_settings.horizontal_bar = THICK_HORIZONTAL_BAR;
+    s_render_settings.vertical_bar = THICK_VERTICAL_BAR;
+    s_render_settings.top_left_corner = THICK_TOP_LEFT_CORNER;
+    s_render_settings.top_right_corner = THICK_TOP_RIGHT_CORNER;
+    s_render_settings.bottom_left_corner = THICK_BOTTOM_LEFT_CORNER;
+    s_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
 
     PointPlotter graph;
     GraphRenderSettings graph_render_settings;
+    graph_render_settings.horizontal_bar = THICK_HORIZONTAL_BAR;
+    graph_render_settings.vertical_bar = THICK_VERTICAL_BAR;
+    graph_render_settings.top_left_corner = THICK_TOP_LEFT_CORNER;
+    graph_render_settings.top_right_corner = THICK_TOP_RIGHT_CORNER;
+    graph_render_settings.bottom_left_corner = THICK_BOTTOM_LEFT_CORNER;
+    graph_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
 
     BrainSpeedTest bst;
     BSTRenderSettings bst_render_settings;
     bst_render_settings.title_renderer = [] (std::string style) { print_think_fast(style); };
-    bst_render_settings.title_style = "ansi";
+    bst_render_settings.title_style = TITLE_STYLE;
     bst_render_settings.explanation.push_back("There will be |num| questions asked.");
     bst_render_settings.explanation.push_back("The questions are simple addition and subtraction.");
     bst_render_settings.explanation.push_back("You need to answer the questions as fast as possible as you are timed.");
@@ -89,11 +136,18 @@ int main() {
     bst_render_settings.test_finished.push_back("Well done!");
     bst_render_settings.test_finished.push_back("The test was finished in |time|.");
     bst_render_settings.test_finished.push_back("Press any key to return to the main menu.");
+    bst_render_settings.horizontal_bar = THICK_HORIZONTAL_BAR;
+    bst_render_settings.vertical_bar = THICK_VERTICAL_BAR;
+    bst_render_settings.top_left_corner = THICK_TOP_LEFT_CORNER;
+    bst_render_settings.top_right_corner = THICK_TOP_RIGHT_CORNER;
+    bst_render_settings.bottom_left_corner = THICK_BOTTOM_LEFT_CORNER;
+    bst_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
+    
 
     MemoryBenchmark mb;
     MBRenderSettings mb_render_settings;
     mb_render_settings.title_renderer = [] (std::string style) { print_memory_test(style); };
-    mb_render_settings.title_style = "ansi";
+    mb_render_settings.title_style = TITLE_STYLE;
     mb_render_settings.explanation.push_back("Random number with increasing digits will be displayed.");
     mb_render_settings.explanation.push_back("You need to memorise them before they disappear.");
     mb_render_settings.explanation.push_back("Only number keys will be accepted as valid input; no alphabetical key would be read.");
@@ -108,6 +162,12 @@ int main() {
     mb_render_settings.test_finished.push_back("Your score is |score|.");
     mb_render_settings.test_finished.push_back("You have reached the end of the test.");
     mb_render_settings.test_finished.push_back("Press any key to return to the main menu.");
+    mb_render_settings.horizontal_bar = THICK_HORIZONTAL_BAR;
+    mb_render_settings.vertical_bar = THICK_VERTICAL_BAR;
+    mb_render_settings.top_left_corner = THICK_TOP_LEFT_CORNER;
+    mb_render_settings.top_right_corner = THICK_TOP_RIGHT_CORNER;
+    mb_render_settings.bottom_left_corner = THICK_BOTTOM_LEFT_CORNER;
+    mb_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
 
     Menu menu;
     menu.set_entry_loop(true);
@@ -192,7 +252,7 @@ int main() {
 
     MenuRenderSettings render_settings;
     render_settings.title_renderer = [&render_settings] (std::string style) { print_title(style); };
-    render_settings.title_style = "ansi";
+    render_settings.title_style = TITLE_STYLE;
 
     g_fg_color = hex_to_rgb("#f7768e");
     g_bg_color = hex_to_rgb("#1a1b26");
@@ -203,13 +263,11 @@ int main() {
 
     set_cursor_position();
 
-    _setmode(_fileno(stdout), _O_U16TEXT);
-
     Dimension2D size = get_terminal_size();
     if (size.width < 127 || size.height < 43) {
         std::string prompt_string = "Your terminal size is too small and may result in poor rendering of the user interface and bad user experience. Press any key to continue or ESC to exit right away.";
+        print(prompt_string);
         fill_screen(false);
-        print(basic_text_wrapping(prompt_string));
 
         Key k = get_key();
         if (k == KEY_ESCAPE) {
