@@ -2,19 +2,20 @@
 #include <chrono>  //* for std::chrono::steady_clock::time_point, std::chrono::duration_cast<>, std::chrono::seconds
 
 #include "utils.hpp"  //* init_program(), find_factors(), StatsID, exit_program()
-#include "ascii.hpp" //* for print_number_features(), print_memory_test(), print_think_fast(), print_usage_stats(), print_are_you_sure()
+#include "ascii.hpp"  //* for print_number_features(), print_memory_test(), print_think_fast(), print_usage_stats(), print_are_you_sure()
 #include "classes.hpp"  //* for Menu, MenuRenderSettings, CheckNumberFeatures, CNFRenderSettings, PointPlotter, GraphRenderSettings, MemoryBenchmark, MBRenderSettings, BrainSpeedTest, BSTRenderSettings, Statistics, StatsRenderSettings
 
-#include <string.h> //
-#include <conio.h>
+// #include <string.h> //* for std::to_string()
+// #include <conio.h>  //* for getch()
 
 //? Ideal if a font with ligatures enabled is used.
 //! Windows Terminal (the new terminal for Windows 11) breaks whenever print statements cause a scrolling, making the colors look weird. Use legacy Windows Console Host (aka cmd.exe) to run the application, or just use some other linux terminal (tested on Kitty) because most of the terminals work fine. Note that there is a high chance that tmux terminal will break this code.
-//* Superior highly composite numbers = 367567200 or -720720
+//! Works under Windows too, but sacrifices needed to me made on printing unicode characters; only ASCII characters which fit inside a char work under Windows.
 //TODO: [NORM] Some pages scroll the terminal for some reason
 //TODO: [NORM] Comment code everywhere
 
 #if defined(_WIN32)
+    //* define some global variables if the program is being run on Windows
     std::string TITLE_STYLE = "doom";
     std::string THICK_HORIZONTAL_BAR = "-";
     std::string THICK_VERTICAL_BAR = "|";
@@ -29,6 +30,7 @@
     std::string THIN_BOTTOM_LEFT_CORNER = "+";
     std::string THIN_BOTTOM_RIGHT_CORNER = "+";
 #elif defined(__linux__)
+    //* define some global variables if the program is being run on Linux
     std::string TITLE_STYLE = "ansi";
     std::string THICK_HORIZONTAL_BAR = "═";
     std::string THICK_VERTICAL_BAR = "║";
@@ -45,9 +47,13 @@
 #endif
 
 int main() {
+    //* create a time point to mark as the beginning of the program to measure time spent in the application
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+    //* initialise the program
     init_program();
 
+    //* create a Check Number Features Render Settings (CNFRenderSettings) object and set the variables
     CNFRenderSettings cnf_render_settings;
     cnf_render_settings.prompt = "enter number > ";
     cnf_render_settings.invalid_input_feedback = "Seriously? I asked you to do ONE thing: enter a WHOLE number.";
@@ -63,6 +69,7 @@ int main() {
     cnf_render_settings.bottom_left_corner = THICK_BOTTOM_LEFT_CORNER;
     cnf_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
 
+    //* create a vector of all factors to be used for later calculations
     std::vector<long long> fac;
     CheckNumberFeatures cnf;
     cnf.add_attribute("Positive/Negative/Zero", [] (long long num) -> std::string { return num > 0 ? "Positive" : num < 0 ? "Negative" : "Zero"; }  , false);
@@ -225,7 +232,7 @@ int main() {
         for (;;) {
             set_cursor_position();
             print_loop("", 4);
-            print_are_you_sure("ansi");
+            print_are_you_sure(TITLE_STYLE);
             print_loop("", 4);
             align_center();
             print("Are you sure you want to reset all statistics? Press ENTER to reset all statistics or press ESC to return to main menu.");
@@ -280,11 +287,17 @@ int main() {
 
     for(;;) {
         // while(1) { std::cout << std::to_string(getch()) + " "; }
+
+        //* update the global terminal size
         set_terminal_size();
 
+        //* render the menu
         menu.render(render_settings);
+
+        //* run the menu input handler
         menu.handle_input();
     }
 
+    //* the user should never get to this point, but if they do, exit the program safely
     exit_program(stats);
 }
