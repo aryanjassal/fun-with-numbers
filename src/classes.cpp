@@ -920,7 +920,7 @@ void BrainSpeedTest::render(BSTRenderSettings render_settings, Statistics &stats
     print();
     align_left();
     for (auto s : render_settings.explanation) {
-        print(basic_text_wrapping(extend_string(' ', render_settings.padding_for_left_text) + "• " + replace(s, "|num|", std::to_string(render_settings.max_questions))));
+        print(basic_text_wrapping(extend_string(' ', render_settings.padding_for_left_text) + render_settings.bullet_point + " " + replace(s, "|num|", std::to_string(render_settings.max_questions))));
         print();
     }
     print_loop("\n", render_settings.padding_from_help);
@@ -1217,7 +1217,7 @@ void MemoryBenchmark::render(MBRenderSettings render_settings, Statistics &stats
     print("  Instructions:");
     print();
     for (auto s : render_settings.explanation) {
-        print(basic_text_wrapping(extend_string(' ', render_settings.padding_for_left_text) + "• " + s));
+        print(basic_text_wrapping(extend_string(' ', render_settings.padding_for_left_text) + render_settings.bullet_point + " " + s));
         print("", "");
     }
     print_loop("", render_settings.padding_from_help);

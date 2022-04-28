@@ -29,6 +29,7 @@
     std::string THIN_TOP_RIGHT_CORNER = "+";
     std::string THIN_BOTTOM_LEFT_CORNER = "+";
     std::string THIN_BOTTOM_RIGHT_CORNER = "+";
+    std::string BULLET_POINT = ">";
 #elif defined(__linux__)
     //* define some global variables if the program is being run on Linux
     std::string TITLE_STYLE = "ansi";
@@ -44,6 +45,7 @@
     std::string THIN_TOP_RIGHT_CORNER = "╮";
     std::string THIN_BOTTOM_LEFT_CORNER = "╰";
     std::string THIN_BOTTOM_RIGHT_CORNER = "╯"
+    std::string BULLET_POINT = "•";
 #endif
 
 int main() {
@@ -71,9 +73,17 @@ int main() {
 
     //* create a vector of all factors to be used for later calculations
     std::vector<long long> fac;
+
+    //* create a Check Number Factors object
     CheckNumberFeatures cnf;
-    cnf.add_attribute("Positive/Negative/Zero", [] (long long num) -> std::string { return num > 0 ? "Positive" : num < 0 ? "Negative" : "Zero"; }  , false);
+
+    //* add a number attribute that checks whether a number is positive, negative, or zero
+    cnf.add_attribute("Positive/Negative/Zero", [] (long long num) -> std::string { return num > 0 ? "Positive" : num < 0 ? "Negative" : "Zero"; }, false);
+
+    //* add a number attribute that checks whether a number is even or odd
     cnf.add_attribute("Even/Odd", [] (long long num) -> std::string { return num % 2 == 0 ? "Even" : "Odd"; } , false);
+
+    //* add a number attribute that lists all its factors
     cnf.add_attribute("Factors", [&cnf_render_settings, &fac] (long long num) -> std::string {
         std::vector <long long> factors = find_factors(num);
         fac = factors;
@@ -149,6 +159,7 @@ int main() {
     bst_render_settings.top_right_corner = THICK_TOP_RIGHT_CORNER;
     bst_render_settings.bottom_left_corner = THICK_BOTTOM_LEFT_CORNER;
     bst_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
+    bst_render_settings.bullet_point = BULLET_POINT;
     
 
     MemoryBenchmark mb;
@@ -175,6 +186,7 @@ int main() {
     mb_render_settings.top_right_corner = THICK_TOP_RIGHT_CORNER;
     mb_render_settings.bottom_left_corner = THICK_BOTTOM_LEFT_CORNER;
     mb_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
+    mb_render_settings.bullet_point = BULLET_POINT;
 
     Menu menu;
     menu.set_entry_loop(true);

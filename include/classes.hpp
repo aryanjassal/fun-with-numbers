@@ -127,26 +127,6 @@ struct MenuRenderSettings {
     //* Wheather the menu should fill the entire screen or only update the amount of screen it needs to render itself
     bool fill_screen = true;
 
-    //* Use angled brackets or any other pointer to provide feedback. Can be used alongside feedback bars
-    //! NOT IMPLEMENTED YET
-    bool use_entry_pointers = false;
-
-    //* Feedback pointer positioned on the left side of the entry
-    //! NOT IMPLEMENTED YET
-    std::string left_pointer = ">";
-
-    //* Feedback pointer positioned on the right side of the entry
-    //! NOT IMPLEMENTED YET
-    std::string right_pointer = "<";
-
-    //* Should feedback pointers be right next to the text
-    //! NOT IMPLEMENTED YET
-    bool pointer_next_to_text = false;
-
-    //* Space between the pointers and the text. Needs to be set if pointer_next_to_text is set
-    //! NOT IMPLEMENTED YET
-    int pointer_space_from_text;
-
     int padding_above_title = 3;
     std::function<void(std::string)> title_renderer;
     std::string title_style;
@@ -344,6 +324,8 @@ struct BSTRenderSettings {
     std::string answer_correct = "Correct answer! Took |time|.";
     std::string answer_incorrect = "Incorrect answer! Please try again.";
 
+    std::string bullet_point = "•";
+
     std::vector<std::string> test_finished;
 
     bool fill_screen = true;
@@ -399,6 +381,8 @@ struct MBRenderSettings {
     int padding_after_question = 2;
     int padding_for_left_text = 5;
     int padding_before_feedback = 3;
+
+    std::string bullet_point = "•";
 
     std::vector<std::string> test_failed;
     std::vector<std::string> test_finished;
