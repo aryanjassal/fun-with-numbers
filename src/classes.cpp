@@ -97,7 +97,7 @@ void Menu::render(MenuRenderSettings render_settings) {
     bg_color(g_bg_color);
 
     print_loop("", render_settings.padding_above_title);
-    render_settings.title_renderer(render_settings.title_style);
+    // render_settings.title_renderer(render_settings.title_style);
     print_loop ("", render_settings.padding_below_title);
 
     for (auto& e : entries) {
@@ -695,7 +695,6 @@ int PointPlotter::render(GraphRenderSettings render_settings, Statistics &stats)
 
     print_loop("", render_settings.padding_before_input_prompt);
     print(render_settings.input_prompt_text);
-    // print(input);
     print_loop("", render_settings.padding_after_input_prompt);
 
     align_left();
