@@ -460,11 +460,7 @@ void print_loop(std::string str, int times) {
 
 //* Get the next character waiting in the keyboard input buffer
 //* Credit for the linux implementation goes to zoelabbb (https://github.com/zoelabbb/conio.h)
-#if defined(_WIN32)
-    char getch() {
-        return getch();
-    }
-#elif defined(__linux__)
+#if defined(__linux__)
     char getch() {
         struct termios oldattr, newattr;
         int ch;
@@ -537,11 +533,7 @@ Key get_key() {
 
 //* Check if a key is present in the input buffer
 //* Credit for the linux implementation of this code goes to zoelabbb (https://github.com/zoelabbb/conio.h)
-#if defined(_WIN32)
-    bool kbhit() {
-        return kbhit();
-    }
-#elif defined(__linux__)
+#if defined(__linux__)
     bool kbhit() {
         struct termios oldt, newt;
         int ch;
