@@ -5,6 +5,7 @@
 #include <conio.h>
 #elif defined(__linux__)
 #include <sys/ioctl.h>
+#include <termios.h>
 #endif
 
 //* Including required modules
@@ -13,7 +14,6 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
-#include <termios.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <iomanip>
