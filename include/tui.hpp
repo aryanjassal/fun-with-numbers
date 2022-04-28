@@ -247,11 +247,14 @@ void print(std::string str, std::string end, int w);
 void print_loop(std::string str, int times);
 void print_loop(std::string str, int times, std::string end);
 
-//* Check if a key is present in the input buffer
-bool kbhit();
+//* if os is linux, then use the custom functions
+#if defined(__linux__)
+    //* Check if a key is present in the input buffer
+    bool kbhit();
 
-//* Get a character from the keyboard input buffer
-char getch();
+    //* Get a character from the keyboard input buffer
+    char getch();
+#endif
 
 //* Return the key pressed, while accounting for special keys
 Key get_key();
