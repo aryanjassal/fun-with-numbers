@@ -70,7 +70,7 @@ void get_terminal_size(int& width, int& height) {
         //* Assign the number of columns and rows to the width and height
         width = (int)(csbi.srWindow.Right-csbi.srWindow.Left+1);
         height = (int)(csbi.srWindow.Bottom-csbi.srWindow.Top+1);
-    #else if defined(__linux__)
+    #elif defined(__linux__)
         //* Winsize struct is a special struct which stores all the terminal information returned by the following command
         struct winsize w;
 
@@ -464,7 +464,7 @@ void print_loop(std::string str, int times) {
     char getch() {
         return getch();
     }
-#else if defined(__linux__)
+#elif defined(__linux__)
     char getch() {
         struct termios oldattr, newattr;
         int ch;
@@ -541,7 +541,7 @@ Key get_key() {
     bool kbhit() {
         return kbhit();
     }
-#else if defined(__linux__)
+#elif defined(__linux__)
     bool kbhit() {
         struct termios oldt, newt;
         int ch;
