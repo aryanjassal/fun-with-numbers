@@ -1,11 +1,11 @@
 #include <iostream>  //* for std::string
-#include <chrono>  //* for std::chrono::steady_clock::time_point, std::chrono::duration_cast<std::chrono::seconds>
+#include <chrono>  //* for std::chrono::steady_clock::time_point, std::chrono::duration_cast<>, std::chrono::seconds
 
 #include "utils.hpp"  //* init_program(), find_factors(), StatsID, exit_program()
 #include "ascii.hpp" //* for print_number_features(), print_memory_test(), print_think_fast(), print_usage_stats(), print_are_you_sure()
 #include "classes.hpp"  //* for Menu, MenuRenderSettings, CheckNumberFeatures, CNFRenderSettings, PointPlotter, GraphRenderSettings, MemoryBenchmark, MBRenderSettings, BrainSpeedTest, BSTRenderSettings, Statistics, StatsRenderSettings
 
-//? Ideal if a font with font ligatures is used.
+//? Ideal if a font with ligatures enabled is used.
 //! Windows Terminal (the new terminal for Windows 11) breaks whenever print statements cause a scrolling, making the colors look weird. Use legacy Windows Console Host (aka cmd.exe) to run the application, or just use some other linux terminal (tested on Kitty) because most of the terminals work fine. Note that there is a high chance that tmux terminal will break this code.
 //* Superior highly composite numbers = 367567200 or -720720
 //TODO: [NORM] Some pages scroll the terminal for some reason

@@ -416,7 +416,7 @@ class MemoryBenchmark {
         std::string input;
         int digits = 1;
         int want_exit = false;
-        int num;
+        std::string num;
         bool calculate_new_num = true;
         bool test_finished = false;
         bool waited_once;

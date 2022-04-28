@@ -568,7 +568,7 @@ void Statistics::load_stats(std::string file_name) {
 
             Stat s;
             try {
-                s = get_stat(std::stoll(id_val_form.at(0)));
+                s = get_stat(std::stoi(id_val_form.at(0)));
             } catch (...) {
                 continue;
             }
@@ -619,7 +619,6 @@ int Statistics::render(StatsRenderSettings render_settings) {
                     out.append(seconds_to_string(s.val));   
                 } else if (s.units == "unit|percentage") {
                     out.append(std::to_string(s.val) + "%");
-                    // out.append("%");
                 }
             } else {
                 out.append(std::to_string(s.val));
@@ -1242,16 +1241,15 @@ void MemoryBenchmark::render(MBRenderSettings render_settings, Statistics &stats
         if (calculate_new_num) {
             if (digits > render_settings.max_digits) break;
 
-            std::string num_str;
-
+            num = "";
             for (int i = 0; i < digits; i++) {
-                if (i == 0) num_str.append(std::to_string(random_number(1, 10, (i * i))));
-                else num_str.append(std::to_string(random_number(0, 10, (i * i))));
+                if (i == 0) num.append(std::to_string(random_number(1, 9, (i * i))));
+                else num.append(std::to_string(random_number(0, 9, (i * i))));
             }
-            num = std::stoll(num_str);
+            num = strip(num, '-');
             calculate_new_num = false;
 
-            print(std::to_string(num));
+            print(num);
             fill_screen();
             std::this_thread::sleep_for(std::chrono::seconds((int)((float)digits * 0.8) + (int)(2 / digits)));
             continue;
@@ -1327,7 +1325,7 @@ int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &
         return 2;
     } else if (key == KEY_ENTER) {        
         try {
-            if (std::stoll(input) == num) {
+            if (input == num) {
                 digits++;
                 calculate_new_num = true;
 
@@ -1447,7 +1445,7 @@ int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &
                 for (auto s : render_settings.test_failed) {
                     std::string r = s;
                     if (s.find("|input|") != std::string::npos) r = replace(s, "|input|", input);
-                    if (s.find("|answer|") != std::string::npos) r = replace(s, "|answer|", std::to_string(num));
+                    if (s.find("|answer|") != std::string::npos) r = replace(s, "|answer|", num);
                     if (s.find("|score|") != std::string::npos) r = replace(s, "|score|", std::to_string(digits));
                     print(basic_text_wrapping(r));
                     print();
@@ -1473,11 +1471,11 @@ int MemoryBenchmark::handle_input(MBRenderSettings render_settings, Statistics &
 }
 
 void MemoryBenchmark::reset() {
-    std::string input = "";
-    int digits = 1;
-    int want_exit = false;
-    int num = 0;
-    bool calculate_new_num = true;
-    bool test_finished = false;
-    bool waited_once = false;
+    input = "";
+    digits = 1;
+    want_exit = false;
+    num = "";
+    calculate_new_num = true;
+    test_finished = false;
+    waited_once = false;
 }

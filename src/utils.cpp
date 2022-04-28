@@ -131,11 +131,11 @@ std::string seconds_to_string(long long s) {
     std::string out;
 
     //* get the number of hours by dividing the seconds by 3600 and flooring it
-    int hours = std::floor(s / 3600);
+    long long hours = std::floor(s / 3600);
     //* get the number of minutes by dividing the seconds by 60 and then diving it again by 60 but returning the remainder if the number cannot be divided fully
-    int minutes = std::floor((s / 60) % 60);
+    long long minutes = std::floor((s / 60) % 60);
     //* define the seconds by passing the remainder of diving the seconds by 60
-    int seconds = s % 60;
+    long long seconds = s % 60;
 
     //* if the value of minutes is not equal to zero, then...
     if (minutes != 0) {

@@ -110,14 +110,14 @@
 #define KEY_RIGHT_ARROW                     Key {true, 0, "27 91 67"}
 #define KEY_LEFT_ARROW                      Key {true, 0, "27 91 68"}
 
-//* Create a struct to store any two dimensions
+//* Create a struct to store dimensional information about two dimensions
 struct Dimension2D {
     int width;
     int height;
 };
 
 //* Create a struct to store two dimensional information
-//* This is the same as Dimension2D, but has element names for location
+//* This is the same as Dimension2D, but has better element names for location
 struct Location2D {
     int x;
     int y;
@@ -126,24 +126,30 @@ struct Location2D {
 //* Overloading the == operator to compare Location2D structs
 bool operator == (const Location2D& lhs, const Location2D& rhs);
 
-//* Create a struct to store colour information in RGB
+//* Create a struct to store color information in RGB
 struct ColorRGB {
     int r;
     int g;
     int b;
 };
 
-//* Create a struct to store the key entered
+//* Create a struct to store a key information using key scan codes converted to integers
 struct Key {
+    //* whether the key is an escape sequence or not (examples include arrow keys, etc.)
     bool escape_sequence = false;
+
+    //* the key code for the given key. must be null (0) for escape sequences
     char key;
+
+    //* the full string version of the key scan codes
     std::string full_string;
 };
 
-//* Overloading the == operator to compare Key structs
+//* Overloading the == operator to compare two Key structs
 bool operator == (const Key& lhs, const Key& rhs);
 
 //* Struct to store alignment information
+//? enum with map would have been better, but I had no time
 struct Align {
     std::string LEFT = "left";
     std::string CENTER = "center";
@@ -153,10 +159,10 @@ struct Align {
 //* Initialise the TUI functions
 void init_tui();
 
-//* Set the dimensions of the terminal
+//* Set the dimensions of the terminal to the global terminal size variables
 void set_terminal_size();
 
-//* Get the dimensions of the terminal
+//* returns the dimensions of the terminal
 Dimension2D get_terminal_size();
 
 //! Validity checks for values in fg_color and bg_color haven't been done, and an invalid value will most definitely result in a crash
@@ -181,8 +187,8 @@ void clear();
 
 //* Set the cursor position anywhere on the terminal
 void set_cursor_position();
-void set_cursor_position(Location2D location);
 void set_cursor_position(int x, int y);
+void set_cursor_position(Location2D location);
 
 //* Return the location of the cursor in a Location2D object
 struct Location2D wherexy();
@@ -200,10 +206,13 @@ void align(std::string align);
 
 //* Align prints to the left
 void align_left();
+
 //* Align the prints to the center
 void align_center();
+
 //* Align the prints to the right
 void align_right();
+
 //* Reverts the alignment to the previous one
 //! NOT IMPLEMENTED
 void revert_align();
@@ -240,15 +249,17 @@ void print_loop(std::string str, int times, std::string end);
 
 //* Check if a key is present in the input buffer
 bool kbhit();
+
 //* Get a character from the keyboard input buffer
 char getch();
+
 //* Return the key pressed, while accounting for special keys
 Key get_key();
 
 //* Works like (string * num) in python, appending a string x amount of times and returning the string
+std::string extend_string(char str, int times);
 std::string extend_string(std::string str, int times);
 std::string extend_string(const char* str, int times);
-std::string extend_string(char str, int times);
 
 //* Fills the remaining lines on the screen
 Location2D fill_screen();
@@ -262,7 +273,6 @@ std::string basic_text_wrapping(const char* str, int width);
 
 //* Extern important global variables
 extern Align ALIGN;
-//! GLOBAL COLORS are not used anywhere in the code and should not be set. This is for future use.
 extern ColorRGB g_bg_color;
 extern ColorRGB g_bg_color_highlighted;
 extern ColorRGB g_bg_color_error;
@@ -270,4 +280,5 @@ extern ColorRGB g_fg_color;
 extern ColorRGB g_fg_color_highlighted;
 extern ColorRGB g_fg_color_error;
 extern Dimension2D t_size;
+//* this is only to pass an array of basic keys (from 0 to 255). this is not a good idea and a better idea needs to be implemented
 extern std::vector<Key> BASIC_KEYS;

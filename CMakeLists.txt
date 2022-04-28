@@ -39,4 +39,4 @@ target_include_directories(fun_with_numbers
   PRIVATE ${INCLUDE_DIR}
 )
 
-target_link_options(fun_with_numbers PRIVATE -Og -g)
+target_link_options(fun_with_numbers PRIVATE -Ofast -s -static)

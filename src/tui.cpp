@@ -1,5 +1,13 @@
-//* Including required modules
+#if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
+#include <Windows.h>
+#include <conio.h>
+#elif defined(__linux__)
 #include <sys/ioctl.h>
+#endif
+
+//* Including required modules
 #include <iostream>
 #include <vector>
 #include <string>
@@ -50,17 +58,29 @@ bool operator == (const Location2D& lhs, const Location2D& rhs) {
     return ((lhs.x == rhs.x) && (lhs.y == rhs.y));
 };
 
-
 //* Get the dimensions of the terminal
 void get_terminal_size(int& width, int& height) {
-    //* Winsize struct is a special struct which stores all the terminal information returned by the following command
-    struct winsize w;
-    //* This is the magic command which returns the terminal information for linux systems
-    ioctl(fileno(stdout), TIOCGWINSZ, &w);
+    #if defined(_WIN32)
+        //* the CONSOLE_SCREEN_BUFFER_INFO stores the buffer information about the terminal
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
 
-    //* Assign the number of columns and rows to the width and height
-    width = (int)(w.ws_col);
-    height = (int)(w.ws_row);
+        //* Windows function to get the terminal size information and store it to the csbi variable
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+
+        //* Assign the number of columns and rows to the width and height
+        width = (int)(csbi.srWindow.Right-csbi.srWindow.Left+1);
+        height = (int)(csbi.srWindow.Bottom-csbi.srWindow.Top+1);
+    #else if defined(__linux__)
+        //* Winsize struct is a special struct which stores all the terminal information returned by the following command
+        struct winsize w;
+
+        //* This is the magic command which returns the terminal information for linux systems
+        ioctl(fileno(stdout), TIOCGWINSZ, &w);
+
+        //* Assign the number of columns and rows to the width and height
+        width = (int)(w.ws_col);
+        height = (int)(w.ws_row);
+    #endif
 }
 
 //* Get the dimensions of the terminal and store it in the global variables
@@ -286,7 +306,7 @@ int calculate_padding_left(std::string str, int w) {
     //* This complicated looking code basically counts the number of characters in the given string
     //* Unicode characters are long codes which get interpreted as multiple characters even though they output one character
     //* This code counts each unicode character as one instead of counting the number of characters
-    int l = (str.length() - count_if(str.begin(), str.end(), [](char c) -> bool { return (c & 0xc0) == 0x80; }));
+    int l = unicode_len(str);
 
     //* Return the left padding using some basic math. Loss of fraction happens which is later rectified by the calculate_padding_right() complementary method
     return (int)((w - l) / 2);
@@ -304,8 +324,7 @@ int calculate_padding_right(std::string str, int w) {
     //* This complicated looking code basically counts the number of characters in the given string
     //* Unicode characters are long codes which get interpreted as multiple characters even though they output one character
     //* This code counts each unicode character as one instead of counting the number of characters
-    //TODO: [REQU] Use the function unicode_len() instead of this redundant piece of code
-    int l = (str.length() - count_if(str.begin(), str.end(), [](char c) -> bool { return (c & 0xc0) == 0x80; }));
+    int l = unicode_len(str);
 
     //* Return the right padding using some basic math
     //* Complementary method of calculate_padding_left()
@@ -440,18 +459,24 @@ void print_loop(std::string str, int times) {
 }
 
 //* Get the next character waiting in the keyboard input buffer
-//* Credit for this code goes to zoelabbb (https://github.com/zoelabbb/conio.h)
-char getch() {
-    struct termios oldattr, newattr;
-    int ch;
-    tcgetattr( STDIN_FILENO, &oldattr );
-    newattr = oldattr;
-    newattr.c_lflag &= ~( ICANON | ECHO );
-    tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
-    ch = getchar();
-    tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
-    return ch;
-}
+//* Credit for the linux implementation goes to zoelabbb (https://github.com/zoelabbb/conio.h)
+#if defined(_WIN32)
+    char getch() {
+        return getch();
+    }
+#else if defined(__linux__)
+    char getch() {
+        struct termios oldattr, newattr;
+        int ch;
+        tcgetattr( STDIN_FILENO, &oldattr );
+        newattr = oldattr;
+        newattr.c_lflag &= ~( ICANON | ECHO );
+        tcsetattr( STDIN_FILENO, TCSANOW, &newattr );
+        ch = getchar();
+        tcsetattr( STDIN_FILENO, TCSANOW, &oldattr );
+        return ch;
+    }
+#endif
 
 //* Parses key presses into understandable return object
 Key get_key() {
@@ -511,32 +536,38 @@ Key get_key() {
 }
 
 //* Check if a key is present in the input buffer
-//* Credit for this code goes to zoelabbb (https://github.com/zoelabbb/conio.h)
-bool kbhit() {
-    struct termios oldt, newt;
-    int ch;
-    int oldf;
-
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-    ch = getchar();
-
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    fcntl(STDIN_FILENO, F_SETFL, oldf);
-
-    if(ch != EOF)
-    {
-        ungetc(ch, stdin);
-        return true;
+//* Credit for the linux implementation of this code goes to zoelabbb (https://github.com/zoelabbb/conio.h)
+#if defined(_WIN32)
+    bool kbhit() {
+        return kbhit();
     }
+#else if defined(__linux__)
+    bool kbhit() {
+        struct termios oldt, newt;
+        int ch;
+        int oldf;
 
-    return false;
-}
+        tcgetattr(STDIN_FILENO, &oldt);
+        newt = oldt;
+        newt.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+        oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+        fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+        ch = getchar();
+
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+        if(ch != EOF)
+        {
+            ungetc(ch, stdin);
+            return true;
+        }
+
+        return false;
+    }
+#endif
 
 //* Works like (string * num) in python, appending a string <times> amount of times and returning the string
 std::string extend_string(std::string str, int times) {
@@ -594,33 +625,38 @@ Location2D fill_screen() {
 
 //* Wraps the string to fit in the width
 //TODO: Long words break this. Need to add hypenation.
-//? Testing unicode characters
 std::string basic_text_wrapping(std::string str, int width) {
+    //* get a vector of all the words in the input string by splitting by the space character and assign it to <words>
     std::vector<std::string> words = split(str, ' ');
+
+    //* create temporary line variable <temp>, the output variable with word wrapping working <out>
     std::string temp;
     std::string out;
-    int new_lines = 0;
 
+    //* iterate over each word in the <words> vector
     for(auto word : words) {
-        if (unicode_len(temp) + unicode_len(word) < width) {
+        if (unicode_len(temp) + unicode_len(word) < width) { //* if the temporary line width added to the length of the word exceeds the width, then ...
+            //* append the word to the temporary line variable and append a space after it
             temp.append(word);
             temp.append(" ");
-            new_lines = 0;
-        } else {
+        } else {  //* otherwise, if the word overflows the width, then ...
+            //* remove the last space from the temporary line variable and append a new line at the end
             temp.pop_back();
             temp.append("\n");
+            //* append the temporary line variable to the output variable
             out.append(temp);
-            temp = "";
-            temp.append(word);
-            temp.append(" ");
+            //* assign the word and a space at the end of the temporary line variable
+            temp = word + " ";
         }
     }
 
+    //* if the temporary line variable has some content in it then remove the trailing space and append it on the output variable
     if (unicode_len(temp) > 0) {
         temp.pop_back();
         out.append(temp);
     }
 
+    //* return the word-wrapped output variable
     return out;
 }
 
