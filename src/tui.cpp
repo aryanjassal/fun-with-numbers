@@ -6,6 +6,7 @@
 #elif defined(__linux__)
 #include <sys/ioctl.h>
 #include <termios.h>
+#include <unistd.h>
 #endif
 
 //* Including required modules
@@ -14,13 +15,13 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
-#include <unistd.h>
 #include <stdio.h>
 #include <iomanip>
 #include <math.h>
 #include <algorithm>
 #include <fcntl.h>
-
+#include <fcntl.h>
+#include <io.h>
 #include "tui.hpp"
 #include "utils.hpp"
 #include "classes.hpp"
@@ -425,6 +426,21 @@ void print(std::string str, std::string end, int w) {
     }
 }
 
+void print(std::wstring str) {
+    //* Print statement first splits the string by newline (\n)
+    std::vector<std::wstring> lines = wsplit(str, '\n');
+
+    //* If the given width is less than or equal to zero, then instead use the current terminal width
+    //? This behaviour may change in the future
+    // int width = (w <= 0) ? t_size.width : w;
+
+    //* Loop over each line in the vector of split strings
+    for (auto line : lines) {
+        //* Output the padded line which is padded to the given width and the end character
+        std::cout << wpadded_str(line);
+    }
+}
+
 //* Prints a new line
 void print() {
     print("", "\n", 0);
@@ -476,59 +492,96 @@ void print_loop(std::string str, int times) {
 
 //* Parses key presses into understandable return object
 Key get_key() {
+    #if defined(_WIN32)
     //* Get a character from the input buffer
-    char c = getch();
-    switch(c) {
-        case 27: //* If the first character is an escape character
-            //* If there are no other characters in keyboard input buffer, then return escape as the character
-            if (!kbhit()) return KEY_ESCAPE;
-            
-            //* Get the next character from the keyboard input buffer and check for states
-            switch(getch()) {
-                case 91: //* If the next character is 91 (opened-square-bracket), then check for character states 
-                    switch(getch()) {
-                        case 65: //* If the next character is 65 and no other inputs are in the keyboard input buffer, then the up arrow has been pressed
-                            if (!kbhit()) return KEY_UP_ARROW;
-                            //* Otherwise, clear the keyboard input buffer and break out of the loop
-                            while (kbhit()) getch();
-                            break;
-                        case 66: //* If the next character is 66 and no other inputs are in the keyboard input buffer, then the down arrow has been pressed
-                            if (!kbhit()) return KEY_DOWN_ARROW;
-                            //* Otherwise, clear the keyboard input buffer and break out of the loop
-                            while (kbhit()) getch();
-                            break;
-                        case 67: //* If the next character is 67 and no other inputs are in the keyboard input buffer, then the right arrow has been pressed
-                            if (!kbhit()) return KEY_RIGHT_ARROW;
-                            //* Otherwise, clear the keyboard input buffer and break out of the loop
-                            while (kbhit()) getch();
-                            break;
-                        case 68: //* If the next character is 68 and no other inputs are in the keyboard input buffer, then the left arrow has been pressed
-                            if (!kbhit()) return KEY_LEFT_ARROW;
-                            //* Otherwise, clear the keyboard input buffer and break out of the loop
-                            while (kbhit()) getch();
-                            break;
-                        default: //* By default, disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
-                            while (kbhit()) getch();
-                            return KEY_NULL;
-                    }
-                    //* Just do this in case there is anything still left in the keyboard input buffer
-                    while (kbhit()) getch();
-                default: //* If the key is not 91 (opened-square-bracket), then disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
-                    while(kbhit()) getch();
-                    return KEY_NULL;
-            }
-            //* Just do this in case there is anything still left in the keyboard input buffer
-            while (kbhit()) getch();
-        default: //* If the key is not 27 (escape), then do this
-            //* If the key is in BASIC_KEYS, then return that object
-            for(auto k : BASIC_KEYS) {
-                if (k.key == c) return k;
-            }
+        int c = getch();
+        switch(c) {
+            case 224: //* If the first character is 224
+                // int d = getch();
+                switch(getch()) {
+                    case 72:
+                        if (!kbhit()) return KEY_UP_ARROW;
+                    case 80:
+                        if (!kbhit()) return KEY_DOWN_ARROW;
+                    case 75:
+                        if (!kbhit()) return KEY_LEFT_ARROW;
+                    case 77:
+                        if (!kbhit()) return KEY_RIGHT_ARROW;
+                }
+                while(kbhit()) getch();
+            case 13:
+                if (!kbhit()) return KEY_ENTER;
+                while(kbhit()) getch();
+            case 27:
+                if (!kbhit()) return KEY_ESCAPE;
+                while(kbhit()) getch();
+            default:
+                //* If the key is in BASIC_KEYS, then return that object
+                for(auto k : BASIC_KEYS) {
+                    if (k.key == c) return k;
+                }
 
-            //* Otherwise, disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
-            while(kbhit()) getch();
-            return KEY_NULL;
-    }
+                //* Otherwise, disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
+                while(kbhit()) getch();
+                return KEY_NULL;
+        }
+    #elif defined(__linux__)
+        //* Get a character from the input buffer
+        char c = getch();
+        switch(c) {
+            case 27: //* If the first character is an escape character
+                //* If there are no other characters in keyboard input buffer, then return escape as the character
+                if (!kbhit()) return KEY_ESCAPE;
+                
+                //* Get the next character from the keyboard input buffer and check for states
+                switch(getch()) {
+                    case 91: //* If the next character is 91 (opened-square-bracket), then check for character states 
+                        switch(getch()) {
+                            case 65: //* If the next character is 65 and no other inputs are in the keyboard input buffer, then the up arrow has been pressed
+                                if (!kbhit()) return KEY_UP_ARROW;
+                                //* Otherwise, clear the keyboard input buffer and break out of the loop
+                                while (kbhit()) getch();
+                                break;
+                            case 66: //* If the next character is 66 and no other inputs are in the keyboard input buffer, then the down arrow has been pressed
+                                if (!kbhit()) return KEY_DOWN_ARROW;
+                                //* Otherwise, clear the keyboard input buffer and break out of the loop
+                                while (kbhit()) getch();
+                                break;
+                            case 67: //* If the next character is 67 and no other inputs are in the keyboard input buffer, then the right arrow has been pressed
+                                if (!kbhit()) return KEY_RIGHT_ARROW;
+                                //* Otherwise, clear the keyboard input buffer and break out of the loop
+                                while (kbhit()) getch();
+                                break;
+                            case 68: //* If the next character is 68 and no other inputs are in the keyboard input buffer, then the left arrow has been pressed
+                                if (!kbhit()) return KEY_LEFT_ARROW;
+                                //* Otherwise, clear the keyboard input buffer and break out of the loop
+                                while (kbhit()) getch();
+                                break;
+                            default: //* By default, disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
+                                while (kbhit()) getch();
+                                return KEY_NULL;
+                        }
+                        //* Just do this in case there is anything still left in the keyboard input buffer
+                        while (kbhit()) getch();
+                    default: //* If the key is not 91 (opened-square-bracket), then disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
+                        while(kbhit()) getch();
+                        return KEY_NULL;
+                }
+                //* Just do this in case there is anything still left in the keyboard input buffer
+                while (kbhit()) getch();
+            default: //* If the key is not 27 (escape), then do this
+                //* If the key is in BASIC_KEYS, then return that object
+                for(auto k : BASIC_KEYS) {
+                    if (k.key == c) return k;
+                }
+
+                //* Otherwise, disregard all the other inputs kept in the keyboard input buffer and return KEY_NULL
+                while(kbhit()) getch();
+                return KEY_NULL;
+        }
+    #else
+        return KEY_NULL;
+    #endif
 }
 
 //* Check if a key is present in the input buffer

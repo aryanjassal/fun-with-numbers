@@ -5,6 +5,11 @@
 #include "ascii.hpp" //* for print_number_features(), print_memory_test(), print_think_fast(), print_usage_stats(), print_are_you_sure()
 #include "classes.hpp"  //* for Menu, MenuRenderSettings, CheckNumberFeatures, CNFRenderSettings, PointPlotter, GraphRenderSettings, MemoryBenchmark, MBRenderSettings, BrainSpeedTest, BSTRenderSettings, Statistics, StatsRenderSettings
 
+#include <string.h> //
+#include <conio.h>
+#include <fcntl.h>
+#include <io.h>
+
 //? Ideal if a font with ligatures enabled is used.
 //! Windows Terminal (the new terminal for Windows 11) breaks whenever print statements cause a scrolling, making the colors look weird. Use legacy Windows Console Host (aka cmd.exe) to run the application, or just use some other linux terminal (tested on Kitty) because most of the terminals work fine. Note that there is a high chance that tmux terminal will break this code.
 //* Superior highly composite numbers = 367567200 or -720720
@@ -198,6 +203,8 @@ int main() {
 
     set_cursor_position();
 
+    _setmode(_fileno(stdout), _O_U16TEXT);
+
     Dimension2D size = get_terminal_size();
     if (size.width < 127 || size.height < 43) {
         std::string prompt_string = "Your terminal size is too small and may result in poor rendering of the user interface and bad user experience. Press any key to continue or ESC to exit right away.";
@@ -214,6 +221,7 @@ int main() {
     set_cursor_position();
 
     for(;;) {
+        // while(1) { std::cout << std::to_string(getch()) + " "; }
         set_terminal_size();
 
         menu.render(render_settings);
