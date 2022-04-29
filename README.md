@@ -2,6 +2,8 @@
 
 This project is an improvement over the existing project Fun with Numbers. Note that for best performance and visual effects, it is recommended to run this application on Linux, but it also supports Windows on the cost of sacrificing unicode characters.
 
+**NOTE: There is a known issue in rendering statistics in linux. The cause is unknown yet, however the Windows version works as expected.**
+
 ## How to build (optional)
 
 If you really want to build this project from source, then the following steps should be followed.

@@ -481,7 +481,6 @@ Key get_key() {
         int c = getch();
         switch(c) {
             case 224: //* If the first character is 224
-                // int d = getch();
                 switch(getch()) {
                     case 72:
                         if (!kbhit()) return KEY_UP_ARROW;

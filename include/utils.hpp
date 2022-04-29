@@ -10,6 +10,8 @@
 void init_program();
 
 //* Clean up and exit the program
+void exit_program();
+void exit_program(int return_value);
 void exit_program(Statistics &stats);
 void exit_program(Statistics &stats, int return_value);
 

@@ -1,18 +1,15 @@
 #include <iostream>  //* for std::string
 #include <chrono>  //* for std::chrono::steady_clock::time_point, std::chrono::duration_cast<>, std::chrono::seconds
+#include <string.h> //* for std::to_string()
 
 #include "utils.hpp"  //* init_program(), find_factors(), StatsID, exit_program()
 #include "ascii.hpp"  //* for print_number_features(), print_memory_test(), print_think_fast(), print_usage_stats(), print_are_you_sure()
 #include "classes.hpp"  //* for Menu, MenuRenderSettings, CheckNumberFeatures, CNFRenderSettings, PointPlotter, GraphRenderSettings, MemoryBenchmark, MBRenderSettings, BrainSpeedTest, BSTRenderSettings, Statistics, StatsRenderSettings
 
-// #include <string.h> //* for std::to_string()
-// #include <conio.h>  //* for getch()
 
 //? Ideal if a font with ligatures enabled is used.
 //! Windows Terminal (the new terminal for Windows 11) breaks whenever print statements cause a scrolling, making the colors look weird. Use legacy Windows Console Host (aka cmd.exe) to run the application, or just use some other linux terminal (tested on Kitty) because most of the terminals work fine. Note that there is a high chance that tmux terminal will break this code.
 //! Works under Windows too, but sacrifices needed to me made on printing unicode characters; only ASCII characters which fit inside a char work under Windows.
-//TODO: [NORM] Some pages scroll the terminal for some reason
-//TODO: [NORM] Comment code everywhere
 
 #if defined(_WIN32)
     //* set title style for Windows
@@ -152,12 +149,12 @@ int main() {
     StatsRenderSettings s_render_settings;
     s_render_settings.title_renderer = [] (std::string style) { print_usage_stats(style); };
     s_render_settings.title_rendering_style = TITLE_STYLE;
-    s_render_settings.horizontal_bar = THICK_HORIZONTAL_BAR;
-    s_render_settings.vertical_bar = THICK_VERTICAL_BAR;
-    s_render_settings.top_left_corner = THICK_TOP_LEFT_CORNER;
-    s_render_settings.top_right_corner = THICK_TOP_RIGHT_CORNER;
-    s_render_settings.bottom_left_corner = THICK_BOTTOM_LEFT_CORNER;
-    s_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
+    s_render_settings.horizontal_bar = THIN_HORIZONTAL_BAR;
+    s_render_settings.vertical_bar = THIN_VERTICAL_BAR;
+    s_render_settings.top_left_corner = THIN_TOP_LEFT_CORNER;
+    s_render_settings.top_right_corner = THIN_TOP_RIGHT_CORNER;
+    s_render_settings.bottom_left_corner = THIN_BOTTOM_LEFT_CORNER;
+    s_render_settings.bottom_right_corner = THIN_BOTTOM_RIGHT_CORNER;
 
     //* create a PointPlotter object, which will be used to display the graph and all its features
     PointPlotter graph;
@@ -247,7 +244,7 @@ int main() {
         return;
     });
 
-    //* add an option to the menu, which will render the PointPlotter objecy with the given render settings, and update the statistics as required
+    //* add an option to the menu, which will render the PointPlotter object with the given render settings, and update the statistics as required
     menu.add_option("Plot numbers", [&graph, &graph_render_settings, &stats] { 
         //* assign 0 to quit variable
         int quit = 0;
@@ -268,68 +265,130 @@ int main() {
         }
         return;
     });
+
+    //* add an option to the menu, which will render the MemoryBenchmark object with the given render settings, and update the statistics as required
     menu.add_option("Memory benchmark", [&mb, &mb_render_settings, &stats] {
+        //* reset the MemoryBenchmark object
         mb.reset();
+
+        //* hand over control of the program to the MemoryBenchmark for rendering and handling input
         mb.render(mb_render_settings, stats);
     });
+
+    //* add an option to the menu, which will render the BrainSpeedTest object with the given render settings, and update the statistics as required
     menu.add_option("Brain speed test", [&bst, &bst_render_settings, &stats] {
+        //* reset the BrainSpeedTest object
         bst.reset();
+
+        //* hand over control of the program to the BrainSpeedTest for rendering and handling input
         bst.render(bst_render_settings, stats);
-        return;
     });
+
+    //* add an empty line in the menu for padding
     menu.add_line();
+
+    //* add an option to the menu, which will render the Statistics object with the given render settings, and pass the program start and end time
     menu.add_option("Check overall stats", [&stats, &s_render_settings, &begin] {
+        //* create an end time point to track the usage of the application until now
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+        //* get the number of seconds since the start of the application, or the previous execution of this command
         long long time_till_now = std::chrono::duration_cast<std::chrono::seconds> (end - begin).count();
 
+        //* get the duration of time spent in the application so far as per the statistics save file
         long long duration = stats.get_stat(TIME_IN_APPLICATION).val;
+
+        //* add the time spent in the application to the TIME_IN_APPLICATION variable in the statistics save file
         duration += time_till_now;
+
+        //* update the save file to reflect this statistic
         stats.set_stat(TIME_IN_APPLICATION, duration);
 
+        //* assign a new start point to count time from in the application
         begin = std::chrono::steady_clock::now();
+        
 
+        //* create a variable to keep track if the program wants to quit or not
         int quit = 0;
+
+        //* refresh the stats by reloading them from the save file
         stats.load_stats();
 
+        //* run the rendering loop while the user does not want to exit the application
+        //? could be without the loop and the return value, and just wait for a key to be pressed before exiting this menu option
         while(!quit) {
             quit = stats.render(s_render_settings);
         }
-        return;
     });
+
+    //* add an option to the menu, which will let user reset all of their statistics to zeroes (0)
     menu.add_option("Clear Statistics", [&stats] {
+        //* set the alignment to center to render the title
         align_center();
+
+        //* main rendering loop
         for (;;) {
+            //* set the position of the cursor to home (0, 0)
             set_cursor_position();
+
+            //* print 4 blank lines to act as padding before the title
             print_loop("", 4);
+
+            //* print "ARE YOU SURE" in big text to confirm if the user really wants to clear all their statistics
             print_are_you_sure(TITLE_STYLE);
+
+            //* print 4 more blank lines to act as padding
             print_loop("", 4);
+
+            //* se the alignment to center again as rendering title resets the alignment to the left
             align_center();
+
+            //* ask a secondary prompt with more informtion and instructions to abort if the user wishes to do so
             print("Are you sure you want to reset all statistics? Press ENTER to reset all statistics or press ESC to return to main menu.");
+
+            //* fill the screen with blank lines and add the copyright information at the bottom
             fill_screen();
+
+            //* get a key from the user
             Key k = get_key();
-            if (k == KEY_ESCAPE) {
+
+            if (k == KEY_ESCAPE) {  //* if the key is ESC, then return without clearing the stats
                 return;
-            } else if (k == KEY_ENTER) {
+            } else if (k == KEY_ENTER) {   //* otherwise, if the key is ENTER, then clear the stats and return
                 stats.reset();
                 return;
             }
         }
     });
+
+    //* adds an option to the menu to allow the user to gracefully quit the application.
+    //! CTRL-C does not work in Windows because of Operating system differences
     menu.add_option("Quit", [&stats, &begin] {
+        //* create an end time point to track how long was spent in the program
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+        //* convert the total time spent since the last start point till now into seconds
         auto new_dur = std::chrono::duration_cast<std::chrono::seconds> (end - begin).count();
 
+        //* get the current time spent in the program
         auto duration = stats.get_stat(TIME_IN_APPLICATION).val;
+
+        //* add the time currently spent in the application to the total present in the statistics file
         duration += new_dur;
+
+        //* write the new vale back to the statistics file
         stats.set_stat(TIME_IN_APPLICATION, duration);
 
+        //* gracefully exit the program, returning the terminal to the state it was in before
         exit_program(stats); 
     });
 
+    //* create a new MenuRenderSettings object and change the rendering settings as required
     MenuRenderSettings render_settings;
     render_settings.title_renderer = [&render_settings] (std::string style) { print_title(style); };
     render_settings.title_style = TITLE_STYLE;
 
+    //* set global colors for normal, highlighted, and error text
     g_fg_color = hex_to_rgb("#f7768e");
     g_bg_color = hex_to_rgb("#1a1b26");
     g_fg_color_highlighted = hex_to_rgb("#9ece6a");
@@ -337,9 +396,13 @@ int main() {
     g_fg_color_error = hex_to_rgb("#9ece6a");
     g_bg_color_error = hex_to_rgb("#1a1b26");
 
+    //* set the cursor back to home (0, 0) to prepare for rendering the menu
     set_cursor_position();
 
+    //* get the dimensions of the terminal at the time of launching the application
     Dimension2D size = get_terminal_size();
+
+    //* if the dimensions of the terminal are less than the recommended dimensions, prompt the user to change their terminal dimensions or exit the program if they so desire
     if (size.width < 127 || size.height < 43) {
         std::string prompt_string = "Your terminal size is too small and may result in poor rendering of the user interface and bad user experience. Press any key to continue or ESC to exit right away.";
         print(prompt_string);
@@ -347,16 +410,15 @@ int main() {
 
         Key k = get_key();
         if (k == KEY_ESCAPE) {
-            reset_formatting();
-            print();
-            exit(0);
+            exit_program();
         }
     }
+
+    //* set the cursor position back to home in case the warning did print
     set_cursor_position();
 
+    //* the main rendering loop
     for(;;) {
-        // while(1) { std::cout << std::to_string(getch()) + " "; }
-
         //* update the global terminal size
         set_terminal_size();
 

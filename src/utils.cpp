@@ -19,6 +19,22 @@ void init_program() {
     Align ALIGN;
 }
 
+//* Clean up and exit the program without explicitly saving the stats
+void exit_program(int return_value) {
+    //* Remove all formatting
+    reset_formatting();
+    //* Print a new line. Not necessary but closing looks more graceful
+    print();
+    //* Exit the program
+    exit(return_value);
+}
+
+//* Clean up and exit the program without giving an error
+void exit_program() {
+    //* Exit the program returning the exit value of 0
+    exit_program(0);
+}
+
 //* Clean up and exit the program
 void exit_program(Statistics &stats, int return_value) {
     //* Save the stats to the stats file before exiting
