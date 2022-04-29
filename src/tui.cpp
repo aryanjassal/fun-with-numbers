@@ -7,7 +7,6 @@
     #include <sys/ioctl.h>
     #include <termios.h>
     #include <unistd.h>
-    #include <io.h>
 #endif
 
 //* Including required modules
