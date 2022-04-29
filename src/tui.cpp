@@ -7,6 +7,7 @@
     #include <sys/ioctl.h>
     #include <termios.h>
     #include <unistd.h>
+    #include <io.h>
 #endif
 
 //* Including required modules
@@ -21,7 +22,6 @@
 #include <algorithm>
 #include <fcntl.h>
 #include <fcntl.h>
-#include <io.h>
 #include "tui.hpp"
 #include "utils.hpp"
 #include "classes.hpp"
