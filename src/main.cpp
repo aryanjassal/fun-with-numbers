@@ -15,36 +15,48 @@
 //TODO: [NORM] Comment code everywhere
 
 #if defined(_WIN32)
-    //* define some global variables if the program is being run on Windows
+    //* set title style for Windows
     std::string TITLE_STYLE = "doom";
+
+    //* set thick ASCII style for Windows
     std::string THICK_HORIZONTAL_BAR = "-";
     std::string THICK_VERTICAL_BAR = "|";
     std::string THICK_TOP_LEFT_CORNER = "+";
     std::string THICK_TOP_RIGHT_CORNER = "+";
     std::string THICK_BOTTOM_LEFT_CORNER = "+";
     std::string THICK_BOTTOM_RIGHT_CORNER = "+";
+
+    //* set thin ASCII style for Windows
     std::string THIN_HORIZONTAL_BAR = "-";
     std::string THIN_VERTICAL_BAR = "|";
     std::string THIN_TOP_LEFT_CORNER = "+";
     std::string THIN_TOP_RIGHT_CORNER = "+";
     std::string THIN_BOTTOM_LEFT_CORNER = "+";
     std::string THIN_BOTTOM_RIGHT_CORNER = "+";
+
+    //* set bullet point ASCII style for Windows
     std::string BULLET_POINT = ">";
 #elif defined(__linux__)
-    //* define some global variables if the program is being run on Linux
+    //* set title style for linux
     std::string TITLE_STYLE = "ansi";
+
+    //* set thick ASCII style for linux
     std::string THICK_HORIZONTAL_BAR = "═";
     std::string THICK_VERTICAL_BAR = "║";
     std::string THICK_TOP_LEFT_CORNER = "╔";
     std::string THICK_TOP_RIGHT_CORNER = "╗";
     std::string THICK_BOTTOM_LEFT_CORNER = "╚";
     std::string THICK_BOTTOM_RIGHT_CORNER = "╝";
+
+    //* set thin ASCII style for linux
     std::string THIN_HORIZONTAL_BAR = "─";
     std::string THIN_VERTICAL_BAR = "│";
     std::string THIN_TOP_LEFT_CORNER = "╭";
     std::string THIN_TOP_RIGHT_CORNER = "╮";
     std::string THIN_BOTTOM_LEFT_CORNER = "╰";
     std::string THIN_BOTTOM_RIGHT_CORNER = "╯";
+
+    //* set bullet point ASCII style for linux
     std::string BULLET_POINT = "•";
 #endif
 
@@ -72,7 +84,7 @@ int main() {
     cnf_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
 
     //* create a vector of all factors to be used for later calculations
-    std::vector<long long> fac;
+    std::vector<long long> factors;
 
     //* create a Check Number Factors object
     CheckNumberFeatures cnf;
@@ -84,28 +96,41 @@ int main() {
     cnf.add_attribute("Even/Odd", [] (long long num) -> std::string { return num % 2 == 0 ? "Even" : "Odd"; } , false);
 
     //* add a number attribute that lists all its factors
-    cnf.add_attribute("Factors", [&cnf_render_settings, &fac] (long long num) -> std::string {
-        std::vector <long long> factors = find_factors(num);
-        fac = factors;
+    cnf.add_attribute("Factors", [&cnf_render_settings, &factors] (long long num) -> std::string {
+        //* find factors and store them in a vector of previously-declared long-long-type integers
+        factors = find_factors(num);
 
+        //* initialise the output string the term "Factors are: "
         std::string factors_out = "Factors are: ";
 
+        //* if the factor at the first position is 0, then there are infinite factors, as every number is a factor of zero.
         if (factors.at(0) == 0) {
+            //* simply print "Infinite factors"
             factors_out = "Infinite factors";
         } else {
+            //* otherwise, loop over each factor in the vector of factors
             for (long long factor : factors) {
-                factors_out.append(std::to_string(factor));
-                factors_out.append(" ");
+                //* append the number to the list of factors, then append a space after it.
+                factors_out.append(std::to_string(factor) + " ");
             }
+            //* remove the last added space from the list of factors
             factors_out.pop_back();
         }
 
+        //* return the string with all the spaced factors word-wrapped by the width given by the render settings
         return basic_text_wrapping(factors_out, cnf_render_settings.max_width);
     } , false);
-    cnf.add_attribute("Number of factors", [&fac] (long long num) -> std::string { return std::to_string(fac.size()); }, true);
-    cnf.add_attribute("PrimeOrNot", [&fac] (long long num) -> std::string { return fac.size() > 2 ? "Composite number" : fac.size() == 1 || (fac.at(0) == -1 && fac.at(1) == 1) ? "Unique number" : "Prime number"; } , false);
 
+    //* add a number attribute that counts the number of factors, and if the factor at the first index is zero, then there are infinite factors
+    cnf.add_attribute("Number of factors", [&factors] (long long num) -> std::string { return (factors.at(0) == 0) ? "Infinite" : std::to_string(factors.size()); }, true);
+
+    //* add a number attribute that prints whether the number is a prime number, a composite number, or a unique number
+    cnf.add_attribute("PrimeOrNot", [&factors] (long long num) -> std::string { return factors.size() > 2 ? "Composite number" : factors.size() == 1 || (factors.at(0) == -1 && factors.at(1) == 1) ? "Unique number" : "Prime number"; } , false);
+
+    //* create a Statistics object
     Statistics stats;
+
+    //* add the tracked statistics, their section (for section-based grouping), the units of the data, and whether to render the statistic or hide them from the user
     stats.add_stat("Numbers entered", "check number features");
     stats.add_stat("Total of numbers", "check number features");
     stats.add_stat("Average of numbers", "check number features");
@@ -118,8 +143,12 @@ int main() {
     stats.add_stat("Total questions correct", "brain speed test", false);
     stats.add_stat("Accuracy", "brain speed test", (std::string)"unit|percentage");
     stats.add_stat("Time spent in application", "general", (std::string)"time|seconds");
+
+    //* load all the aforementioned statistics from the stats file
+    //* if it doesn't exist, then the values are initialised by zeroes
     stats.load_stats();
 
+    //* create a StatsRenderSettings object to store the render settings for rendering statistics, and modify the settings as required
     StatsRenderSettings s_render_settings;
     s_render_settings.title_renderer = [] (std::string style) { print_usage_stats(style); };
     s_render_settings.title_rendering_style = TITLE_STYLE;
@@ -130,7 +159,9 @@ int main() {
     s_render_settings.bottom_left_corner = THICK_BOTTOM_LEFT_CORNER;
     s_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
 
+    //* create a PointPlotter object, which will be used to display the graph and all its features
     PointPlotter graph;
+    //* create a GraphRenderSettings object to store the render settings for rendering the graph, and modify the settings as required
     GraphRenderSettings graph_render_settings;
     graph_render_settings.horizontal_bar = THICK_HORIZONTAL_BAR;
     graph_render_settings.vertical_bar = THICK_VERTICAL_BAR;
@@ -139,7 +170,9 @@ int main() {
     graph_render_settings.bottom_left_corner = THICK_BOTTOM_LEFT_CORNER;
     graph_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
 
+    //* create a BrainSpeedTest object, which will be used to display the Brain Speed Test and all its features
     BrainSpeedTest bst;
+    //* create a BSTRenderSettings object to store the render settings for rendering the Brain Speed Test, and modify the settings as required
     BSTRenderSettings bst_render_settings;
     bst_render_settings.title_renderer = [] (std::string style) { print_think_fast(style); };
     bst_render_settings.title_style = TITLE_STYLE;
@@ -161,8 +194,9 @@ int main() {
     bst_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
     bst_render_settings.bullet_point = BULLET_POINT;
     
-
+    //* create a MemoryBenchmark object, which will be used to display the Memory Benchmark and all its features
     MemoryBenchmark mb;
+    //* create a MBRenderSettings object to store the render settings for rendering the Memory Benchmark, and modify the settings as required
     MBRenderSettings mb_render_settings;
     mb_render_settings.title_renderer = [] (std::string style) { print_memory_test(style); };
     mb_render_settings.title_style = TITLE_STYLE;
@@ -188,25 +222,48 @@ int main() {
     mb_render_settings.bottom_right_corner = THICK_BOTTOM_RIGHT_CORNER;
     mb_render_settings.bullet_point = BULLET_POINT;
 
+    //* create a Menu object, which will be use to display the Menu and all its features
     Menu menu;
+
+    //* enable menu looping: after pressing down on the last menu entry, it will loop around back to the top
     menu.set_entry_loop(true);
+
+    //* add an option to the menu, which will render the CheckNumberFeatures object with the given render settings, and update the statistics as required
     menu.add_option("Check number features", [&cnf, &cnf_render_settings, &stats] {
+        //* assign 0 to quit variable
         int quit = 0;
+
+        //* reset the CheckNumberFeatures menu option
         cnf.reset();
 
+        //* while quit is not true (0), then keep looping through the following
         while(!quit) {
+            //* update the global termial size
             set_terminal_size();
+
+            //* render the CheckNumberFeatures module using the corresponding render settings and passing the Statistics object to update it accordingly
             quit = cnf.render(cnf_render_settings, stats);
         }
         return;
     });
+
+    //* add an option to the menu, which will render the PointPlotter objecy with the given render settings, and update the statistics as required
     menu.add_option("Plot numbers", [&graph, &graph_render_settings, &stats] { 
+        //* assign 0 to quit variable
         int quit = 0;
+
+        //* reset the PointPlotter object
         graph.reset_graph();
 
+        //* while quit is not true (0), then keeping looping through the following
         while(!quit) {
+            //* update the global terminal size
             set_terminal_size();
+
+            //* update the height of the graph according to current terminal dimensions
             graph_render_settings.graph_height = (int)(t_size.height / 2);
+
+            //* render the PointPlotter module using the corresponding render settings and passing the Statistics object to update it accordingly
             quit = graph.render(graph_render_settings, stats);
         }
         return;
