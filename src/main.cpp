@@ -44,7 +44,7 @@
     std::string THIN_TOP_LEFT_CORNER = "╭";
     std::string THIN_TOP_RIGHT_CORNER = "╮";
     std::string THIN_BOTTOM_LEFT_CORNER = "╰";
-    std::string THIN_BOTTOM_RIGHT_CORNER = "╯"
+    std::string THIN_BOTTOM_RIGHT_CORNER = "╯";
     std::string BULLET_POINT = "•";
 #endif
 
